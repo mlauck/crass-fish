@@ -1,0 +1,1217 @@
+# ---------------------------------- WARNING ----------------------------------------
+# Some of the data that you have obtained from this U.S. Geological Survey database may not 
+# have received Director's approval.  Any such data values are qualified as provisional and 
+# are subject to revision.  Provisional data are released on the condition that neither the 
+# USGS nor the United States Government may be held liable for any damages resulting from its use.
+#  Go to http://help.waterdata.usgs.gov/policies/provisional-data-statement for more information.
+#
+# File-format description:  http://help.waterdata.usgs.gov/faq/about-tab-delimited-output
+# Automated-retrieval info: http://help.waterdata.usgs.gov/faq/automated-retrievals
+#
+# Contact:   gs-w_support_nwisweb@usgs.gov
+# retrieved: 2021-03-26 15:26:52 -04:00	(natwebcaas01)
+#
+# Data-value grade codes included in this output:
+#    99    IV verified by USGS, no comparison
+#
+# Data for the following 97 site(s) are contained in this file
+#    USGS 07199450 LAKE MALOYA NR RATON NM
+#    USGS 07202500 EAGLE TAIL DITCH NR MAXWELL, NM
+#    USGS 07203000 VERMEJO RIVER NEAR DAWSON, NM
+#    USGS 07205500 EAGLE NEST LAKE NR EAGLE NEST, NM
+#    USGS 07206000 CIMARRON RIVER BELOW EAGLE NEST DAM, NM
+#    USGS 07207500 PONIL CREEK NEAR CIMARRON, NM
+#    USGS 07211500 CANADIAN RIVER NEAR TAYLOR SPRINGS, NM
+#    USGS 07214670 CANONCITO DITCH NEAR HOLMAN, NM
+#    USGS 07214680 LA SIERRA DITCH NEAR HOLMAN, NM
+#    USGS 07215500 MORA RIVER AT LA CUEVA, NM
+#    USGS 07216500 MORA RIVER NEAR GOLONDRINAS, NM
+#    USGS 07221500 CANADIAN RIVER NEAR SANCHEZ, NM
+#    USGS 07223500 CONCHAS LAKE AT CONCHAS DAM N. MEX.
+#    USGS 07226500 UTE CREEK NEAR LOGAN, NM
+#    USGS 07227000 CANADIAN RIVER AT LOGAN, NM
+#    USGS 07227100 REVUELTO CREEK NEAR LOGAN, NM
+#    USGS 08254000 COSTILLA CREEK BELOW COSTILLA DAM, NM
+#    USGS 08261000 COSTILLA CREEK NEAR GARCIA, CO
+#    USGS 08265000 RED RIVER NEAR QUESTA, NM
+#    USGS 08266820 RED RIVER BELOW FISH HATCHERY, NEAR QUESTA, NM
+#    USGS 08267500 RIO HONDO NEAR VALDEZ, NM
+#    USGS 08271000 RIO LUCERO NEAR ARROYO SECO, NM
+#    USGS 08275500 RIO GRANDE DEL RANCHO NEAR TALPA, NM
+#    USGS 08277470 RIO PUEBLO NR PENASCO, NM
+#    USGS 08279500 RIO GRANDE AT EMBUDO, NM
+#    USGS 08286500 RIO CHAMA ABOVE ABIQUIU RESERVOIR, NM
+#    USGS 08287000 RIO CHAMA BELOW ABIQUIU DAM, NM
+#    USGS 08289000 RIO OJO CALIENTE AT LA MADERA, NM
+#    USGS 08290000 RIO CHAMA NEAR CHAMITA, NM
+#    USGS 08294200 NAMBE FALLS RESERVOIR NEAR NAMBE, NM
+#    USGS 08308050 RIO TESUQUE BELOW DIVERSIONS NEAR SANTA FE, NM
+#    USGS 08313000 RIO GRANDE AT OTOWI BRIDGE, NM
+#    USGS 08313500 COCHITI EAST SIDE MAIN CANAL AT COCHITI, NM
+#    USGS 08315480 SANTA FE RIVER ABOVE MCCLURE RES, NR SANTA FE, NM
+#    USGS 08317200 SANTA FE RIVER ABOVE COCHITI LAKE, NM
+#    USGS 08317400 RIO GRANDE BELOW COCHITI DAM, NM
+#    USGS 08319000 RIO GRANDE AT SAN FELIPE, NM
+#    USGS 08329700 CAMPUS WASH AT ALBUQUERQUE, NM
+#    USGS 08329835 N. FLOODWAY CHANNEL AT ALBUQUERQUE, NM
+#    USGS 08329840 HAHN ARROYO IN ALBUQUERQUE, NM
+#    USGS 08329900 NORTH FLOODWAY CHANNEL NEAR ALAMEDA, NM
+#    USGS 08329928 RIO GRANDE NR ALAMEDA, NM
+#    USGS 08330000 RIO GRANDE AT ALBUQUERQUE, NM
+#    USGS 08330600 TIJERAS ARROYO NR ALBUQUERQUE, NM
+#    USGS 08330775 SOUTH DIV CHANNEL ABV TIJERAS ARROYO NR ALBQ., NM
+#    USGS 08330830 RIO GRANDE AT VALLE DE ORO, NM
+#    USGS 08330875 RIO GRANDE AT ISLETA LAKES NR ISLETA, NM
+#    USGS 08331160 RIO GRANDE NEAR BOSQUE FARMS, NM
+#    USGS 08331510 RIO GRANDE AT STATE HWY 346 NEAR BOSQUE, NM
+#    USGS 08341400 BLUEWATER LAKE NEAR BLUEWATER, NM
+#    USGS 08353000 RIO PUERCO NEAR BERNARDO, NM
+#    USGS 08361000 RIO GRANDE BELOW ELEPHANT BUTTE DAM, NM
+#    USGS 08378500 PECOS RIVER NEAR PECOS, NM
+#    USGS 08379500 PECOS RIVER NEAR ANTON CHICO, NM
+#    USGS 08382000 GALLINAS RIVER NEAR LOURDES, NM
+#    USGS 08382500 GALLINAS R NR COLONIAS, NM
+#    USGS 08382600 PECOS R ABV CANON DEL UTA NR COLONIAS, NM
+#    USGS 08390500 RIO HONDO AT DIAMOND A RANCH NR ROSWELL, NM
+#    USGS 08390800 RIO HONDO BLW DIAMOND A DAM NR ROSWELL, NM
+#    USGS 08394500 RIO FELIX AT OLD HWY BRD NR HAGERMAN, NM
+#    USGS 08399500 PECOS RIVER (KAISER CHANNEL) NEAR LAKEWOOD, NM
+#    USGS 08401450 BRANTLEY LAKE NEAR CARLSBAD, NM
+#    USGS 08403500 CARLSBAD MAIN CANAL AT HEAD NEAR CARLSBAD, NM
+#    USGS 08404000 PECOS RIVER BELOW AVALON DAM, NM
+#    USGS 08405350 BLACK RIVER BELOW BLUE SPRINGS NR WHITES CITY, NM
+#    USGS 08405400 BLACK RIVER AT HARKEY CROSSING NR MALAGA, NM
+#    USGS 08406500 PECOS RIVER NEAR MALAGA, NM
+#    USGS 08407500 PECOS RIVER AT RED BLUFF, NM
+#    USGS 08408500 DELAWARE RIVER NR RED BLUFF, NM
+#    USGS 08477110 MIMBRES RIVER AT MIMBRES, NM
+#    USGS 08481500 TULAROSA CREEK NEAR BENT, NM
+#    USGS 09364010 ANIMAS RIVER BELOW AZTEC, NM
+#    USGS 09364200 ANIMAS RIVER AT PENNY LANE NEAR FLORA VISTA, NM
+#    USGS 09365000 SAN JUAN RIVER AT FARMINGTON, NM
+#    USGS 09367000 LA PLATA RIVER AT LA PLATA, NM
+#    USGS 09367500 LA PLATA RIVER NEAR FARMINGTON, NM
+#    USGS 09367540 SAN JUAN R NR FRUITLAND, NM
+#    USGS 09368000 SAN JUAN RIVER AT SHIPROCK, NM
+#    USGS 09386189 ZUNI SALT LAKE NR QUEMADO, NM
+#    USGS 09430010 WEST FORK GILA RIVER AT GILA CLIFF DWELLINGS, NM
+#    USGS 09430500 GILA RIVER NEAR GILA, NM
+#    USGS 09430600 MOGOLLON CREEK NEAR CLIFF, NM
+#    USGS 09431500 GILA RIVER NEAR REDROCK, NM
+#    USGS 09442681 SAN FRANCISCO RIVER AT RESERVE, NM
+#    USGS 09444000 SAN FRANCISCO RIVER NEAR GLENWOOD, NM
+#    USGS 321740106481001 MBOWN-33 - 23S.01E.23.244A (LC-3A)
+#    USGS 321740106481003 MBOWN-35 - 23S.01E.23.244C (LC-3C)
+#    USGS 321740106481004 MBOWN-36 - 23S.01E.23.244D (LC-3D)
+#    USGS 321745106492101 MBOWN-29 - 23S.01E.22.241A (LC-2A)
+#    USGS 321745106492102 MBOWN-30 - 23S.01E.22.241B (LC-2B)
+#    USGS 321745106492103 MBOWN-31 - 23S.01E.22.241C (LC-2C)
+#    USGS 321745106492106 MBOWN-32 - 23S.01E.22.241F (LC-2F)
+#    USGS 345900106411201 09N.02E.25.122F PERS-T2
+#    USGS 350310106402430 Westside Comm. Center Nr Albuquerque, NM
+#    USGS 350405106274630 Echo Canyon Rain Gage nr Carnuel, NM
+#    USGS 350726106314230 MITCHELL ELEMENTARY
+#    USGS 351140106381230 Alameda Pump Station Rain Gage
+# -----------------------------------------------------------------------------------
+#
+# TS_ID - An internal number representing a time series.
+#
+# Data provided for site 07199450
+#    TS_ID       Parameter Description
+#    100981      00054     Reservoir storage, acre-feet
+#    100980      62614     Lake or reservoir water surface elevation above NGVD 1929, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	100981_00054	100981_00054_cd	100980_62614	100980_62614_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07199450	2021-03-26 12:45	MDT	3377	P	7508.39	P
+# Data provided for site 07202500
+#    TS_ID       Parameter Description
+#    100983      00060     Discharge, cubic feet per second
+#    100984      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	100983_00060	100983_00060_cd	100984_00065	100984_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07202500	2021-03-26 12:45	MDT	0.00	P	0.92	P
+# Data provided for site 07203000
+#    TS_ID       Parameter Description
+#    100986      00060     Discharge, cubic feet per second
+#    100987      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	100986_00060	100986_00060_cd	100987_00065	100987_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07203000	2021-03-26 12:45	MDT	4.86	P	3.12	P
+# Data provided for site 07205500
+#    TS_ID       Parameter Description
+#    234048      00045     Precipitation, total, inches
+#    100989      00054     Reservoir storage, acre-feet
+#    100991      62614     Lake or reservoir water surface elevation above NGVD 1929, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	234048_00045	234048_00045_cd	100989_00054	100989_00054_cd	100991_62614	100991_62614_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s
+USGS	07205500	2021-03-26 13:10	MDT	0.00	P	36540	P	8172.21	P
+# Data provided for site 07206000
+#    TS_ID       Parameter Description
+#    100992      00060     Discharge, cubic feet per second
+#    100993      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	100992_00060	100992_00060_cd	100993_00065	100993_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07206000	2021-03-26 13:15	MDT	3.10	P	0.34	P
+# Data provided for site 07207500
+#    TS_ID       Parameter Description
+#    234047      00045     Precipitation, total, inches
+#    100998      00060     Discharge, cubic feet per second
+#    100999      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	234047_00045	234047_00045_cd	100998_00060	100998_00060_cd	100999_00065	100999_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s
+USGS	07207500	2021-03-26 13:20	MDT	0.00	P	6.09	P	1.76	P
+# Data provided for site 07211500
+#    TS_ID       Parameter Description
+#    101004      00060     Discharge, cubic feet per second
+#    101005      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101004_00060	101004_00060_cd	101005_00065	101005_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07211500	2021-03-26 13:00	MDT	0.17	P	3.12	P
+# Data provided for site 07214670
+#    TS_ID       Parameter Description
+#    213766      00060     Discharge, cubic feet per second
+#    213763      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	213766_00060	213766_00060_cd	213763_00065	213763_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07214670	2021-03-26 13:00	MDT	0.02	P	3.28	P
+# Data provided for site 07214680
+#    TS_ID       Parameter Description
+#    101011      00060     Discharge, cubic feet per second
+#    101010      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101011_00060	101011_00060_cd	101010_00065	101010_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07214680	2021-03-26 13:00	MDT	0.00	P	3.41	P
+# Data provided for site 07215500
+#    TS_ID       Parameter Description
+#    101013      00060     Discharge, cubic feet per second
+#    101014      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101013_00060	101013_00060_cd	101014_00065	101014_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07215500	2021-03-26 13:15	MDT	6.19	P	4.82	P
+# Data provided for site 07216500
+#    TS_ID       Parameter Description
+#    101016      00060     Discharge, cubic feet per second
+#    101017      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101016_00060	101016_00060_cd	101017_00065	101017_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07216500	2021-03-26 13:00	MDT	5.33	P	1.26	P
+# Data provided for site 07221500
+#    TS_ID       Parameter Description
+#    101022      00060     Discharge, cubic feet per second
+#    101023      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101022_00060	101022_00060_cd	101023_00065	101023_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07221500	2021-03-26 13:15	MDT	3.63	P	0.93	P
+# Data provided for site 07223500
+#    TS_ID       Parameter Description
+#    101025      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101025_00065	101025_00065_cd
+5s	15s	20d	6s	14n	10s
+USGS	07223500	2021-03-26 13:00	MDT	159.50	P
+# Data provided for site 07226500
+#    TS_ID       Parameter Description
+#    101028      00060     Discharge, cubic feet per second
+#    101029      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101028_00060	101028_00060_cd	101029_00065	101029_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07226500	2021-03-26 13:15	MDT	0.00	P	3.53	P
+# Data provided for site 07227000
+#    TS_ID       Parameter Description
+#    101034      00060     Discharge, cubic feet per second
+#    101035      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101034_00060	101034_00060_cd	101035_00065	101035_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07227000	2021-03-26 13:00	MDT	2.71	P	0.66	P
+# Data provided for site 07227100
+#    TS_ID       Parameter Description
+#    101037      00060     Discharge, cubic feet per second
+#    265521      00065     Gage height, feet, [Combined Active]
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101037_00060	101037_00060_cd	265521_00065	265521_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	07227100	2021-03-26 13:00	MDT	9.06	P	1.73	P
+# Data provided for site 08254000
+#    TS_ID       Parameter Description
+#    101052      00060     Discharge, cubic feet per second
+#    101053      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Ssn  Parameter monitored seasonally.
+#
+agency_cd	site_no	datetime	tz_cd	101052_00060	101052_00060_cd	101053_00065	101053_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08254000	2021-03-26 13:00	MDT	Ssn	P	Ssn	P
+# Data provided for site 08261000
+#    TS_ID       Parameter Description
+#    101058      00060     Discharge, cubic feet per second
+#    101059      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Ssn  Parameter monitored seasonally.
+#
+agency_cd	site_no	datetime	tz_cd	101058_00060	101058_00060_cd	101059_00065	101059_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08261000	2021-03-26 13:15	MDT	Ssn	P	Ssn	P
+# Data provided for site 08265000
+#    TS_ID       Parameter Description
+#    101064      00060     Discharge, cubic feet per second
+#    278252      00065     Gage height, feet, [Combined Active]
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101064_00060	101064_00060_cd	278252_00065	278252_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08265000	2021-03-26 13:00	MDT	16.6	P	2.25	P
+# Data provided for site 08266820
+#    TS_ID       Parameter Description
+#    101067      00060     Discharge, cubic feet per second
+#    269184      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101067_00060	101067_00060_cd	269184_00065	269184_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08266820	2021-03-26 12:45	MDT	38.7	P	4.40	P
+# Data provided for site 08267500
+#    TS_ID       Parameter Description
+#    101070      00060     Discharge, cubic feet per second
+#    268117      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101070_00060	101070_00060_cd	268117_00065	268117_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08267500	2021-03-26 13:00	MDT	12.3	P	2.30	P
+# Data provided for site 08271000
+#    TS_ID       Parameter Description
+#    101076      00060     Discharge, cubic feet per second
+#    101077      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101076_00060	101076_00060_cd	101077_00065	101077_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08271000	2021-03-26 13:00	MDT	5.25	P	1.73	P
+# Data provided for site 08275500
+#    TS_ID       Parameter Description
+#    101079      00060     Discharge, cubic feet per second
+#    101080      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Ice  Value is affected by ice at the measurement site.
+#
+agency_cd	site_no	datetime	tz_cd	101079_00060	101079_00060_cd	101080_00065	101080_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08275500	2021-03-26 13:15	MDT	Ice	P	4.35	P
+# Data provided for site 08277470
+#    TS_ID       Parameter Description
+#    101089      00060     Discharge, cubic feet per second
+#    278277      00065     Gage height, feet, [Combined Active]
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Ice  Value is affected by ice at the measurement site.
+#
+agency_cd	site_no	datetime	tz_cd	101089_00060	101089_00060_cd	278277_00065	278277_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08277470	2021-03-26 13:15	MDT	Ice	P	3.07	P
+# Data provided for site 08279500
+#    TS_ID       Parameter Description
+#    101096      00060     Discharge, cubic feet per second
+#    101097      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101096_00060	101096_00060_cd	101097_00065	101097_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08279500	2021-03-26 13:00	MDT	619	P	3.30	P
+# Data provided for site 08286500
+#    TS_ID       Parameter Description
+#    101122      00060     Discharge, cubic feet per second
+#    101123      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101122_00060	101122_00060_cd	101123_00065	101123_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08286500	2021-03-26 13:00	MDT	108	P	4.94	P
+# Data provided for site 08287000
+#    TS_ID       Parameter Description
+#    101128      00060     Discharge, cubic feet per second, [Computed from Bubbler]
+#    250138      00065     Gage height, feet, [Combined]
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101128_00060	101128_00060_cd	250138_00065	250138_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08287000	2021-03-26 13:15	MDT	58.4	P	1.96	P
+# Data provided for site 08289000
+#    TS_ID       Parameter Description
+#    101131      00060     Discharge, cubic feet per second, [Comp. fr Bubbler after 6/23/19]
+#    250130      00065     Gage height, feet, [Combined]
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101131_00060	101131_00060_cd	250130_00065	250130_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08289000	2021-03-26 13:00	MDT	32.6	P	3.29	P
+# Data provided for site 08290000
+#    TS_ID       Parameter Description
+#    101134      00060     Discharge, cubic feet per second
+#    101135      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101134_00060	101134_00060_cd	101135_00065	101135_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08290000	2021-03-26 13:00	MDT	84.0	P	3.61	P
+# Data provided for site 08294200
+#    TS_ID       Parameter Description
+#    101142      00054     Reservoir storage, acre-feet
+#    101143      62614     Lake or reservoir water surface elevation above NGVD 1929, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101142_00054	101142_00054_cd	101143_62614	101143_62614_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08294200	2021-03-26 13:00	MDT	1506	P	6822.42	P
+# Data provided for site 08308050
+#    TS_ID       Parameter Description
+#    210265      00060     Discharge, cubic feet per second
+#    210139      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	210265_00060	210265_00060_cd	210139_00065	210139_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08308050	2021-03-26 13:00	MDT	0.16	P	0.78	P
+# Data provided for site 08313000
+#    TS_ID       Parameter Description
+#    101151      00060     Discharge, cubic feet per second
+#    101152      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101151_00060	101151_00060_cd	101152_00065	101152_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08313000	2021-03-26 13:00	MDT	763	P	3.25	P
+# Data provided for site 08313500
+#    TS_ID       Parameter Description
+#    101157      00060     Discharge, cubic feet per second
+#    101158      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101157_00060	101157_00060_cd	101158_00065	101158_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08313500	2021-03-26 13:15	MDT	0.00	P	2.93	P
+# Data provided for site 08315480
+#    TS_ID       Parameter Description
+#    101164      00060     Discharge, cubic feet per second
+#    101163      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101164_00060	101164_00060_cd	101163_00065	101163_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08315480	2021-03-26 13:00	MDT	1.50	P	0.62	P
+# Data provided for site 08317200
+#    TS_ID       Parameter Description
+#    101176      00060     Discharge, cubic feet per second
+#    261865      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101176_00060	101176_00060_cd	261865_00065	261865_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08317200	2021-03-26 13:15	MDT	4.27	P	0.86	P
+# Data provided for site 08317400
+#    TS_ID       Parameter Description
+#    101182      00010     Temperature, water, degrees Celsius
+#    101183      00060     Discharge, cubic feet per second
+#    101185      00065     Gage height, feet
+#    101184      00095     Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius
+#    101188      00400     pH, water, unfiltered, field, standard units
+#    101186      63680     Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101182_00010	101182_00010_cd	101183_00060	101183_00060_cd	101185_00065	101185_00065_cd	101184_00095	101184_00095_cd	101188_00400	101188_00400_cd	101186_63680	101186_63680_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	08317400	2021-03-26 13:15	MDT	8.0	P	710	P	2.47	P	298	P	8.4	P	2.0	P
+# Data provided for site 08319000
+#    TS_ID       Parameter Description
+#    101195      00060     Discharge, cubic feet per second
+#    101196      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101195_00060	101195_00060_cd	101196_00065	101196_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08319000	2021-03-26 12:45	MDT	657	P	5.23	P
+# Data provided for site 08329700
+#    TS_ID       Parameter Description
+#    101206      00045     Precipitation, total, inches
+#    101207      00060     Discharge, cubic feet per second
+#    101208      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101206_00045	101206_00045_cd	101207_00060	101207_00060_cd	101208_00065	101208_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s
+USGS	08329700	2021-03-26 13:00	MDT	0.00	P	0.00	P	0.58	P
+# Data provided for site 08329835
+#    TS_ID       Parameter Description
+#    101215      00045     Precipitation, total, inches
+#    101213      00060     Discharge, cubic feet per second
+#    101214      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Eqp  Value affected by equipment malfunction.
+#
+agency_cd	site_no	datetime	tz_cd	101215_00045	101215_00045_cd	101213_00060	101213_00060_cd	101214_00065	101214_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s
+USGS	08329835	2021-03-26 13:00	MDT	0.00	P	Eqp	P	Eqp	P
+# Data provided for site 08329840
+#    TS_ID       Parameter Description
+#    101223      00060     Discharge, cubic feet per second
+#    101224      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101223_00060	101223_00060_cd	101224_00065	101224_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08329840	2021-03-26 13:05	MDT	0.00	P	0.94	P
+# Data provided for site 08329900
+#    TS_ID       Parameter Description
+#    101237      00045     Precipitation, total, inches
+#    101235      00060     Discharge, cubic feet per second
+#    101236      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101237_00045	101237_00045_cd	101235_00060	101235_00060_cd	101236_00065	101236_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s
+USGS	08329900	2021-03-26 13:05	MDT					0.11	P
+USGS	08329900	2021-03-26 13:20	MDT	0.00	P	5.81	P		
+# Data provided for site 08329928
+#    TS_ID       Parameter Description
+#    101243      00060     Discharge, cubic feet per second
+#    101242      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101243_00060	101243_00060_cd	101242_00065	101242_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08329928	2021-03-26 13:00	MDT	608	P	3.33	P
+# Data provided for site 08330000
+#    TS_ID       Parameter Description
+#    101248      00060     Discharge, cubic feet per second
+#    101250      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101248_00060	101248_00060_cd	101250_00065	101250_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08330000	2021-03-26 13:15	MDT	530	P	3.08	P
+# Data provided for site 08330600
+#    TS_ID       Parameter Description
+#    101251      00060     Discharge, cubic feet per second
+#    101252      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101251_00060	101251_00060_cd	101252_00065	101252_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08330600	2021-03-26 13:20	MDT	0.00	P	0.96	P
+# Data provided for site 08330775
+#    TS_ID       Parameter Description
+#    101255      00045     Precipitation, total, inches
+#    101253      00060     Discharge, cubic feet per second
+#    101254      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101255_00045	101255_00045_cd	101253_00060	101253_00060_cd	101254_00065	101254_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s
+USGS	08330775	2021-03-26 13:20	MDT	0.00	P	0.00	P	0.99	P
+# Data provided for site 08330830
+#    TS_ID       Parameter Description
+#    233870      00060     Discharge, cubic feet per second
+#    229634      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	233870_00060	233870_00060_cd	229634_00065	229634_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08330830	2021-03-26 13:15	MDT	544	P	4.39	P
+# Data provided for site 08330875
+#    TS_ID       Parameter Description
+#    101258      00060     Discharge, cubic feet per second
+#    101256      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101258_00060	101258_00060_cd	101256_00065	101256_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08330875	2021-03-26 13:00	MDT	476	P	5.13	P
+# Data provided for site 08331160
+#    TS_ID       Parameter Description
+#    101260      00060     Discharge, cubic feet per second
+#    101259      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101260_00060	101260_00060_cd	101259_00065	101259_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08331160	2021-03-26 12:45	MDT	589	P	13.74	P
+# Data provided for site 08331510
+#    TS_ID       Parameter Description
+#    101263      00060     Discharge, cubic feet per second
+#    101264      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101263_00060	101263_00060_cd	101264_00065	101264_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08331510	2021-03-26 12:45	MDT	506	P	15.36	P
+# Data provided for site 08341400
+#    TS_ID       Parameter Description
+#    101274      00054     Reservoir storage, acre-feet
+#    101275      62614     Lake or reservoir water surface elevation above NGVD 1929, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101274_00054	101274_00054_cd	101275_62614	101275_62614_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08341400	2021-03-26 13:15	MDT	3107	P	7364.54	P
+# Data provided for site 08353000
+#    TS_ID       Parameter Description
+#    101280      00060     Discharge, cubic feet per second
+#    101281      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101280_00060	101280_00060_cd	101281_00065	101281_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08353000	2021-03-26 13:00	MDT	0.00	P	3.74	P
+# Data provided for site 08361000
+#    TS_ID       Parameter Description
+#    101302      00060     Discharge, cubic feet per second
+#    223724      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101302_00060	101302_00060_cd	223724_00065	223724_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08361000	2021-03-26 13:00	MDT	0.25	P	0.64	P
+# Data provided for site 08378500
+#    TS_ID       Parameter Description
+#    101314      00060     Discharge, cubic feet per second
+#    101315      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101314_00060	101314_00060_cd	101315_00065	101315_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08378500	2021-03-26 13:00	MDT	24.2	P	1.01	P
+# Data provided for site 08379500
+#    TS_ID       Parameter Description
+#    101317      00060     Discharge, cubic feet per second
+#    101318      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101317_00060	101317_00060_cd	101318_00065	101318_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08379500	2021-03-26 13:00	MDT	27.5	P	2.57	P
+# Data provided for site 08382000
+#    TS_ID       Parameter Description
+#    101323      00060     Discharge, cubic feet per second
+#    101325      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101323_00060	101323_00060_cd	101325_00065	101325_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08382000	2021-03-26 13:15	MDT	5.62	P	1.72	P
+# Data provided for site 08382500
+#    TS_ID       Parameter Description
+#    101326      00060     Discharge, cubic feet per second
+#    101327      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101326_00060	101326_00060_cd	101327_00065	101327_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08382500	2021-03-26 13:00	MDT	0.00	P	1.08	P
+# Data provided for site 08382600
+#    TS_ID       Parameter Description
+#    101330      00060     Discharge, cubic feet per second
+#    101331      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101330_00060	101330_00060_cd	101331_00065	101331_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08382600	2021-03-26 13:15	MDT	0.00	P	3.61	P
+# Data provided for site 08390500
+#    TS_ID       Parameter Description
+#    101385      00060     Discharge, cubic feet per second
+#    249461      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101385_00060	101385_00060_cd	249461_00065	249461_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08390500	2021-03-26 13:15	MDT	0.00	P	4.35	P
+# Data provided for site 08390800
+#    TS_ID       Parameter Description
+#    101395      00060     Discharge, cubic feet per second
+#    101396      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101395_00060	101395_00060_cd	101396_00065	101396_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08390800	2021-03-26 13:00	MDT	0.00	P	0.94	P
+# Data provided for site 08394500
+#    TS_ID       Parameter Description
+#    255138      00060     Discharge, cubic feet per second
+#    101406      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	255138_00060	255138_00060_cd	101406_00065	101406_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08394500	2021-03-26 13:15	MDT	0.00	P	3.38	P
+# Data provided for site 08399500
+#    TS_ID       Parameter Description
+#    101423      00060     Discharge, cubic feet per second
+#    101424      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101423_00060	101423_00060_cd	101424_00065	101424_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08399500	2021-03-26 13:15	MDT	48.8	P	8.06	P
+# Data provided for site 08401450
+#    TS_ID       Parameter Description
+#    101430      62614     Lake or reservoir water surface elevation above NGVD 1929, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101430_62614	101430_62614_cd
+5s	15s	20d	6s	14n	10s
+USGS	08401450	2021-03-26 13:00	MDT	3242.55	P
+# Data provided for site 08403500
+#    TS_ID       Parameter Description
+#    101441      00060     Discharge, cubic feet per second
+#    101442      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101441_00060	101441_00060_cd	101442_00065	101442_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08403500	2021-03-26 13:00	MDT	0.00	P	0.96	P
+# Data provided for site 08404000
+#    TS_ID       Parameter Description
+#    101446      00060     Discharge, cubic feet per second
+#    101447      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101446_00060	101446_00060_cd	101447_00065	101447_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08404000	2021-03-26 13:00	MDT	0.00	P	2.83	P
+# Data provided for site 08405350
+#    TS_ID       Parameter Description
+#    261353      00060     Discharge, cubic feet per second
+#    251339      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	261353_00060	261353_00060_cd	251339_00065	251339_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08405350	2021-03-26 13:00	MDT	7.72	P	3.92	P
+# Data provided for site 08405400
+#    TS_ID       Parameter Description
+#    251336      00010     Temperature, water, degrees Celsius
+#    257298      00060     Discharge, cubic feet per second
+#    251348      00065     Gage height, feet
+#    251337      00095     Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius
+#    251335      00300     Dissolved oxygen, water, unfiltered, milligrams per liter
+#    251517      00480     Salinity, water, unfiltered, parts per thousand
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	251336_00010	251336_00010_cd	257298_00060	257298_00060_cd	251348_00065	251348_00065_cd	251337_00095	251337_00095_cd	251335_00300	251335_00300_cd	251517_00480	251517_00480_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	08405400	2021-03-26 13:15	MDT	15.0	P	11.2	P	1.41	P	1580	P	10.0	P	0.8	P
+# Data provided for site 08406500
+#    TS_ID       Parameter Description
+#    101468      00060     Discharge, cubic feet per second
+#    101469      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101468_00060	101468_00060_cd	101469_00065	101469_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08406500	2021-03-26 13:00	MDT	42.6	P	2.58	P
+# Data provided for site 08407500
+#    TS_ID       Parameter Description
+#    101479      00010     Temperature, water, degrees Celsius
+#    101476      00060     Discharge, cubic feet per second
+#    101477      00065     Gage height, feet
+#    101480      00095     Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101479_00010	101479_00010_cd	101476_00060	101476_00060_cd	101477_00065	101477_00065_cd	101480_00095	101480_00095_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	08407500	2021-03-26 12:45	MDT	14.8	P:[99]	33.4	P	3.20	P	8500	P:[99]
+# Data provided for site 08408500
+#    TS_ID       Parameter Description
+#    101481      00060     Discharge, cubic feet per second
+#    101482      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101481_00060	101481_00060_cd	101482_00065	101482_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08408500	2021-03-26 13:00	MDT	0.00	P	2.13	P
+# Data provided for site 08477110
+#    TS_ID       Parameter Description
+#    101484      00060     Discharge, cubic feet per second
+#    101485      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101484_00060	101484_00060_cd	101485_00065	101485_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08477110	2021-03-26 13:00	MDT	3.80	P	1.49	P
+# Data provided for site 08481500
+#    TS_ID       Parameter Description
+#    101493      00060     Discharge, cubic feet per second
+#    101494      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101493_00060	101493_00060_cd	101494_00065	101494_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	08481500	2021-03-26 13:00	MDT	10.8	P	2.08	P
+# Data provided for site 09364010
+#    TS_ID       Parameter Description
+#    101512      00010     Temperature, water, degrees Celsius
+#    101510      00060     Discharge, cubic feet per second
+#    101509      00065     Gage height, feet
+#    101513      00095     Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius
+#    101515      00400     pH, water, unfiltered, field, standard units
+#    101514      63680     Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101512_00010	101512_00010_cd	101510_00060	101510_00060_cd	101509_00065	101509_00065_cd	101513_00095	101513_00095_cd	101515_00400	101515_00400_cd	101514_63680	101514_63680_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	09364010	2021-03-26 13:15	MDT	9.3	P	182	P	5.49	P	696	P	8.5	P	5.8	P
+# Data provided for site 09364200
+#    TS_ID       Parameter Description
+#    257667      00060     Discharge, cubic feet per second
+#    257666      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	257667_00060	257667_00060_cd	257666_00065	257666_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09364200	2021-03-26 13:00	MDT	182	P	4.03	P
+# Data provided for site 09365000
+#    TS_ID       Parameter Description
+#    101524      00010     Temperature, water, degrees Celsius
+#    101520      00060     Discharge, cubic feet per second
+#    101521      00065     Gage height, feet
+#    101523      00095     Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius
+#    101526      00400     pH, water, unfiltered, field, standard units
+#    101525      63680     Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101524_00010	101524_00010_cd	101520_00060	101520_00060_cd	101521_00065	101521_00065_cd	101523_00095	101523_00095_cd	101526_00400	101526_00400_cd	101525_63680	101525_63680_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	09365000	2021-03-26 13:00	MDT	6.8	P	547	P	1.42	P	490	P	8.3	P	234	P
+# Data provided for site 09367000
+#    TS_ID       Parameter Description
+#    101528      00060     Discharge, cubic feet per second
+#    101527      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101528_00060	101528_00060_cd	101527_00065	101527_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09367000	2021-03-26 13:15	MDT	0.13	P	8.35	P
+# Data provided for site 09367500
+#    TS_ID       Parameter Description
+#    101530      00060     Discharge, cubic feet per second
+#    101531      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Eqp  Value affected by equipment malfunction.
+#
+agency_cd	site_no	datetime	tz_cd	101530_00060	101530_00060_cd	101531_00065	101531_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09367500	2021-03-26 12:45	MDT	Eqp	P	Eqp	P
+# Data provided for site 09367540
+#    TS_ID       Parameter Description
+#    217735      00060     Discharge, cubic feet per second
+#    174338      00065     Gage height, feet
+#    174339      63680     Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU), [Solitax]
+#    239526      63680     Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU), [DTS12]
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	217735_00060	217735_00060_cd	174338_00065	174338_00065_cd	174339_63680	174339_63680_cd	239526_63680	239526_63680_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	09367540	2021-03-26 13:00	MDT	536	P	6.53	P	121	P	172	P
+# Data provided for site 09368000
+#    TS_ID       Parameter Description
+#    101538      00010     Temperature, water, degrees Celsius
+#    101539      00060     Discharge, cubic feet per second
+#    101541      00065     Gage height, feet
+#    101540      00095     Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius
+#    209866      00400     pH, water, unfiltered, field, standard units
+#    101543      63680     Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101538_00010	101538_00010_cd	101539_00060	101539_00060_cd	101541_00065	101541_00065_cd	101540_00095	101540_00095_cd	209866_00400	209866_00400_cd	101543_63680	101543_63680_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	09368000	2021-03-26 13:00	MDT	7.4	P	606	P	7.43	P	609	P	8.3	P	338	P
+# Data provided for site 09386189
+#    TS_ID       Parameter Description
+#    253902      00010     Temperature, water, degrees Celsius
+#    259994      00045     Precipitation, total, inches
+#    277762      00054     Reservoir storage, acre-feet
+#    253903      00095     Specific conductance, water, unfiltered, microsiemens per centimeter at 25 degrees Celsius
+#    277731      62615     Lake or reservoir water surface elevation above NAVD 1988, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	253902_00010	253902_00010_cd	259994_00045	259994_00045_cd	277762_00054	277762_00054_cd	253903_00095	253903_00095_cd	277731_62615	277731_62615_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s	14n	10s	14n	10s
+USGS	09386189	2021-03-26 13:15	MDT	14.6	P	0.00	P	92.17	P	227000	P	6221.72	P
+# Data provided for site 09430010
+#    TS_ID       Parameter Description
+#    240804      00060     Discharge, cubic feet per second
+#    166849      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Bkw  Value is affected by backwater at the measurement site.
+#
+agency_cd	site_no	datetime	tz_cd	240804_00060	240804_00060_cd	166849_00065	166849_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09430010	2021-03-26 12:50	MDT	Bkw	P	10.46	P
+# Data provided for site 09430500
+#    TS_ID       Parameter Description
+#    101558      00060     Discharge, cubic feet per second
+#    101559      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101558_00060	101558_00060_cd	101559_00065	101559_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09430500	2021-03-26 13:00	MDT	59.9	P	1.63	P
+# Data provided for site 09430600
+#    TS_ID       Parameter Description
+#    101561      00060     Discharge, cubic feet per second
+#    101562      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101561_00060	101561_00060_cd	101562_00065	101562_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09430600	2021-03-26 12:45	MDT	4.51	P	1.18	P
+# Data provided for site 09431500
+#    TS_ID       Parameter Description
+#    254853      00045     Precipitation, total, inches
+#    101564      00060     Discharge, cubic feet per second
+#    101565      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	254853_00045	254853_00045_cd	101564_00060	101564_00060_cd	101565_00065	101565_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s	14n	10s
+USGS	09431500	2021-03-26 13:15	MDT	0.00	P	66.6	P	3.53	P
+# Data provided for site 09442681
+#    TS_ID       Parameter Description
+#    233908      00060     Discharge, cubic feet per second
+#    233906      00065     Gage height, feet
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	233908_00060	233908_00060_cd	233906_00065	233906_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09442681	2021-03-26 12:45	MDT	3.72	P	9.22	P
+# Data provided for site 09444000
+#    TS_ID       Parameter Description
+#    101573      00060     Discharge, cubic feet per second
+#    248011      00065     Gage height, feet, [Combined]
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101573_00060	101573_00060_cd	248011_00065	248011_00065_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	09444000	2021-03-26 12:45	MDT	15.2	P	1.86	P
+# Data provided for site 321740106481001
+#    TS_ID       Parameter Description
+#    101581      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101581_72019	101581_72019_cd
+5s	15s	20d	6s	14n	10s
+USGS	321740106481001	2021-03-26 13:00	MDT	48.03	P
+# Data provided for site 321740106481003
+#    TS_ID       Parameter Description
+#    101582      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101582_72019	101582_72019_cd
+5s	15s	20d	6s	14n	10s
+USGS	321740106481003	2021-03-26 13:00	MDT	43.22	P
+# Data provided for site 321740106481004
+#    TS_ID       Parameter Description
+#    101583      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101583_72019	101583_72019_cd
+5s	15s	20d	6s	14n	10s
+USGS	321740106481004	2021-03-26 13:00	MDT	53.63	P
+# Data provided for site 321745106492101
+#    TS_ID       Parameter Description
+#    101584      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101584_72019	101584_72019_cd
+5s	15s	20d	6s	14n	10s
+USGS	321745106492101	2021-03-26 12:30	MDT	37.03	P
+# Data provided for site 321745106492102
+#    TS_ID       Parameter Description
+#    101586      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101586_72019	101586_72019_cd
+5s	15s	20d	6s	14n	10s
+USGS	321745106492102	2021-03-26 12:30	MDT	22.76	P
+# Data provided for site 321745106492103
+#    TS_ID       Parameter Description
+#    101587      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101587_72019	101587_72019_cd
+5s	15s	20d	6s	14n	10s
+USGS	321745106492103	2021-03-26 12:30	MDT	16.64	P
+# Data provided for site 321745106492106
+#    TS_ID       Parameter Description
+#    101588      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101588_72019	101588_72019_cd
+5s	15s	20d	6s	14n	10s
+USGS	321745106492106	2021-03-26 12:30	MDT	39.57	P
+# Data provided for site 345900106411201
+#    TS_ID       Parameter Description
+#    235692      00011     Temperature, water, degrees Fahrenheit
+#    235693      72019     Depth to water level, feet below land surface
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Dis  Record has been discontinued at the measurement site.
+#
+agency_cd	site_no	datetime	tz_cd	235692_00011	235692_00011_cd	235693_72019	235693_72019_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	345900106411201	2021-03-26 13:15	MDT	Dis	P	Dis	P
+# Data provided for site 350310106402430
+#    TS_ID       Parameter Description
+#    101825      00045     Precipitation, total, inches
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	101825_00045	101825_00045_cd
+5s	15s	20d	6s	14n	10s
+USGS	350310106402430	2021-03-26 12:55	MDT	0.00	P
+# Data provided for site 350405106274630
+#    TS_ID       Parameter Description
+#    241248      00045     Precipitation, total, inches
+#    241188      72192     Precipitation, cumulative, inches
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	241248_00045	241248_00045_cd	241188_72192	241188_72192_cd
+5s	15s	20d	6s	14n	10s	14n	10s
+USGS	350405106274630	2021-03-26 13:05	MDT	0.00	P	0.60	P
+# Data provided for site 350726106314230
+#    TS_ID       Parameter Description
+#    241245      00045     Precipitation, total, inches
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#     Dis  Record has been discontinued at the measurement site.
+#
+agency_cd	site_no	datetime	tz_cd	241245_00045	241245_00045_cd
+5s	15s	20d	6s	14n	10s
+USGS	350726106314230	2021-03-26 12:55	MDT	Dis	P
+# Data provided for site 351140106381230
+#    TS_ID       Parameter Description
+#    263801      00045     Precipitation, total, inches
+#
+# Data-value qualification codes included in this output:
+#     P  Provisional data subject to revision.
+#
+agency_cd	site_no	datetime	tz_cd	263801_00045	263801_00045_cd
+5s	15s	20d	6s	14n	10s
+USGS	351140106381230	2021-03-26 12:55	MDT	0.00	P
