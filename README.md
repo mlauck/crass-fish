@@ -1,5 +1,5 @@
 ## This is the Collaborative for Research on Aridland Stream Systems (CRASS) - Fish repository
-# Authors in alphabetical order
+### Authors in alphabetical order
 Chaimaa Guerwane
 Corey Krabbenhoft
 Marina Lauck
