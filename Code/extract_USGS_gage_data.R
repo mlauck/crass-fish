@@ -61,40 +61,51 @@ summary(SANPEDRO)
 # data exported from each webpage to text file in Data>Gage_list_USA
 
 # Open files
+AZ_gages_long <- read.delim("Data/Gage_list_USA/AZ_gages.txt",  header = F) 
+head(AZ_gages_long)
+
+CA_gages_long <- read.delim("Data/Gage_list_USA/CA_gages.txt",  header = F) 
+head(CA_gages_long)
+
+CO_gages_long <- read.delim("Data/Gage_list_USA/CO_gages.txt",  header = F) 
+head(CO_gages_long)
+
+NM_gages_long <- read.delim("Data/Gage_list_USA/NM_gages.txt",  header = F) 
+head(NM_gages_long)
+
+NV_gages_long <- read.delim("Data/Gage_list_USA/NV_gages.txt",  header = F) 
+head(NV_gages_long)
+
+TX_gages_long <- read.delim("Data/Gage_list_USA/TX_gages.txt",  header = F) 
+head(TX_gages_long)
+
 UT_gages_long <- read.delim("Data/Gage_list_USA/UT_gages.txt",  header = F) 
 head(UT_gages_long)
 
-UT_gages_long[15,]
-UT_gages_long[15:92,]
 
-# Example loop ---------------------------------------------------------------------------------------------
-# Loopty loo Verde
-siteNumbers <- c("09503700", "09504000", "09504420", "09504500", 
-                 "09505200", "09505800", "09506000", "09507980",
-                 "09508300", "09510200")
+# Find lines with gage numbers
+AZ_gages_long[15,] # 108 sites in this file
+AZ_gages_long[16:123,]
+AZ_gages_long[16:117,]
 
-gageName <- c("VERDE RIVER NEAR PAULDEN", "VERDE RIVER NEAR CLARKDALE", "OAK CREEK NEAR SEDONA", " OAK CREEK NEAR CORNVILLE", 
-              "WET BEAVER CREEK NEAR RIMROCK", "WEST CLEAR CREEK NEAR CAMP VERDE", "VERDE RIVER NEAR CAMP VERDE", "EAST VERDE RIVER NEAR CHILDS",
-              "WET BOTTOM CREEK NEAR CHILDS", "SYCAMORE CREEK NEAR FORT MCDOWELL")
-objNames <- c("Verde_Paulden", "Verde_Clarkdale", "Oak_Sedona", "Oak_Cornville", 
-              "Beaver_Rimrock", "W.Clear_Camp.Verde", "E.Verde_Childs", 
-              "Bottom_Childs", "Sycamore_McDowell")
+UT_gages_long[15,] # 76 sites in this file
+UT_gages_long[16:92,]
 
-parameterCd <- "00060" # this is discharge
-i <- 1
-for (i in 1:length(siteNumbers)) {
-  rawDailyData <- readNWISdv(siteNumbers[i], parameterCd, startDate = "", endDate = "")
-  rawDailyData <- rawDailyData[,3:4]
-  #charge <- print(rawDailyData)
-  
-  # Convert raw data to 'asStreamflow' object
-  Verde.stream <- asStreamflow(rawDailyData, river.name= paste0('USGS', ' ', siteNumbers[i],' ', gageName[i], ', AZ')) # USGS 09503700 VERDE RIVER NEAR PAULDEN, AZ
-  summary(Verde.stream)
-  # Run Fourier on the 'asStreamflow' object
-  Verde.stream_seas <- fourierAnalysis(Verde.stream)
-  # Make a file of the main data
-  #write.csv(Verde.stream_seas$signal, file = paste0('DFFT_export/USGS', ' ', siteNumbers[i],' ', gageName[i], ', AZ.csv'))
-  # plot characteristic hydrograph
-  # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
-  plot(Verde.stream_seas)
-}
+# Get gage site numbers
+AZ_siteNumbers <- substring(AZ_gages_long[16:117,], 11, 18)
+UT_siteNumbers <- substring(UT_gages_long[16:86,], 11, 18)
+
+# Get site info and lat/long for each gage
+?dataRetrieval
+
+
+# Get site data for USGS gages
+siteNumbers <- c()
+siteINFO <- readNWISsite(siteNumbers)
+
+
+# Where to find Fish sample locations
+# Xeric_Points_All.csv
+
+# Get list of gages (siteNumbers) that are near a fish sampling location only
+
