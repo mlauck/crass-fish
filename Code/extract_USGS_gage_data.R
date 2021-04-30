@@ -88,24 +88,66 @@ AZ_gages_long[15,] # 108 sites in this file
 AZ_gages_long[16:123,]
 AZ_gages_long[16:117,]
 
+CA_gages_long[15,] # 369 sites 
+CA_gages_long[16:385,]
+CA_gages_long[16:304,]
+
+CO_gages_long[15,] # 213 sites 
+CO_gages_long[16:229,]
+CO_gages_long[16:184,]
+
+NM_gages_long[15,] # 97 sites 
+NM_gages_long[16:113,]
+NM_gages_long[19:103,]
+
+NV_gages_long[15,] # 97 sites
+NV_gages_long[16:113,]
+NV_gages_long[16:97,]
+
+TX_gages_long[15, ] # 571 sites
+TX_gages_long[16:587,]
+TX_gages_long[16:539,]
+
 UT_gages_long[15,] # 76 sites in this file
 UT_gages_long[16:92,]
 
 # Get gage site numbers
 AZ_siteNumbers <- substring(AZ_gages_long[16:117,], 11, 18)
+CA_siteNumbers <- substring(CA_gages_long[16:304,], 11, 18)
+CO_siteNumbers <- substring(CO_gages_long[16:184,], 11, 18)
+NM_siteNumbers <- substring(NM_gages_long[19:103,], 11, 18)
+NV_siteNumbers <- substring(NV_gages_long[16:97,], 11, 18)
+TX_siteNumbers <- substring(TX_gages_long[16:539,], 11, 18)
 UT_siteNumbers <- substring(UT_gages_long[16:86,], 11, 18)
 
+
+# Fix Texas site numbers
+TX_siteNumbers[c(332,333,340,341,345,347,518)]
+TX_gages_long[c(332,333,340,341,345,347,518)+15,]
+TX_siteNumbers_b <- substring(TX_gages_long[c(332,333,340,341,345,347,518)+15,], 12, 19)
+TX_siteNumbers[c(332,333,340,341,345,347,518)] <- replace(TX_siteNumbers[c(332,333,340,341,345,347,518)], 
+                                                      1:7,TX_siteNumbers_b)
+
 # Get site info and lat/long for each gage
-?dataRetrieval
+siteINFO_state <- readNWISsite(TX_siteNumbers) #AZ, CA, CO, NM, NV, UT are ok
 
+USA_siteNumbers <- c(AZ_siteNumbers, CA_siteNumbers, CO_siteNumbers, NM_siteNumbers, 
+                     NV_siteNumbers, TX_siteNumbers, UT_siteNumbers)
 
-# Get site data for USGS gages
-siteNumbers <- c()
-siteINFO <- readNWISsite(siteNumbers)
+siteINFO <- readNWISsite(USA_siteNumbers)
 
+# Find what data is available
+dailyDataAvailable <- whatNWISdata(siteNumber = CA_siteNumbers, service = "dv", statCd="00003") 
+  # duplicates for sites with site numbers that are longer than 8 characters
 
-# Where to find Fish sample locations
-# Xeric_Points_All.csv
+# Fish sample locations
+USA_fish <- read.csv("Data/Xeric_Points_All.csv")
+head(USA_fish)
 
-# Get list of gages (siteNumbers) that are near a fish sampling location only
+# Get list of gages (siteNumbers) that are near (xx km) a fish sampling location only
 
+# Get specific info from gages
+# Common USGS Parameter Codes
+# 00060 is discharge (cubic ft per sec)
+# 00010 is temperature
+# 00400 is pH
