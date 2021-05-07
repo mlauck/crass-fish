@@ -137,17 +137,20 @@ USA_siteNumbers <- c(AZ_siteNumbers, CA_siteNumbers, CO_siteNumbers, NM_siteNumb
 siteINFO <- readNWISsite(USA_siteNumbers)
 
 # Find what data is available
-dailyDataAvailable <- whatNWISdata(siteNumber = CA_siteNumbers, service = "dv", statCd="00003") 
-  # duplicates for sites with site numbers that are longer than 8 characters
-
-# Fish sample locations
-USA_fish <- read.csv("Data/Xeric_Points_All.csv")
-head(USA_fish)
-
-# Get list of gages (siteNumbers) that are near (xx km) a fish sampling location only
+dailyDataAvailable <- whatNWISdata(siteNumber = USA_siteNumbers, service = "dv", statCd="00003") 
+  # duplicates for sites with site numbers that are longer than 8 characters plus if there are multiple parameters
+  # want columns dec_lat_va and dec_long_va
 
 # Get specific info from gages
 # Common USGS Parameter Codes
 # 00060 is discharge (cubic ft per sec)
 # 00010 is temperature
 # 00400 is pH
+library(dplyr)
+gageLocation <- distinct(dailyDataAvailable, x = site_no, .keep_all = TRUE)
+
+# Get list of gages (siteNumbers) that are near (xx km) a fish sampling location only
+
+# Fish sample locations
+USA_fish <- read.csv("Data/Xeric_Points_All.csv") # datum is WGSM 84
+head(USA_fish)
