@@ -11,6 +11,7 @@
 # https://www.jessesadler.com/post/gis-with-r-intro/
 # https://cengel.github.io/rspatial/2_spDataTypes.nb.html
 # http://www.nickeubank.com/gis-in-r/
+# https://geocompr.robinlovelace.net/reproj-geo-data.html
 
 # Load libraries--------------------------------------------------------
 source("Code/extract_USGS_gage_data.R")
@@ -51,16 +52,35 @@ points(USA_fishLocation$lon, USA_fishLocation$lat, pch = 19, col = "green3")
 fishCoords <- dplyr::select(USA_fishLocation, lon, lat)
 gageCoords <- dplyr::select(gageLocation, dec_long_va, dec_lat_va)
 
-points_fish <- SpatialPoints(coords = fishCoords, proj4string = CRS("+proj=longlat +datum=WGS84"))
+points_fish <- SpatialPoints(coords = fishCoords, proj4string = CRS("+proj=longlat +datum=WGS84 +ellps=WGS84"))
 
 unique(gageLocation$dec_coord_datum_cd)
-points_gage <- SpatialPoints(coords = gageCoords, proj4string = CRS("+proj=longlat +datum=NAD83"))
+points_gage <- SpatialPoints(coords = gageCoords, proj4string = CRS("+proj=longlat +datum=NAD83 +ellps=WGS84"))
 
 plot(points_fish, pch = 20, col="steelblue")
 ?rworldmap
 plot(coastsCoarse, add = T)
 points(points_gage)
 
+# A projection mercator epsg:3857 / US national atlas equal area epsg:2163
+?spTransform
+points_fish_tr <- spTransform(points_fish, CRS( "+init=epsg:3857" ) ) 
+points_gage_tr <- spTransform(points_gage, CRS( "+init=epsg:3857" ) ) 
+
+
+# Create a buffer around fish points to limit gages
+?gBuffer
+fish_buffer <- gBuffer(points_fish_tr, width = 50000) # I think width is in meters for this projection (need to double check)
+
+plot(points_fish_tr, pch = 20, col="red")
+plot(fish_buffer, border = "#008080", add = T)
+points(points_gage_tr)
+
+gage_subset <- points_gage_tr[fish_buffer, ] #wooh! that was easy. now i just need to bring along identifiers
+points(gage_subset, col = "orange")
+
+# Next import flowlines 
+# perhaps also clip to buffer, and then calculate distance from fish site to nearest gage for final U.S. gage subset
 # Import flowlines
 #readOGR for vecotr, dsn = datasource name (path to folder) layer = layer name without extension
 RioGrande_lines <- readOGR(dsn = "C:/Users/jrogosch/OneDrive - Texas Tech University/Documents/ArcGIS/NHDPlusv2/NHDPlusV21_RG_13_NHDSnapshot_05/NHDPlusRG/NHDPlus13/NHDSnapshot/Hydrography",
@@ -72,7 +92,14 @@ plot(coastsCoarse, add = T)
 points(points_gage, col = "red")
 points(points_fish, pch = 20, col="steelblue")
 
-#Subset sites for trial run - crashing. need to get on same CRS first I guess
+#Subset sites for trial run - crashing. need to get on same CRS first I guess 
+# Try spTransform() example:
+# proj4string(coords) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
+# crs_args <- NLCD@crs@projargs
+# sites_transformed <- spTransform(coords, CRS(crs_args))
+## crs_args <- RioGrande_lines@crs@projargs
+
+
 RioGrande_gagesubset <- points_gage[RioGrande_lines, ]
 plot(RioGrande_lines)
 points(RioGrande_gagesubset, pch = 20, col="steelblue")
