@@ -35,8 +35,7 @@ library(dataRetrieval)
 # #     Please restart R for changes to take effect.')
 #  install.packages("smwrBase")
 library(smwrBase)
-# ?smwrBase
-# ?waterYear
+
 
 ### Example code to extract one ------------------------------------------------------------------------------------------------------
 # using San Pedro River, Arizona (USGS station 09471000)
@@ -52,7 +51,7 @@ head(rawDailyData) # OK
 
 # Convert raw data to 'asStreamflow' object
 SANPEDRO <- asStreamflow(rawDailyData, river.name="San Pedro River, AZ")
-?asStreamflow
+
 dim(SANPEDRO$data)[1]
 summary(SANPEDRO)
 
@@ -81,6 +80,15 @@ head(TX_gages_long)
 
 UT_gages_long <- read.delim("Data/Gage_list_USA/UT_gages.txt",  header = F) 
 head(UT_gages_long)
+
+ID_gages_long <- read.delim("Data/Gage_list_USA/ID_gages.txt", header = F)
+head(ID_gages_long)
+
+OR_gages_long <- read.delim("Data/Gage_list_USA/OR_gages.txt", header = F)
+head(ID_gages_long)
+
+WY_gages_long <- read.delim("Data/Gage_list_USA/WY_gages.txt", header = F)
+head(ID_gages_long)
 
 
 # Find lines with gage numbers
@@ -111,6 +119,15 @@ TX_gages_long[16:539,]
 UT_gages_long[15,] # 76 sites in this file
 UT_gages_long[16:92,]
 
+ID_gages_long[15, ] #110 sites
+ID_gages_long[16:125, ]
+
+OR_gages_long[15, ] #224 sites
+OR_gages_long[16:239, ]
+
+WY_gages_long[15, ] #45 sites
+WY_gages_long[16:60, ]
+
 # Get gage site numbers
 AZ_siteNumbers <- substring(AZ_gages_long[16:117,], 11, 18)
 CA_siteNumbers <- substring(CA_gages_long[16:304,], 11, 18)
@@ -119,6 +136,9 @@ NM_siteNumbers <- substring(NM_gages_long[19:103,], 11, 18)
 NV_siteNumbers <- substring(NV_gages_long[16:97,], 11, 18)
 TX_siteNumbers <- substring(TX_gages_long[16:539,], 11, 18)
 UT_siteNumbers <- substring(UT_gages_long[16:86,], 11, 18)
+ID_siteNumbers <- substring(ID_gages_long[16:125,], 11, 18)
+OR_siteNumbers <- substring(OR_gages_long[16:239,], 11, 18)
+WY_siteNumbers <- substring(WY_gages_long[16:60,], 11, 18)
 
 
 # Fix Texas site numbers
@@ -132,25 +152,30 @@ TX_siteNumbers[c(332,333,340,341,345,347,518)] <- replace(TX_siteNumbers[c(332,3
 siteINFO_state <- readNWISsite(TX_siteNumbers) #AZ, CA, CO, NM, NV, UT are ok
 
 USA_siteNumbers <- c(AZ_siteNumbers, CA_siteNumbers, CO_siteNumbers, NM_siteNumbers, 
-                     NV_siteNumbers, TX_siteNumbers, UT_siteNumbers)
+                     NV_siteNumbers, TX_siteNumbers, UT_siteNumbers, ID_siteNumbers,
+                     OR_siteNumbers, WY_siteNumbers)
 
 siteINFO <- readNWISsite(USA_siteNumbers)
 
 # Find what data is available
 dailyDataAvailable <- whatNWISdata(siteNumber = USA_siteNumbers, service = "dv", statCd="00003") 
+readNWISsite
   # duplicates for sites with site numbers that are longer than 8 characters plus if there are multiple parameters
   # want columns dec_lat_va and dec_long_va
 
 # Get specific info from gages
-# Common USGS Parameter Codes
+# Common USGS Parameter Codes (parm_cd)
 # 00060 is discharge (cubic ft per sec)
 # 00010 is temperature
 # 00400 is pH
 library(dplyr)
 gageLocation <- distinct(dailyDataAvailable, x = site_no, .keep_all = TRUE)
+str(gageLocation)
+gageLocation <- as.matrix(gageLocation)
+str(gageLocation)
+head(gageLocation)
 
+write.csv(gageLocation, file = "Output/Gage_location_USA.csv")
 # Get list of gages (siteNumbers) that are near (xx km) a fish sampling location only
 
-# Fish sample locations
-USA_fish <- read.csv("Data/Xeric_Points_All.csv") # datum is WGSM 84
-head(USA_fish)
+
