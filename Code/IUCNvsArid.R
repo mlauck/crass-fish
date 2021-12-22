@@ -6,6 +6,7 @@
 library(dplyr)
 library(ggplot2)
 library(stringr)
+library(glue)
 
 # load data
 allIUCN <- read.csv("IUCNassessments.csv", header = TRUE)
@@ -74,7 +75,7 @@ plt <- ggplot(plot_df2) +
 plt
 
 # change it up a bit
-plt + theme_bw(base_size = 10) +
+IUCNfishes <- plt + theme_bw(base_size = 10) +
   # Scale y axis so bars don't start in the center
   scale_y_continuous(
     limits = c(-500, 6500),
@@ -102,3 +103,5 @@ plt + theme_bw(base_size = 10) +
     # Move the legend to the bottom
     legend.position = "bottom",
   )
+
+ggsave(IUCNfishes, filename = glue("figures/alldishes_IUCNstatus_{Sys.Date()}.png"), width = 6, height = 6, dpi = 300)
