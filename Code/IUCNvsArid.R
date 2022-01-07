@@ -3,7 +3,7 @@
 # Last edit 7 Jan 2022
 
 ## next week to do:
-# 1) figure out how to merge
+# 1) figure out how to merge - may need to append
 # 2) figure with grouped boxplot
 # 3) ordinal regression on status vs. arid or not
 
@@ -33,6 +33,12 @@ IUCN_df<- allIUCN %>%
 # eliminate categories not in other dataset
 IUCN_df2 <- IUCN_df[-c(7:8),]
 
+# rename column because R defeated me
+IUCN_df2$IUCNstatus <- IUCN_df2$redListCategory
+
+# make a df
+IUCN_df2 <- as.data.frame(IUCN_df2)
+
 # arid fishes
 # rename arid fish columns
 allarid$IUCNstatus <- recode_factor(allarid$IUCNstatus, 
@@ -47,21 +53,20 @@ allarid$IUCNstatus <- recode_factor(allarid$IUCNstatus,
                                     EW = "Extinct in the Wild",
                                     CE = "Critically Endangered")
 
-# total fishes = length(!is.na(allarid$IUCNstatus)) = 428
+# total fishes = length(!is.na(allarid$IUCNstatus)) = 428 - 12 in weird row = 416
 arid_df <- allarid %>%
   group_by(IUCNstatus) %>%
-  summarize(aridn = n(),
-            aridprop = n()/428)
+  summarize(n = n(),
+            prop = n()/416)
 
-arid_df <- arid_df[,-10] # empty cells excluded
+arid_df2 <- arid_df[-10, ] # empty cells excluded in row 10
 
 arid_df <- as.data.frame(arid_df)
 
 ## merge df together
-alldata <- merge(x = IUCN_df2,
-                 y = arid_df,
-                 vy.x = redListCategory,
-                 by.y = IUCNstatus)
+alldata <- dplyr::left_join(IUCN_df2,
+                 arid_df,
+                 by = "IUCNstatus")
 
 
 # regular barplot
