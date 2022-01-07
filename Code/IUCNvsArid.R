@@ -2,6 +2,11 @@
 # FER
 # Last edit 7 Jan 2022
 
+## next week to do:
+# 1) figure out how to merge
+# 2) figure with grouped boxplot
+# 3) ordinal regression on status vs. arid or not
+
 # libraries
 library(dplyr)
 library(ggplot2)
@@ -16,20 +21,51 @@ allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
 allIUCN$redListCategory <- as.factor(allIUCN$redlistCategory)
 allIUCN$realm <- as.factor(allIUCN$realm)
 
-# make figure of the IUCN all fishes and status ----
+allarid$IUCNstatus <- as.factor(allarid$IUCNstatus)
 
+# make figure of the IUCN all fishes and status ----
 # summarize data by status out of 11211 species in database
-plot_df<- allIUCN %>%
+IUCN_df<- allIUCN %>%
   group_by(redListCategory) %>%
   summarise(n = n(),
             prop = n()/11211)
 
 # eliminate categories not in other dataset
-plot_df2 <- plot_df[-c(7:8),]
+IUCN_df2 <- IUCN_df[-c(7:8),]
+
+# arid fishes
+# rename arid fish columns
+allarid$IUCNstatus <- recode_factor(allarid$IUCNstatus, 
+                                    CR = "Critically Endangered", 
+                                    DD = "Data Deficient",
+                                    EN = "Endangered",
+                                    LC = "Least Concern",
+                                    NE = "Not Evaluated",
+                                    NT = "Near Threatened",
+                                    VU = "Vulnerable",
+                                    EX = "Extinct",
+                                    EW = "Extinct in the Wild",
+                                    CE = "Critically Endangered")
+
+# total fishes = length(!is.na(allarid$IUCNstatus)) = 428
+arid_df <- allarid %>%
+  group_by(IUCNstatus) %>%
+  summarize(aridn = n(),
+            aridprop = n()/428)
+
+arid_df <- arid_df[,-10] # empty cells excluded
+
+arid_df <- as.data.frame(arid_df)
+
+## merge df together
+alldata <- merge(x = IUCN_df2,
+                 y = arid_df,
+                 vy.x = redListCategory,
+                 by.y = IUCNstatus)
 
 
 # regular barplot
-IUCNbarplot <- ggplot(plot_df2, aes(x = redListCategory, y = prop, fill = n)) +
+barplot <- ggplot(plot_df2, aes(x = redListCategory, y = prop, fill = n)) +
   #geom_bar(stat = "identity") +
   geom_col(
     aes(
@@ -41,8 +77,17 @@ IUCNbarplot <- ggplot(plot_df2, aes(x = redListCategory, y = prop, fill = n)) +
     show.legend = TRUE,
     alpha = .9
   ) +
+  geom_col(
+    data = arid_df,
+    aes(x = IUCNstatus,
+    y = prop,
+    fill = n
+  ),
+  alpha = 0.9,
+  show.legend = TRUE) +
   scale_fill_viridis_c(option = "magma") +
   theme_classic(base_size = 14)
+print(barplot)
 
 # circular barplot ----
 plt <- ggplot(plot_df2) +
