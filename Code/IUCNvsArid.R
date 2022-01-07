@@ -1,6 +1,6 @@
 # Comparing IUCN lists of all fishes vs. arid fishes
 # FER
-# Last edit December 2021
+# Last edit 7 Jan 2022
 
 # libraries
 library(dplyr)
@@ -9,7 +9,8 @@ library(stringr)
 library(glue)
 
 # load data
-allIUCN <- read.csv("IUCNassessments.csv", header = TRUE)
+allIUCN <- read.csv("Data/IUCNassessments.csv", header = TRUE)
+allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
 
 # make columns categories
 allIUCN$redListCategory <- as.factor(allIUCN$redlistCategory)
@@ -17,15 +18,33 @@ allIUCN$realm <- as.factor(allIUCN$realm)
 
 # make figure of the IUCN all fishes and status ----
 
-# summarize data by status
-plot_df <- allIUCN %>%
+# summarize data by status out of 11211 species in database
+plot_df<- allIUCN %>%
   group_by(redListCategory) %>%
-  summarise(n = n())
+  summarise(n = n(),
+            prop = n()/11211)
 
 # eliminate categories not in other dataset
 plot_df2 <- plot_df[-c(7:8),]
 
-# plot
+
+# regular barplot
+IUCNbarplot <- ggplot(plot_df2, aes(x = redListCategory, y = prop, fill = n)) +
+  #geom_bar(stat = "identity") +
+  geom_col(
+    aes(
+      x = reorder(str_wrap(redListCategory, 5), n),
+      y = prop,
+      fill = n
+    ),
+    position = "dodge2",
+    show.legend = TRUE,
+    alpha = .9
+  ) +
+  scale_fill_viridis_c(option = "magma") +
+  theme_classic(base_size = 14)
+
+# circular barplot ----
 plt <- ggplot(plot_df2) +
   # Make custom panel grid
   geom_hline(
@@ -101,7 +120,7 @@ IUCNfishes <- plt + theme_bw(base_size = 10) +
     # Use gray text for the region names
     axis.text.x = element_text(color = "gray12", size = 10),
     # Move the legend to the bottom
-    legend.position = "bottom",
+    legend.position = "bottom"
   )
 
-ggsave(IUCNfishes, filename = glue("figures/alldishes_IUCNstatus_{Sys.Date()}.png"), width = 6, height = 6, dpi = 300)
+#ggsave(IUCNfishes, filename = glue("figures/alldishes_IUCNstatus_{Sys.Date()}.png"), width = 6, height = 6, dpi = 300)
