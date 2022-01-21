@@ -3,8 +3,6 @@
 # Last edit 21 Jan 2022
 
 ## next week to do:
-# 1) figure out how to merge - may need to append
-# 2) figure with grouped boxplot
 # 3) ordinal regression on status vs. arid or not
 
 # libraries
@@ -85,26 +83,64 @@ alldata$IUCNstatus <- factor(
     "Near Threatened",
     "Least Concern",
     "Data Deficient",
-    "Not Evaluated"
+    "Not Evaluated",
+    ordered = TRUE
   )
 )
 
 alldata <- alldata[order(alldata$IUCNstatus), ]
 
-# grouped barplot
-barplot <- ggplot(alldata, aes(x = IUCN, y = prop, fill = prop, group = source)) +
+# make sure factors are reading as such
+alldata$IUCNstatus <- as.factor(alldata$IUCNstatus)
+alldata$source <- as.factor(alldata$source)
+
+# remove line for not evaluated since it is not present in larger data
+alldata2 <- alldata[alldata$IUCNstatus != "Not Evaluated", ]
+
+## grouped barplot -----
+barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
   #geom_bar(stat = "identity") +
   geom_col(
     aes(
       x = reorder(str_wrap(IUCNstatus, 5), n),
       y = prop,
-      fill = n
+      fill = source
     ),
     position = "dodge2",
     show.legend = TRUE,
     alpha = .9
   ) +
-  scale_fill_viridis_c(option = "magma") +
+  scale_fill_viridis_d() +
   theme_bw(base_size = 14)
 print(barplot)
 
+## first attempt at ordinal regression ----
+library(MASS)
+
+mod1 <- polr(IUCNstatus ~ source + prop, data = alldata2, Hess=TRUE)
+summary(mod1)
+
+##             apply pared public  gpa
+## 1     very likely     0      0 3.26
+## 2 somewhat likely     1      0 3.21
+## 3        unlikely     1      1 3.94
+## 4 somewhat likely     0      0 2.81
+## 5 somewhat likely     0      0 2.53
+## 6        unlikely     0      1 2.59
+
+# polr(formula = apply ~ pared + public + gpa, data = dat, Hess = TRUE)
+
+## calculate table
+(ctable <- coef(summary(mod1)))
+
+## calculate and store p values
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+
+## combined table
+(ctable <- cbind(ctable, "p value" = p))
+
+# compute confusion table and misclassiciation error
+#Compute confusion table and misclassification error
+predictrpurchase = predict(model,datatest)
+table(datatest$rpurchase, predictrpurchase)
+mean(as.character(datatest$rpurchase) != as.character(predictrpurchase))
