@@ -1,6 +1,6 @@
 # Comparing IUCN lists of all fishes vs. arid fishes
 # FER
-# Last edit 14 Jan 2022
+# Last edit 21 Jan 2022
 
 ## next week to do:
 # 1) figure out how to merge - may need to append
@@ -73,8 +73,26 @@ alldata$source <- "arid"
 alldata[1:min(8, nrow(alldata)),]$source <- "IUCN"
 alldata
 
-# regular barplot
-barplot <- ggplot(alldata, aes(x = IUCN, y = prop, fill = n, group = source)) +
+## reorder data for plotting and ordinal regression
+alldata$IUCNstatus <- factor(
+  alldata$IUCNstatus,
+  levels = c(
+    "Extinct",
+    "Extinct in the Wild",
+    "Critically Endangered",
+    "Endangered",
+    "Vulnerable",
+    "Near Threatened",
+    "Least Concern",
+    "Data Deficient",
+    "Not Evaluated"
+  )
+)
+
+alldata <- alldata[order(alldata$IUCNstatus), ]
+
+# grouped barplot
+barplot <- ggplot(alldata, aes(x = IUCN, y = prop, fill = prop, group = source)) +
   #geom_bar(stat = "identity") +
   geom_col(
     aes(
