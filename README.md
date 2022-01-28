@@ -7,3 +7,7 @@
 
 
 Check back later for more info as project develops
+
+# For color schemes
+- [Colorhexa]<https://www.colorhexa.com/> is helpful for finding complimentary colors
+- [Color Brewer]<colorbrewer2.org> is an old standby
