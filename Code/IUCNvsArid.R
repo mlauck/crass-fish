@@ -110,9 +110,22 @@ barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
     show.legend = TRUE,
     alpha = .9
   ) +
-  scale_fill_viridis_d() +
+  ylab("proportion of all fishes") +
+  xlab("IUCN status") +
+  scale_fill_manual(name = "Source",
+                      values = c("#d8b365", "#91bfdb")) +
+#scale_fill_viridis_d() +
   theme_bw(base_size = 14)
 print(barplot)
+
+ggsave(
+  device = "png",
+  plot = barplot,
+  filename = "figures/IUCN_v_arid.png",
+  height = 4,
+  width = 9,
+  dpi = 300
+)
 
 ## first attempt at ordinal regression ----
 library(MASS)
