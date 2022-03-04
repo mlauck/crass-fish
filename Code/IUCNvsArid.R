@@ -1,6 +1,6 @@
 # Comparing IUCN lists of all fishes vs. arid fishes
 # FER
-# Last edit 21 Jan 2022
+# Last edit 4 March 2022
 
 ## next week to do:
 # 3) ordinal regression on status vs. arid or not
@@ -112,8 +112,9 @@ barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
   ) +
   ylab("proportion of all fishes") +
   xlab("IUCN status") +
-  scale_fill_manual(name = "Source",
-                      values = c("#d8b365", "#91bfdb")) +
+  scale_fill_viridis_d(name = "Source",
+                       begin = 0.5,
+                       end = 0.1) +
 #scale_fill_viridis_d() +
   theme_bw(base_size = 14)
 print(barplot)
