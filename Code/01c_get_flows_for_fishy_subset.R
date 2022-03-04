@@ -50,3 +50,72 @@ SANPEDRO <- asStreamflow(rawDailyData, river.name="San Pedro River, AZ")
 
 dim(SANPEDRO$data)[1]
 summary(SANPEDRO)
+
+### Load the file with the subset of gages
+USA_subset <- read.csv("Data/from_GIS/USA_fish_nearest_gage_within5km.csv", row.names = 1, 
+                       colClasses = c(rep(NA, 12), "character", rep(NA, 24)))
+                        #import to excel and change the gage_ID to 00000000, 
+# then save as text file, then import and switch column format from general to "text" nOPE
+head(USA_subset)
+str(USA_subset)
+
+site_IDs <- unique(USA_subset$site_no)
+compDailyData <- list()
+
+# IDs that don't make it: 18, 60, 74
+# i <- 60 #18, 60, 74
+for (i in 1:length(site_IDs)) { 
+  rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
+  compDailyData[[i]] <- rawDailyData[,2:4]
+  #charge <- print(rawDailyData)
+}
+
+str(compDailyData)
+length(compDailyData)
+#   # Convert raw data to 'asStreamflow' object
+#   Verde.stream <- asStreamflow(rawDailyData, river.name= paste0('USGS', 'siteNumbers[i]')) # USGS 09503700 VERDE RIVER NEAR PAULDEN, AZ
+#   summary(Verde.stream)
+#   # Run Fourier on the 'asStreamflow' object
+#   Verde.stream_seas <- fourierAnalysis(Verde.stream)
+#   # Make a file of the main data
+#   #write.csv(Verde.stream_seas$signal, file = paste0('DFFT_export/USGS', ' ', siteNumbers[i],' ', gageName[i], ', AZ.csv'))
+#   # plot characteristic hydrograph
+#   # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
+#   plot(Verde.stream_seas)
+# }
+
+# Make sure gages have at least 30 years of data
+library(dplyr)
+df_daily <- bind_rows(compDailyData)
+str(df_daily)
+head(df_daily)
+unique(df_daily$site_no) # hmm there are only 155, whereas there are 158 siteIDs
+
+#write.csv(df_daily, file = "Output/Discharge_win5kmfish_USA.csv")
+
+
+year(df_daily$Date)
+unique(df_daily$site_no)
+?match
+#anti_join(as.factor(site_IDs), as.factor(df_daily$site_no))
+site_IDs[site_IDs %in% df_daily$site_no == FALSE] #"09096100" "09470920" "09522005" 
+which(site_IDs %in% df_daily$site_no == FALSE) # 18, 60, 74 # these don't come up with any data using readNWIS
+
+# "09096100" only has temperature and gage height in the reservoir, no discharge
+# "09470920"only has gage height
+# "09522005" temp conductivity and dissolved solids
+# So we're good.
+
+df_daily2 <- df_daily[ ,1:3]  %>% mutate(year = year(Date))
+str(df_daily2)
+head(df_daily2)
+?n_distinct
+
+yr_count <- df_daily2 %>% group_by(site_no) %>% summarise(yrs_record = n_distinct(year))
+yr_count
+yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # most of these have long recors yay!
+
+
+# Next time: See what dates match with fish data surveys
+# info on fish data"points_daterange_location.csv"
+# use that to determine which time frame is most important for analyzing discharge and getting metrics.
