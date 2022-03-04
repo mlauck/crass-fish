@@ -10,6 +10,7 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 library(glue)
+library(magrittr)
 
 # load data
 allIUCN <- read.csv("Data/IUCNassessments.csv", header = TRUE)
@@ -128,33 +129,83 @@ ggsave(
   dpi = 300
 )
 
-## first attempt at ordinal regression ----
-library(MASS)
+## first attempt at PCA ----
+# modeled after this: https://repositories.lib.utexas.edu/bitstream/handle/2152/94746/Perkin%20et%20al%202021.pdf?sequence=3
+library(tree)
+library(rpart)
 
-mod1 <- polr(IUCNstatus ~ source + prop, data = alldata2, Hess=TRUE)
-summary(mod1)
+# first filter data based on columns of interest
+names(allarid)
 
-##             apply pared public  gpa
-## 1     very likely     0      0 3.26
-## 2 somewhat likely     1      0 3.21
-## 3        unlikely     1      1 3.94
-## 4 somewhat likely     0      0 2.81
-## 5 somewhat likely     0      0 2.53
-## 6        unlikely     0      1 2.59
+aridCARTdat <- select(allarid, c("GenusSpecies",
+                      "habitat",
+                      "location",
+                      "endemic",
+                      "AUSnative",
+                      "USAnative",
+                      "nonfeed",
+                      "algphyto",
+                      "macvascu",
+                      "detritus",
+                      "invlvfsh",
+                      "fshcrcrb",
+                      "blood",
+                      "eggs",
+                      "maxtl_cm",
+                      "guarder",
+                      "open.substratum.spawner",
+                      "broodhider",
+                      "livebearers",
+                      "sprgsubt",
+                      "lacustrine",
+                      "potanadr",
+                      "slowcurr",
+                      "modcurr",
+                      "fastcurr",
+                      "IUCNstatus"))
+str(aridCARTdat)
 
-# polr(formula = apply ~ pared + public + gpa, data = dat, Hess = TRUE)
+# make many of these columns factors instead
+cols <- c("location", "endemic", "AUSnative", "USAnative",
+          "algphyto", "macvascu", "detritus", "invlvfsh",
+          "fshcrcrb", "blood", "eggs", "guarder", "open.substratum.spawner",
+          "broodhider", "livebearers", "sprgsubt", "lacustrine",
+          "potanadr", "slowcurr", "modcurr", "fastcurr")
 
-## calculate table
-(ctable <- coef(summary(mod1)))
+aridCARTdat %<>%
+  mutate_each_(funs(factor(.)),cols)
+str(aridCARTdat)
 
-## calculate and store p values
-p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+## make a CART based on data to see what falls out
+aridCARTdat_real <- na.omit(aridCARTdat)
 
-## combined table
-(ctable <- cbind(ctable, "p value" = p))
+## make a new column for species in trouble
+aridCARTdat_real$fishtrouble <- ifelse(aridCARTdat_real$IUCNstatus == "Endangered"|
+                                         aridCARTdat_real$IUCNstatus == "Extinct" |
+                                         aridCARTdat_real$IUCNstatus == "Critically Endangered" |
+                                         aridCARTdat_real$IUCNstatus == "Extinct in the Wild", 1, 0)
 
-# compute confusion table and misclassiciation error
-#Compute confusion table and misclassification error
-predictrpurchase = predict(model,datatest)
-table(datatest$rpurchase, predictrpurchase)
-mean(as.character(datatest$rpurchase) != as.character(predictrpurchase))
+## build a baby model
+TheModel = tree(aridCARTdat,
+                factor(fishtrouble>0)~endemic +
+                AUSnative +
+                USAnative +
+                nonfeed +
+                algphyt +
+                macvascu +
+                detritus +
+                invlvfsh +
+                fshcrcrb +
+                blood +
+                eggs +
+                maxtl_cm +
+                guarder +
+                open.substratum.spawner +
+                broodhider +
+                livebearers +
+                sprgsubt +
+                lacustrine +
+                potanadr +
+                slowcurr +
+                modcurr +
+                fastcurr)
