@@ -6,7 +6,9 @@
 # 3) ordinal regression on status vs. arid or not
 
 # libraries
+library(tidyr)
 library(dplyr)
+library(readr)
 library(ggplot2)
 library(stringr)
 library(glue)
@@ -120,14 +122,14 @@ barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
   theme_bw(base_size = 14)
 print(barplot)
 
-ggsave(
-  device = "png",
-  plot = barplot,
-  filename = "figures/IUCN_v_arid.png",
-  height = 4,
-  width = 9,
-  dpi = 300
-)
+# ggsave(
+#   device = "png",
+#   plot = barplot,
+#   filename = "figures/IUCN_v_arid.png",
+#   height = 4,
+#   width = 9,
+#   dpi = 300
+# )
 
 ## first attempt at PCA ----
 # modeled after this: https://repositories.lib.utexas.edu/bitstream/handle/2152/94746/Perkin%20et%20al%202021.pdf?sequence=3
@@ -137,7 +139,8 @@ library(rpart)
 # first filter data based on columns of interest
 names(allarid)
 
-aridCARTdat <- select(allarid, c("GenusSpecies",
+aridCARTdat <- select(allarid, 
+                      c("GenusSpecies",
                       "habitat",
                       "location",
                       "endemic",
@@ -175,19 +178,25 @@ cols <- c("location", "endemic", "AUSnative", "USAnative",
 aridCARTdat %<>%
   mutate_each_(funs(factor(.)),cols)
 str(aridCARTdat)
+summary(aridCARTdat)
 
 ## make a CART based on data to see what falls out
 aridCARTdat_real <- na.omit(aridCARTdat)
 
+## melt dataframe for food, current, and spawning
+
+aridCARTdat_real  %>%
+  pivot_longer()
+
 ## make a new column for species in trouble
-aridCARTdat_real$fishtrouble <- ifelse(aridCARTdat_real$IUCNstatus == "Endangered"|
+aridCARTdat_real$dangerfish <- ifelse(aridCARTdat_real$IUCNstatus == "Endangered"|
                                          aridCARTdat_real$IUCNstatus == "Extinct" |
                                          aridCARTdat_real$IUCNstatus == "Critically Endangered" |
                                          aridCARTdat_real$IUCNstatus == "Extinct in the Wild", 1, 0)
 
 ## build a baby model
 TheModel = tree(aridCARTdat,
-                factor(fishtrouble>0)~endemic +
+                factor(dangerfish>0)~endemic +
                 AUSnative +
                 USAnative +
                 nonfeed +
