@@ -3,7 +3,7 @@
 # Last edit 4 March 2022
 
 ## next week to do:
-# 3) ordinal regression on status vs. arid or not
+# melt data into one file
 
 # libraries
 library(tidyr)
@@ -176,45 +176,52 @@ cols <- c("location", "endemic", "AUSnative", "USAnative",
           "potanadr", "slowcurr", "modcurr", "fastcurr")
 
 aridCARTdat %<>%
-  mutate_each_(funs(factor(.)),cols)
+  mutate_each_(funs(as.factor(.)),cols)
+# aridCARTdat %<>%
+#   mutate_each_(funs(as.logical(.)),cols)
 str(aridCARTdat)
-summary(aridCARTdat)
+summary(aridCARTdat) # all looks good
 
-## make a CART based on data to see what falls out
-aridCARTdat_real <- na.omit(aridCARTdat)
+# ## to make CART ready elimate NAs
+aridCARTdat <- na.omit(aridCARTdat)
 
 ## melt dataframe for food, current, and spawning
+# made a clunky ifelse statement because that's how I am
+aridCARTdat$spawning <- (ifelse(aridCARTdat$open.substratum.spawner == TRUE, "open.substratum",
+                               ifelse(aridCARTdat$broodhider == TRUE, "broodhider",
+                                      ifelse(aridCARTdat$livebearers == TRUE, "livebearers",
+                                             ifelse(aridCARTdat$guarder == TRUE, "guarder",
+                                                    NA)))))
+aridCARTdat$spawning <- as.factor(aridCARTdat$spawning)
+                    
 
-aridCARTdat_real  %>%
-  pivot_longer()
 
 ## make a new column for species in trouble
-aridCARTdat_real$dangerfish <- ifelse(aridCARTdat_real$IUCNstatus == "Endangered"|
-                                         aridCARTdat_real$IUCNstatus == "Extinct" |
-                                         aridCARTdat_real$IUCNstatus == "Critically Endangered" |
-                                         aridCARTdat_real$IUCNstatus == "Extinct in the Wild", 1, 0)
+aridCARTdat$dangerfish <- ifelse(aridCARTdat$IUCNstatus == "Endangered"|
+                                         aridCARTdat$IUCNstatus == "Extinct" |
+                                         aridCARTdat$IUCNstatus == "Critically Endangered" |
+                                         aridCARTdat$IUCNstatus == "Extinct in the Wild", 1, 0)
+
 
 ## build a baby model
-TheModel = tree(aridCARTdat,
-                factor(dangerfish>0)~endemic +
-                AUSnative +
-                USAnative +
-                nonfeed +
-                algphyt +
-                macvascu +
-                detritus +
-                invlvfsh +
-                fshcrcrb +
-                blood +
-                eggs +
-                maxtl_cm +
-                guarder +
-                open.substratum.spawner +
-                broodhider +
-                livebearers +
-                sprgsubt +
-                lacustrine +
-                potanadr +
-                slowcurr +
-                modcurr +
-                fastcurr)
+TheModel <- tree(factor(dangerfish>0) ~
+                   endemic +
+                  AUSnative +
+                  USAnative +
+                  nonfeed +
+                  algphyto +
+                  macvascu +
+                  detritus +
+                  invlvfsh +
+                  fshcrcrb +
+                  blood +
+                  eggs +
+                  maxtl_cm +
+                  spawning,
+                 dat = aridCARTdat
+)
+plot(TheModel)
+text(TheModel, digits = 3)
+print(TheModel, digits = 2)
+
+ggsave(filename = "figures/CARTmodel.png", dpi = 300, height = 7, width = 7)
