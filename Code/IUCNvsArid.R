@@ -211,9 +211,9 @@ TheModel <- rpart(dangerfish ~
                   USAnative +
                   maxtl_cm +
                   spawning + 
-                  slowcurr + 
-                  modcurr +
-                  fastcurr +
+                  #slowcurr + 
+                  #modcurr +
+                  #fastcurr +
                   algphyto +
                   macvascu +
                   detritus + 
@@ -221,7 +221,7 @@ TheModel <- rpart(dangerfish ~
                   fshcrcrb,
                  dat = aridCARTdat
 )
-CARTplot <- prp(TheModel, yesno = 2, type = 2, digits = 4, extra = 1)
+prp(TheModel, yesno = 2, type = 2, digits = 4, extra = 1)
 # plot(TheModel)
 # text(TheModel, digits = 3)
 print(TheModel, digits = 2)
