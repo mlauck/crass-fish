@@ -135,6 +135,7 @@ print(barplot)
 # modeled after this: https://repositories.lib.utexas.edu/bitstream/handle/2152/94746/Perkin%20et%20al%202021.pdf?sequence=3
 library(tree)
 library(rpart)
+library(rpart.plot)
 
 # first filter data based on columns of interest
 names(allarid)
@@ -204,24 +205,30 @@ aridCARTdat$dangerfish <- ifelse(aridCARTdat$IUCNstatus == "Endangered"|
 
 
 ## build a baby model
-TheModel <- tree(factor(dangerfish>0) ~
+TheModel <- rpart(dangerfish ~
                    endemic +
                   AUSnative +
                   USAnative +
-                  nonfeed +
+                  maxtl_cm +
+                  spawning + 
+                  slowcurr + 
+                  modcurr +
+                  fastcurr +
                   algphyto +
                   macvascu +
-                  detritus +
+                  detritus + 
                   invlvfsh +
-                  fshcrcrb +
-                  blood +
-                  eggs +
-                  maxtl_cm +
-                  spawning,
+                  fshcrcrb,
                  dat = aridCARTdat
 )
-plot(TheModel)
-text(TheModel, digits = 3)
+prp(TheModel, type = 2, digits = 4, extra = 1)
+# plot(TheModel)
+# text(TheModel, digits = 3)
 print(TheModel, digits = 2)
 
+# do we need to prune?
+plotcp(TheModel) # I have no idea why this looks like this
+
 ggsave(filename = "figures/CARTmodel.png", dpi = 300, height = 7, width = 7)
+
+
