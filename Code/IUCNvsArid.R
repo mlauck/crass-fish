@@ -221,7 +221,7 @@ TheModel <- rpart(dangerfish ~
                   fshcrcrb,
                  dat = aridCARTdat
 )
-prp(TheModel, type = 2, digits = 4, extra = 1)
+CARTplot <- prp(TheModel, yesno = 2, type = 2, digits = 4, extra = 1)
 # plot(TheModel)
 # text(TheModel, digits = 3)
 print(TheModel, digits = 2)
@@ -229,6 +229,6 @@ print(TheModel, digits = 2)
 # do we need to prune?
 plotcp(TheModel) # I have no idea why this looks like this
 
-ggsave(filename = "figures/CARTmodel.png", dpi = 300, height = 7, width = 7)
+# ggsave(CARTplot, filename = "figures/CARTmodel.png", dpi = 300, height = 7, width = 7)
 
 
