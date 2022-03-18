@@ -16,11 +16,6 @@ fish <- allarid[,1]
 ## figure out column names within fishabse
 fish.data <- getData(1:5)
 
-# fb_tbl("species") %>% 
-#   mutate(sci_name = paste(Genus, Species)) %>%
-#   filter(sci_name %in% fish) %>% 
-#   select(sci_name, FBname, Length)
-
 
 ## exploring where data are stored
 ecofish <- ecology(fish)
@@ -37,6 +32,11 @@ estfish <- estimate(fish) #MaxLengthTL, Troph, seTroph, TempPrefMin, TempPrefMax
 
 food <- ecology(fish,
         fields=c("SpecCode", "FoodTroph", "FoodSeTroph", "DietTroph", "DietSeTroph"))
+
+# the estimated trophic level has fewer NAs and I think is fine for our purposes
+# the temp data are sparse (n = 52). I am not sure how to pull in the estimates from the top of fishbase
+trophtemp <- estimate(fish,
+                  fields=c("Troph", "seTroph", "TempPrefMax", "TempPrefMean"))
 
 ## get status (introduced, native, endemic, etc.)
 ecosfish <- ecosystem(fish,
