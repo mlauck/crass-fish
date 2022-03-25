@@ -56,7 +56,8 @@ dim(SANPEDRO$data)[1]
 summary(SANPEDRO)
 
 ### To get gage site numbers and other info by state, modify URL to have correct state ID (e.g. UT)---------------
-# https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT&modifiedSince=PT30M
+## https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT&modifiedSince=PT30M # I'm not deleting this but FML this URL didn't catch all of the gages
+# https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT
 # data exported from each webpage to text file in Data>Gage_list_USA
 
 # Open files
@@ -78,7 +79,7 @@ head(NV_gages_long)
 TX_gages_long <- read.delim("Data/Gage_list_USA/TX_gages.txt",  header = F) 
 head(TX_gages_long)
 
-UT_gages_long <- read.delim("Data/Gage_list_USA/UT_gages.txt",  header = F) 
+UT_gages_long <- read.delim("Data/Gage_list_USA/UT_gages_updated.txt",  header = F) 
 head(UT_gages_long)
 
 ID_gages_long <- read.delim("Data/Gage_list_USA/ID_gages.txt", header = F)
