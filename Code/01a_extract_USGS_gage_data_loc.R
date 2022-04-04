@@ -57,100 +57,109 @@ summary(SANPEDRO)
 
 ### To get gage site numbers and other info by state, modify URL to have correct state ID (e.g. UT)---------------
 ## https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT&modifiedSince=PT30M # I'm not deleting this but FML this URL didn't catch all of the gages
+# OH i think this is gages updated within the last 30 minutes?
 # https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT
+# &parameterCd=00060,00010 # to get discharge and temperature
+# e.g. https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT&parameterCd=00060,00010
 # data exported from each webpage to text file in Data>Gage_list_USA
 
 # Open files
-AZ_gages_long <- read.delim("Data/Gage_list_USA/AZ_gages.txt",  header = F) 
+AZ_gages_long <- read.delim("Data/Gage_list_USA/AZ_gages_updated.txt",  header = F) 
 head(AZ_gages_long)
 
-CA_gages_long <- read.delim("Data/Gage_list_USA/CA_gages.txt",  header = F) 
+CA_gages_long <- read.delim("Data/Gage_list_USA/CA_gages_updated.txt",  header = F) 
 head(CA_gages_long)
 
-CO_gages_long <- read.delim("Data/Gage_list_USA/CO_gages.txt",  header = F) 
+CO_gages_long <- read.delim("Data/Gage_list_USA/CO_gages_updated.txt",  header = F) 
 head(CO_gages_long)
 
-NM_gages_long <- read.delim("Data/Gage_list_USA/NM_gages.txt",  header = F) 
+NM_gages_long <- read.delim("Data/Gage_list_USA/NM_gages_updated.txt",  header = F) 
 head(NM_gages_long)
 
-NV_gages_long <- read.delim("Data/Gage_list_USA/NV_gages.txt",  header = F) 
+NV_gages_long <- read.delim("Data/Gage_list_USA/NV_gages_updated.txt",  header = F) 
 head(NV_gages_long)
 
-TX_gages_long <- read.delim("Data/Gage_list_USA/TX_gages.txt",  header = F) 
+TX_gages_long <- read.delim("Data/Gage_list_USA/TX_gages_updated.txt",  header = F) 
 head(TX_gages_long)
 
 UT_gages_long <- read.delim("Data/Gage_list_USA/UT_gages_updated.txt",  header = F) 
 head(UT_gages_long)
 
-ID_gages_long <- read.delim("Data/Gage_list_USA/ID_gages.txt", header = F)
+ID_gages_long <- read.delim("Data/Gage_list_USA/ID_gages_updated.txt", header = F)
 head(ID_gages_long)
 
-OR_gages_long <- read.delim("Data/Gage_list_USA/OR_gages.txt", header = F)
+OR_gages_long <- read.delim("Data/Gage_list_USA/OR_gages_updated.txt", header = F)
 head(ID_gages_long)
 
-WY_gages_long <- read.delim("Data/Gage_list_USA/WY_gages.txt", header = F)
+WY_gages_long <- read.delim("Data/Gage_list_USA/WY_gages_updated.txt", header = F)
 head(ID_gages_long)
 
 
 # Find lines with gage numbers
-AZ_gages_long[15,] # 108 sites in this file
-AZ_gages_long[16:123,]
-AZ_gages_long[16:117,]
+AZ_gages_long # Read this to see where indicates number of gages and site info
+AZ_gages_long[19,] # 281 sites in this file
+AZ_gages_long[20:300,]
+AZ_gages_long[20:297,]
 
-CA_gages_long[15,] # 369 sites 
-CA_gages_long[16:385,]
-CA_gages_long[16:304,]
+CA_gages_long[19,] # 591 sites 
+CA_gages_long[20:611,]
+CA_gages_long[20:592,]
 
-CO_gages_long[15,] # 213 sites 
-CO_gages_long[16:229,]
-CO_gages_long[16:184,]
+CO_gages_long[18,] # 599 sites 
+CO_gages_long[19:618,]
+CO_gages_long[19:561,]
 
-NM_gages_long[15,] # 97 sites 
-NM_gages_long[16:113,]
-NM_gages_long[19:103,]
+NM_gages_long[18,] # 264 sites 
+NM_gages_long[19:282,]
+# NM_gages_long[19:103,]
 
-NV_gages_long[15,] # 97 sites
-NV_gages_long[16:113,]
-NV_gages_long[16:97,]
+NV_gages_long[18,] # 258 sites
+NV_gages_long[19:277,]
+NV_gages_long[19:265,]
 
-TX_gages_long[15, ] # 571 sites
-TX_gages_long[16:587,]
-TX_gages_long[16:539,]
+TX_gages_long[18, ] # 654 sites
+TX_gages_long[19:673,]
+#TX_gages_long[19:539,]
 
-UT_gages_long[15,] # 76 sites in this file
-UT_gages_long[16:92,]
+UT_gages_long[18,] # 294 sites in this file
+UT_gages_long[19:313,]
+UT_gages_long[19:297,]
 
-ID_gages_long[15, ] #110 sites
-ID_gages_long[16:125, ]
+ID_gages_long[19, ] #392 sites
+ID_gages_long[20:412, ]
+ID_gages_long[20:408, ]
 
-OR_gages_long[15, ] #224 sites
-OR_gages_long[16:239, ]
+OR_gages_long[18, ] #353 sites
+OR_gages_long[19:372, ]
+OR_gages_long[19:364, ]
 
-WY_gages_long[15, ] #45 sites
-WY_gages_long[16:60, ]
+WY_gages_long[18, ] #238 sites
+WY_gages_long[19:257, ]
+WY_gages_long[19:254, ]
 
 # Get gage site numbers
-AZ_siteNumbers <- substring(AZ_gages_long[16:117,], 11, 18)
-CA_siteNumbers <- substring(CA_gages_long[16:304,], 11, 18)
-CO_siteNumbers <- substring(CO_gages_long[16:184,], 11, 18)
-NM_siteNumbers <- substring(NM_gages_long[19:103,], 11, 18)
-NV_siteNumbers <- substring(NV_gages_long[16:97,], 11, 18)
-TX_siteNumbers <- substring(TX_gages_long[16:539,], 11, 18)
-UT_siteNumbers <- substring(UT_gages_long[16:86,], 11, 18)
-ID_siteNumbers <- substring(ID_gages_long[16:125,], 11, 18)
-OR_siteNumbers <- substring(OR_gages_long[16:239,], 11, 18)
-WY_siteNumbers <- substring(WY_gages_long[16:60,], 11, 18)
+AZ_siteNumbers <- substring(AZ_gages_long[20:297, ], 11, 18)
+CA_siteNumbers <- substring(CA_gages_long[20:592, ], 11, 18)
+CO_siteNumbers <- substring(CO_gages_long[19:561, ], 11, 18)
+NM_siteNumbers <- substring(NM_gages_long[19:282, ], 11, 18)
+NV_siteNumbers <- substring(NV_gages_long[19:265, ], 11, 18)
+TX_siteNumbers <- substring(TX_gages_long[19:672, ], 11, 18)
+UT_siteNumbers <- substring(UT_gages_long[19:297, ], 11, 18)
+ID_siteNumbers <- substring(ID_gages_long[20:408, ], 11, 18)
+OR_siteNumbers <- substring(OR_gages_long[19:364, ], 11, 18)
+WY_siteNumbers <- substring(WY_gages_long[19:254, ], 11, 18)
 
 
 # Fix Texas site numbers
-TX_siteNumbers[c(332,333,340,341,345,347,518)]
-TX_gages_long[c(332,333,340,341,345,347,518)+15,]
-TX_siteNumbers_b <- substring(TX_gages_long[c(332,333,340,341,345,347,518)+15,], 12, 19)
-TX_siteNumbers[c(332,333,340,341,345,347,518)] <- replace(TX_siteNumbers[c(332,333,340,341,345,347,518)], 
-                                                      1:7,TX_siteNumbers_b)
+# TX_siteNumbers[c(332,333,340,341,345,347,518)]
+# TX_gages_long[c(332,333,340,341,345,347,518)+15,]
+# TX_siteNumbers_b <- substring(TX_gages_long[c(332,333,340,341,345,347,518)+15,], 12, 19)
+# TX_siteNumbers[c(332,333,340,341,345,347,518)] <- replace(TX_siteNumbers[c(332,333,340,341,345,347,518)], 
+#                                                       1:7,TX_siteNumbers_b)
 
 # Get site info and lat/long for each gage
 siteINFO_state <- readNWISsite(TX_siteNumbers) #AZ, CA, CO, NM, NV, UT are ok
+readNWISsite(UT_siteNumbers)
 
 USA_siteNumbers <- c(AZ_siteNumbers, CA_siteNumbers, CO_siteNumbers, NM_siteNumbers, 
                      NV_siteNumbers, TX_siteNumbers, UT_siteNumbers, ID_siteNumbers,
@@ -159,8 +168,8 @@ USA_siteNumbers <- c(AZ_siteNumbers, CA_siteNumbers, CO_siteNumbers, NM_siteNumb
 siteINFO <- readNWISsite(USA_siteNumbers)
 
 # Find what data is available
-dailyDataAvailable <- whatNWISdata(siteNumber = USA_siteNumbers, service = "dv", statCd="00003") 
-readNWISsite
+dailyDataAvailable <- whatNWISdata(siteNumber = USA_siteNumbers, service = "dv", statCd="00003") # StatCd = 00003 is daily mean, 00001 is max, 00002 is min 
+
   # duplicates for sites with site numbers that are longer than 8 characters plus if there are multiple parameters
   # want columns dec_lat_va and dec_long_va
 
@@ -176,7 +185,7 @@ gageLocation <- as.matrix(gageLocation)
 str(gageLocation)
 head(gageLocation)
 
-write.csv(gageLocation, file = "Output/Gage_location_USA.csv")
+# write.csv(gageLocation, file = "Output/Gage_location_USA_update.csv")
 # Get list of gages (siteNumbers) that are near (xx km) a fish sampling location only
 
 
