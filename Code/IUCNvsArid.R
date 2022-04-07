@@ -102,7 +102,6 @@ alldata2 <- alldata[alldata$IUCNstatus != "Not Evaluated", ]
 
 ## grouped barplot -----
 barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
-  #geom_bar(stat = "identity") +
   geom_col(
     aes(
       x = reorder(str_wrap(IUCNstatus, 5), n),
@@ -116,10 +115,16 @@ barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
   ylab("proportion of all fishes") +
   xlab("IUCN status") +
   scale_fill_viridis_d(name = "Source",
-                       begin = 0.5,
-                       end = 0.1) +
-#scale_fill_viridis_d() +
-  theme_bw(base_size = 14)
+                       begin = 0.7,
+                       end = 0.4,
+                       option = "inferno") +
+  theme_bw(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
 print(barplot)
 
 # ggsave(
