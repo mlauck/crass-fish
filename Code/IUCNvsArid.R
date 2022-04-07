@@ -1,6 +1,6 @@
 # Comparing IUCN lists of all fishes vs. arid fishes
 # FER
-# Last edit 4 March 2022
+# Last edit 7 April 2022
 
 ## next week to do:
 # 3) ordinal regression on status vs. arid or not
