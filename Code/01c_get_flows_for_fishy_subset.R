@@ -56,8 +56,8 @@ summary(SANPEDRO)
 #                         #import to excel and change the gage_ID to 00000000, 
 # # then save as text file, then import and switch column format from general to "text" nOPE
 ?read.delim
-USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA.csv",  row.names = 1,
-                       colClasses = c(rep(NA, 13), "character", rep(NA, 22)))
+USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.names = 1,
+                       colClasses = c(rep(NA, 12), "character", rep(NA, 22)))
 #import to excel and change the gage_ID to 00000000, 
 # then save as .csv file, then run this. 
 
@@ -67,14 +67,15 @@ str(USA_subset)
 site_IDs <- unique(USA_subset$site_no)
 compDailyData <- list()
 
+site_IDs <- site_IDs[-98]
 # IDs that don't make it: 18, 60, 74
 # i <- 60 #18, 60, 74
 for (i in 1:length(site_IDs)) { 
   rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
-  compDailyData[[i]] <- rawDailyData[,2:4]
+  compDailyData[[i]] <- rawDailyData[,2:4] # stopped at 98 site_IDs[98] "09285000"
   #charge <- print(rawDailyData)
 }
-
+?readNWISdv
 str(compDailyData)
 length(compDailyData)
 #   # Convert raw data to 'asStreamflow' object
@@ -95,7 +96,7 @@ df_daily <- bind_rows(compDailyData)
 str(df_daily)
 head(df_daily)
 unique(df_daily$site_no) # hmm there are only 155, whereas there are 158 siteIDs
-
+df_daily[df_daily$site_no == "08427500",]
 #write.csv(df_daily, file = "Output/Discharge_win5kmfish_USA.csv")
 
 
@@ -121,7 +122,7 @@ unique(df_daily$site_no) # hmm there are only 155, whereas there are 158 siteIDs
 # yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # most (114 of 155) of these have long records yay!
 
 
-# Next time: See what dates match with fish data surveys
+# See what dates match with fish data surveys
 # info on fish data "points_daterange_location.csv"
 # use that to determine which time frame is most important for analyzing discharge and getting summary metrics.
 library(dplyr)
@@ -129,27 +130,28 @@ library(dplyr)
 
 fish_dates <- read.csv("Data/points_daterange_location.csv")
 df_daily <- read.csv("Output/Discharge_win5kmfish_USA.csv", colClasses = c(NA, "character", rep(NA,3)))
-USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA.csv",  row.names = 1,
+USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.names = 1,
                        colClasses = c(rep(NA, 13), "character", rep(NA, 22)))
 
 USA_subset
 USA_subset[USA_subset$Dataset == "NEON", ]
 fish_dates[fish_dates$Dataset == "NEON", ] # hmmm. maybe they are not near a gage well REDB is near 10172200
-USA_subset[USA_subset$site_no == "10172200",] # umm, this is not in the dataset. YIKES! go to 01a and figure out what happened
+USA_subset[USA_subset$site_no == "10172200",] # ok now that's there after the update, good.
 str(df_daily)
 
 nrow(USA_subset[USA_subset$Total_Samp > 1,])
-nrow(USA_subset[USA_subset$Total_Samp >= 10,]) #13
-nrow(USA_subset[USA_subset$Total_Samp >= 30,]) #4
+nrow(USA_subset[USA_subset$Total_Samp >= 10,]) #update 31 # old 13
+nrow(USA_subset[USA_subset$Total_Samp >= 30,]) #update 6# old 4
 
 
 df_daily2 <- df_daily[ ,1:3]  %>% mutate(year = year(Date))
 str(df_daily2)
 head(df_daily2)
+unique(df_daily2$site_no)
 
 yr_count <- df_daily2 %>% group_by(site_no) %>% summarise(yrs_record = n_distinct(year))
 yr_count
-yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # most (114) of these have long recors yay!
+yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # more than half (229 of 380) have long records yay!
 
 # Next time: Where are they?
 # if good geographic spread, calculate trends
@@ -161,18 +163,74 @@ dates_summary <- USA_subset %>% group_by(site_no) %>% summarise(first_yr = min(Y
                                                                 last_yr = max(Year_Last_),
                                                                 total_samps = sum(Total_Samp))
 dates_summary
-dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10, ] #22 Zipper et al. use gages with more than 10 years (for future citation justification)
+dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] # 37 -Zipper et al. use gages with more than 10 years (for future citation justification)
                                                                      # we can use gages with more than 10 years that have fish
-dates_summary[dates_summary$last_yr - dates_summary$first_yr >=30, ] # 6, for 20 yrs there are 8, for 15 yrs there are 13
+dates_summary[dates_summary$last_yr - dates_summary$first_yr >=15 & dates_summary$total_samps >=10, ] # 10, -for 20 yrs there are 21, for 15 yrs there are 24
 
-# ANNUAL METRICS
+# ANNUAL METRICS for all gages
 ###################################################################################################################
-gages_10yrs <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10, ] 
-df_daily[df_daily$site_no %in% gages_10yrs$site_no,] 
+head(df_daily)
+df_daily_info <- df_daily[ ,1:4] %>% mutate(month = month(Date),
+                                            year = year(Date),
+                                            yday = yday(Date),
+                                            wday = ifelse(yday > 274, yday - 273, yday+92),
+                                            wyear = dataRetrieval::calcWaterYear(Date),
+                                            flowbinary = ifelse(X_00060_00003>0,1,0))
 
-# No flow days
-gage
-noflow <- as.numeric(length(which(df_daily$X_00060_00003 == 0)))
+#number of discrete periods of flow/no flow
+#length of each period of flow                                                                                        
+periods <- df_daily_info %>% group_by(site_no, wyear) %>% summarise(periods_lengths = rle(flowbinary)$lengths,
+                                                                    periods_values = rle(flowbinary)$values
+                                                                    )
+                                                                   
+tail(periods)
+  
+flowperiods <- subset(periods, periods_values == 1)
+noflowperiods <- subset(periods, periods_values == 0)
+
+flow_periods_metrics <- periods[periods$periods_values == 1, ] %>% 
+  group_by(site_no, wyear) %>% summarise(tot_flowperiods = sum(periods_values),
+                                         mean_lengthflow = mean(periods_lengths),
+                                         max_lengthflow = max(periods_lengths),
+                                         min_lengthflow = min(periods_lengths),
+                                         med_lengthflow = median(periods_lengths),
+                                         cv_lengthflow = sd(periods_lengths, na.rm = TRUE)/mean(periods_lengths))
+
+noflow_periods_metrics <- periods[periods$periods_values == 0, ] %>% 
+  group_by(site_no, wyear) %>% summarise(tot_periods_noflow = sum(periods_values),
+                                         mean_length_noflow = mean(periods_lengths),
+                                         max_length_noflow = max(periods_lengths),
+                                         min_length_noflow = min(periods_lengths),
+                                         med_length_noflow = median(periods_lengths),
+                                         cv_length_noflow = sd(periods_lengths, na.rm = TRUE)/mean(periods_lengths))
+tail(periods_metrics)
+tail(flow_periods_metrics)
+tail(noflow_periods_metrics)
+
+
+head(df_daily_info)
+# see how many years of data missing less than 10% daily values, only want to use those years of data
+dailydatacount <- df_daily_info %>% group_by(site_no, wyear) %>% summarise(count = sum(!is.na(X_00060_00003)),
+                                                                           noflowdays = sum(X_00060_00003 == 0),
+                                                                           annual_noflow_fraction = noflowdays/count,
+                                                                           peakdate_wy = wday[which.max(X_00060_00003)], #day of water year with peak flow
+                                                                           lowflowdate_wy = wday[which.min(X_00060_00003)],#days of water year with lowest flow
+                                                                           zeroflowfirst_wy = wday[which(X_00060_00003 == 0)[1]],
+                                                                           zeroflowcentroid_wy = wday[mean(which(X_00060_00003 == 0), na.rm = TRUE)]
+                                                                           )
+
+
+                                                               
+dailydatacount[dailydatacount$noflowdays >0, ]
+
+dailydata_10permissing <- subset(dailydatacount, dailydatacount$count < 330) #1,268 rows
+
+
+
+# Omit years with 10% or more discharge data missing
+daily_data_metrics <- subset(dailydatacount, dailydatacount$count > 330)
+
+# Join period and annual metrics to one dataset
 
 
 ###################################################################################################################
@@ -180,4 +238,5 @@ noflow <- as.numeric(length(which(df_daily$X_00060_00003 == 0)))
 # For trend analysis - do we want gages all time trend, or only for when there are fish data?
 # well other papers have for continental or global trend, so perhaps just where fish are, but 
 # they don't necessarily know what it's like for gages with fish - start big, and zoom in later if needed
-gages_10yrs <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10, ] 
+gages_10yrs <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] 
+df_daily[df_daily$site_no %in% gages_10yrs$site_no,] 
