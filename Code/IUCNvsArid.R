@@ -100,6 +100,12 @@ alldata$source <- as.factor(alldata$source)
 # remove line for not evaluated since it is not present in larger data
 alldata2 <- alldata[alldata$IUCNstatus != "Not Evaluated", ]
 
+alldata2 %>%
+  filter(source == "arid") %>%
+  # group_by(source, IUCNstatus)
+  summarize(sum = sum(n))
+
+
 ## grouped barplot -----
 barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
   geom_col(
