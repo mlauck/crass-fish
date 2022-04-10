@@ -137,17 +137,30 @@ WY_gages_long[18, ] #238 sites
 WY_gages_long[19:257, ]
 WY_gages_long[19:254, ]
 
-# Get gage site numbers
-AZ_siteNumbers <- substring(AZ_gages_long[20:297, ], 11, 18)
-CA_siteNumbers <- substring(CA_gages_long[20:592, ], 11, 18)
-CO_siteNumbers <- substring(CO_gages_long[19:561, ], 11, 18)
-NM_siteNumbers <- substring(NM_gages_long[19:282, ], 11, 18)
-NV_siteNumbers <- substring(NV_gages_long[19:265, ], 11, 18)
-TX_siteNumbers <- substring(TX_gages_long[19:672, ], 11, 18)
-UT_siteNumbers <- substring(UT_gages_long[19:297, ], 11, 18)
-ID_siteNumbers <- substring(ID_gages_long[20:408, ], 11, 18)
-OR_siteNumbers <- substring(OR_gages_long[19:364, ], 11, 18)
-WY_siteNumbers <- substring(WY_gages_long[19:254, ], 11, 18)
+# # Get gage site numbers
+# ?substring
+# AZ_siteNumbers <- substring(AZ_gages_long[20:297, ], 11, 18)
+# CA_siteNumbers <- substring(CA_gages_long[20:592, ], 11, 18)
+# CO_siteNumbers <- substring(CO_gages_long[19:561, ], 11, 18)
+# NM_siteNumbers <- substring(NM_gages_long[19:282, ], 11, 18)
+# NV_siteNumbers <- substring(NV_gages_long[19:265, ], 11, 18)
+# TX_siteNumbers <- substring(TX_gages_long[19:672, ], 11, 18)
+# UT_siteNumbers <- substring(UT_gages_long[19:297, ], 11, 18)
+# ID_siteNumbers <- substring(ID_gages_long[20:408, ], 11, 18)
+# OR_siteNumbers <- substring(OR_gages_long[19:364, ], 11, 18)
+# WY_siteNumbers <- substring(WY_gages_long[19:254, ], 11, 18)
+
+# Get full sitenumbers not just 8 digit ones
+AZ_siteNumbers <- unlist(lapply(strsplit(AZ_gages_long[20:297, ], " "), function(x) x[6]))
+CA_siteNumbers <- unlist(lapply(strsplit(CA_gages_long[20:592, ], " "), function(x) x[6]))
+CO_siteNumbers <- unlist(lapply(strsplit(CO_gages_long[19:561, ], " "), function(x) x[6]))
+NM_siteNumbers <- unlist(lapply(strsplit(NM_gages_long[19:282, ], " "), function(x) x[6]))
+NV_siteNumbers <- unlist(lapply(strsplit(NV_gages_long[19:265, ], " "), function(x) x[6]))
+TX_siteNumbers <- unlist(lapply(strsplit(TX_gages_long[19:672, ], " "), function(x) x[6]))
+UT_siteNumbers <- unlist(lapply(strsplit(UT_gages_long[19:297, ], " "), function(x) x[6]))
+ID_siteNumbers <- unlist(lapply(strsplit(ID_gages_long[20:408, ], " "), function(x) x[6]))
+OR_siteNumbers <- unlist(lapply(strsplit(OR_gages_long[19:364, ], " "), function(x) x[6]))
+WY_siteNumbers <- unlist(lapply(strsplit(WY_gages_long[19:254, ], " "), function(x) x[6]))
 
 
 # Fix Texas site numbers
@@ -157,8 +170,9 @@ WY_siteNumbers <- substring(WY_gages_long[19:254, ], 11, 18)
 # TX_siteNumbers[c(332,333,340,341,345,347,518)] <- replace(TX_siteNumbers[c(332,333,340,341,345,347,518)], 
 #                                                       1:7,TX_siteNumbers_b)
 
+
 # Get site info and lat/long for each gage
-siteINFO_state <- readNWISsite(TX_siteNumbers) #AZ, CA, CO, NM, NV, UT are ok
+siteINFO_state <- readNWISsite(NM_siteNumbers) #AZ, CA, CO, NM, NV, UT are ok
 readNWISsite(UT_siteNumbers)
 
 USA_siteNumbers <- c(AZ_siteNumbers, CA_siteNumbers, CO_siteNumbers, NM_siteNumbers, 
@@ -186,6 +200,6 @@ str(gageLocation)
 head(gageLocation)
 
 # write.csv(gageLocation, file = "Output/Gage_location_USA_update.csv")
-# Get list of gages (siteNumbers) that are near (xx km) a fish sampling location only
+# Get list of gages (siteNumbers) that are near (xx km) a fish sampling location only (using GIS)
 
 
