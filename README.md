@@ -11,6 +11,7 @@ Check back later for more info as project develops
 # For color schemes
 - <https://www.colorhexa.com/> is helpful for finding complimentary colors
 - <https://colorbrewer2.org> is an old standby
+- <https://coolors.co/> is amazing
 
 # Links to documents we're working on
 - Draft manuscript: https://docs.google.com/document/d/1DLw4K51-GKcFd2ODwEpKAJwYDBpic8iqnCDerKD99Lk/edit?usp=sharing
