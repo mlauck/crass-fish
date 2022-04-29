@@ -1,6 +1,6 @@
 # Comparing IUCN lists of all fishes vs. arid fishes
 # FER
-# Last edit 7 April 2022
+# Last edit 29 April 2022
 
 ## next week to do:
 # melt data into one file
@@ -13,10 +13,21 @@ library(ggplot2)
 library(stringr)
 library(glue)
 library(magrittr)
+library(rfishbase)
+library(data.table)
 
 # load data
 allIUCN <- read.csv("Data/IUCNassessments.csv", header = TRUE)
 allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
+
+# get trophic level
+fish <- allarid[,1]
+food <- ecology(fish,
+                fields=c("Species", "SpecCode", "FoodTroph", "FoodSeTroph"))
+
+# join the arid data and trophic level
+allarid <- merge(allarid, food, by.x = "GenusSpecies", by.y = "Species")
+
 
 # make columns categories
 allIUCN$redListCategory <- as.factor(allIUCN$redlistCategory)
@@ -82,6 +93,7 @@ alldata$IUCNstatus <- as.factor(alldata$IUCNstatus)
 alldata$source <- as.factor(alldata$source)
 
 ## reorder data for plotting and ordinal regression
+
 alldata$IUCNstatus <- factor(
   alldata$IUCNstatus,
   levels = c(
@@ -138,14 +150,14 @@ barplot <- ggplot(alldata, aes(x = IUCNstatus, y = prop, group = source)) +
   )
 print(barplot)
 
-ggsave(
-  device = "png",
-  plot = barplot,
-  filename = "figures/IUCN_v_arid.png",
-  height = 4,
-  width = 9,
-  dpi = 300
-)
+# ggsave(
+#   device = "png",
+#   plot = barplot,
+#   filename = "figures/IUCN_v_arid.png",
+#   height = 4,
+#   width = 9,
+#   dpi = 300
+# )
 
 ## first attempt at PCA ----
 # modeled after this: https://repositories.lib.utexas.edu/bitstream/handle/2152/94746/Perkin%20et%20al%202021.pdf?sequence=3
@@ -182,7 +194,8 @@ aridCARTdat <- select(allarid,
                       "slowcurr",
                       "modcurr",
                       "fastcurr",
-                      "IUCNstatus"))
+                      "IUCNstatus",
+                      "FoodTroph.x"))
 str(aridCARTdat)
 
 # make many of these columns factors instead
@@ -214,10 +227,27 @@ aridCARTdat$spawning <- as.factor(aridCARTdat$spawning)
 
 
 ## make a new column for species in trouble
-aridCARTdat$dangerfish <- ifelse(aridCARTdat$IUCNstatus == "Endangered"|
-                                         aridCARTdat$IUCNstatus == "Extinct" |
-                                         aridCARTdat$IUCNstatus == "Critically Endangered" |
-                                         aridCARTdat$IUCNstatus == "Extinct in the Wild", 1, 0)
+setDT(aridCARTdat)
+aridCARTdat$dangerfish <-
+  aridCARTdat[, dangerfish := ifelse(IUCNstatus %in%
+                                       c("Endangered", 
+                                         "Extinct",
+                                         "Critically Endangered",
+                                         "Extinct in the Wild",
+                                         "Near Threatened",
+                                         "Vulnerable"), 1, 0)]
+
+# aridCARTdat$dangerfish <-
+#   ifelse(
+#     aridCARTdat$IUCNstatus == "Endangered" |
+#       aridCARTdat$IUCNstatus == "Extinct" |
+#       aridCARTdat$IUCNstatus == "Critically Endangered" |
+#       aridCARTdat$IUCNstatus == "Extinct in the Wild" |
+#       aridCARTdat$IUCNstatus == "Near Threatened" |
+#       aridCARTdat$IUCNstatus == "Vulnerable",
+#     1,
+#     0
+#   )
 
 
 ## build a baby model
@@ -227,14 +257,15 @@ TheModel <- rpart(dangerfish ~
                   USAnative +
                   maxtl_cm +
                   spawning + 
-                  #slowcurr + 
-                  #modcurr +
-                  #fastcurr +
-                  algphyto +
-                  macvascu +
-                  detritus + 
-                  invlvfsh +
-                  fshcrcrb,
+                  # slowcurr +
+                  # modcurr +
+                  # fastcurr +
+                  # algphyto +
+                  # macvascu +
+                  # detritus + 
+                  # invlvfsh +
+                  # fshcrcrb +
+                  FoodTroph.x,
                  dat = aridCARTdat
 )
 prp(TheModel, yesno = 2, type = 2, digits = 4, extra = 1)
@@ -243,7 +274,7 @@ prp(TheModel, yesno = 2, type = 2, digits = 4, extra = 1)
 print(TheModel, digits = 2)
 
 # do we need to prune?
-plotcp(TheModel) # I have no idea why this looks like this
+plotcp(TheModel) 
 
 # ggsave(CARTplot, filename = "figures/CARTmodel.png", dpi = 300, height = 7, width = 7)
 
