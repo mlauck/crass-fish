@@ -24,5 +24,10 @@ Check back later for more info as project develops
 ## Comparing status of all IUCN freshwater fishes vs. our arid fish data
 ![status](figures/IUCN_v_arid.png)
 
+## [Helpful link for CART models](<https://gsp.humboldt.edu/OLM/R/05_04_CART.html#:~:text=yval%3A%20predicted%20value%20at%20the%20node%20%28yprob%29%3A%20the,next%20to%20a%20node%20indicates%20it%20is%20terminal>)
+
 ## CART model exploring the the likelihood of being a danger fish (endangered, extinct, critically endangered, extinct in the wild) based on endemism, AUS vs. USA, max length, spawning preferences, and diet
 ![CART](figures/DangerFishCART.png)
+
+## CART model for likelihood of being a danger fish (endangered, extinct, critically endangered, extinct in the wild, threatened, vulnerable) based on endemism, AUS vs. USA, max length, spawning, and trophic level
+![CART2](figures/DangerFishCART2.png)
