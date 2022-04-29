@@ -18,3 +18,11 @@ Check back later for more info as project develops
 - Draft figures: https://docs.google.com/presentation/d/1JrgYoNF1s1kZuVJffNZ1w5jQdHiiCk8w-bvRikgbGU4/edit?usp=sharing
 - Fish traits: https://docs.google.com/spreadsheets/d/1e635zaYSAnfXS-tnaylRyoS3HWPc1yCXkABXRlYl8z0/edit?usp=sharing
 - Annotated bibliogrphay: https://docs.google.com/document/d/1jXX2khXqDzatlZ5YO2RR6jawOZwgBnRI5BK9FIzbpZI/edit?usp=sharing
+
+# Working figures
+
+## Comparing status of all IUCN freshwater fishes vs. our arid fish data
+![status](figures/IUCN_v_arid.png)
+
+## CART model exploring the the likelihood of being a danger fish (endangered, extinct, critically endangered, extinct in the wild) based on endemism, AUS vs. USA, max length, spawning preferences, and diet
+![CART](figures/DangerFishCART.png)
