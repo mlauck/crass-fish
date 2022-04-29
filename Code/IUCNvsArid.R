@@ -74,6 +74,13 @@ alldata$source <- "arid"
 alldata[1:min(8, nrow(alldata)),]$source <- "IUCN"
 alldata
 
+# remove line for not evaluated since it is not present in larger data
+alldata <- alldata[alldata$IUCNstatus != "Not Evaluated", ]
+
+# make sure factors are reading as such
+alldata$IUCNstatus <- as.factor(alldata$IUCNstatus)
+alldata$source <- as.factor(alldata$source)
+
 ## reorder data for plotting and ordinal regression
 alldata$IUCNstatus <- factor(
   alldata$IUCNstatus,
@@ -82,8 +89,8 @@ alldata$IUCNstatus <- factor(
     "Extinct in the Wild",
     "Critically Endangered",
     "Endangered",
-    "Vulnerable",
     "Near Threatened",
+    "Vulnerable",
     "Least Concern",
     "Data Deficient",
     "Not Evaluated",
@@ -93,24 +100,21 @@ alldata$IUCNstatus <- factor(
 
 alldata <- alldata[order(alldata$IUCNstatus), ]
 
-# make sure factors are reading as such
-alldata$IUCNstatus <- as.factor(alldata$IUCNstatus)
-alldata$source <- as.factor(alldata$source)
 
-# remove line for not evaluated since it is not present in larger data
-alldata2 <- alldata[alldata$IUCNstatus != "Not Evaluated", ]
 
-alldata2 %>%
-  filter(source == "arid") %>%
-  # group_by(source, IUCNstatus)
-  summarize(sum = sum(n))
+
+
+# alldata2 %>%
+#   filter(source == "arid") %>%
+#   # group_by(source, IUCNstatus)
+#   summarize(sum = sum(n))
 
 
 ## grouped barplot -----
-barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
+barplot <- ggplot(alldata, aes(x = IUCNstatus, y = prop, group = source)) +
   geom_col(
     aes(
-      x = reorder(str_wrap(IUCNstatus, 5), n),
+      x = IUCNstatus,
       y = prop,
       fill = source
     ),
@@ -118,6 +122,7 @@ barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
     show.legend = TRUE,
     alpha = .9
   ) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 6)) +
   ylab("proportion of all fishes") +
   xlab("IUCN status") +
   scale_fill_viridis_d(name = "Source",
@@ -133,14 +138,14 @@ barplot <- ggplot(alldata2, aes(x = IUCN, y = prop, group = source)) +
   )
 print(barplot)
 
-# ggsave(
-#   device = "png",
-#   plot = barplot,
-#   filename = "figures/IUCN_v_arid.png",
-#   height = 4,
-#   width = 9,
-#   dpi = 300
-# )
+ggsave(
+  device = "png",
+  plot = barplot,
+  filename = "figures/IUCN_v_arid.png",
+  height = 4,
+  width = 9,
+  dpi = 300
+)
 
 ## first attempt at PCA ----
 # modeled after this: https://repositories.lib.utexas.edu/bitstream/handle/2152/94746/Perkin%20et%20al%202021.pdf?sequence=3
