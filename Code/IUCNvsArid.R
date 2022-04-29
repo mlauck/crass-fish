@@ -28,6 +28,20 @@ food <- ecology(fish,
 # join the arid data and trophic level
 allarid <- merge(allarid, food, by.x = "GenusSpecies", by.y = "Species")
 
+# make location a factor
+allarid$location <- as.factor(allarid$location)
+
+# summarize the arid fish data
+allarid %>%
+  group_by(location) %>%
+  summarise(
+    count = n(),
+    Trophic = mean(FoodTroph, na.rm = TRUE),
+    TrophicSD = sd(FoodTroph, na.rm = TRUE),
+    maxlength = mean(maxtl_cm, na.rm = TRUE),
+    maxlength_sd = sd(maxtl_cm, na.rm = TRUE)
+  )
+
 
 # make columns categories
 allIUCN$redListCategory <- as.factor(allIUCN$redlistCategory)
