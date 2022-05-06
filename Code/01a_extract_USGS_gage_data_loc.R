@@ -56,6 +56,9 @@ dim(SANPEDRO$data)[1]
 summary(SANPEDRO)
 
 ### To get gage site numbers and other info by state, modify URL to have correct state ID (e.g. UT)---------------
+# HOW TO USE SERVICE: 
+# site service: https://nwis.waterservices.usgs.gov/rest/Site-Service.html
+# instantaneous values service: https://nwis.waterservices.usgs.gov/rest/IV-Service.html
 ## https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT&modifiedSince=PT30M # I'm not deleting this but FML this URL didn't catch all of the gages
 # OH i think this is gages updated within the last 30 minutes?
 # https://waterservices.usgs.gov/nwis/iv?format=rdb&stateCd=UT
