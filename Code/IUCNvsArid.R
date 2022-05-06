@@ -29,19 +29,39 @@ food <- ecology(fish,
 allarid <- merge(allarid, food, by.x = "GenusSpecies", by.y = "Species")
 
 # make location a factor
-allarid$location <- as.factor(allarid$location)
+allarid$location2 <- as.factor(allarid$location2)
 
 # summarize the arid fish data
-allarid %>%
-  group_by(location) %>%
+summary <- allarid %>%
+  group_by(location2) %>%
   summarise(
     count = n(),
     Trophic = mean(FoodTroph, na.rm = TRUE),
     TrophicSD = sd(FoodTroph, na.rm = TRUE),
     maxlength = mean(maxtl_cm, na.rm = TRUE),
-    maxlength_sd = sd(maxtl_cm, na.rm = TRUE)
-  )
-
+    maxlength_sd = sd(maxtl_cm, na.rm = TRUE),
+    benthic = length(which(benthic)),
+    surwcol = length(which(surwcol)),
+    nonfeed = length(which(nonfeed)),
+    algphyto = length(which(algphyto)),
+    macvascu = length(which(macvascu)),
+    detritus = length(which(detritus)),
+    invlvfsh = length(which(invlvfsh)),
+    fishcr = length(which(fshcrcrb)),
+    blood = length(which(blood)),
+    eggs = length(which(eggs)),
+    serial = length(which(serial)),
+    guarder = length(which(guarder)),
+    open.sub = length(which(open.substratum.spawner)),
+    broodhider = length(which(broodhider)),
+    live = length(which(livebearers)),
+    euryhaline = length(which(euryhaline)),
+    potandr = length(which(potanadr)),
+    slowcurr = length(which(slowcurr)),
+    modcurr = length(which(modcurr)),
+    fastcurr = length(which(fastcurr))
+)
+write.csv(summary, file = "data/fishtraitsummary.csv")
 
 # make columns categories
 allIUCN$redListCategory <- as.factor(allIUCN$redlistCategory)
