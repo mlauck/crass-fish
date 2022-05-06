@@ -60,7 +60,7 @@ USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.n
                        colClasses = c(rep(NA, 12), "character", rep(NA, 22)))
 #import to excel and change the gage_ID to 00000000, 
 # then save as .csv file, then run this. 
-
+unique(USA_subset$site_no)
 head(USA_subset)
 str(USA_subset)
 
@@ -95,7 +95,7 @@ library(dplyr)
 df_daily <- bind_rows(compDailyData)
 str(df_daily)
 head(df_daily)
-unique(df_daily$site_no) # hmm there are only 155, whereas there are 158 siteIDs
+unique(df_daily$site_no)
 df_daily[df_daily$site_no == "08427500",]
 #write.csv(df_daily, file = "Output/Discharge_win5kmfish_USA.csv")
 
@@ -240,3 +240,29 @@ daily_data_metrics <- subset(dailydatacount, dailydatacount$count > 330)
 # they don't necessarily know what it's like for gages with fish - start big, and zoom in later if needed
 gages_10yrs <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] 
 df_daily[df_daily$site_no %in% gages_10yrs$site_no,] 
+
+str(df_daily)
+
+library(ggplot2)
+unique(dailydatacount$site_no)
+dailydatacount[dailydatacount$noflowdays > 0, ]
+gage1 <- dailydatacount[dailydatacount$site_no == "08382830",]
+a <- ggplot(gage1, aes(x = wyear, y = noflowdays)) + geom_point()
+a
+
+plot(gage1$wyear, gage1$noflowdays)
+
+library(lme4)
+m1 <- glmer(noflowdays ~  wyear + (1|site_no), family = "poisson", data = dailydatacount)
+ee <- Effect("wyear", m1)
+theme_set(theme_bw())
+ggplot(as.data.frame(ee),
+       aes(wyear, fit))+
+  geom_line()+
+  ## colour=NA suppresses edges of the ribbon
+  geom_ribbon(colour=NA,alpha=0.1,
+              aes(ymin=lower,ymax=upper))+
+  ## add rug plot based on original data
+  geom_rug(data=ee$data,aes(y=NULL),sides="b")
+
+
