@@ -32,3 +32,6 @@ Check back later for more info as project develops
 
 ## CART model for likelihood of being a danger fish (endangered, extinct, critically endangered, extinct in the wild, threatened, vulnerable) based on endemism, AUS vs. USA, max length, spawning, and trophic level
 ![CART2](figures/DangerFishCART2.png)
+
+# Notes
+Need to look into [piggyback](<https://docs.ropensci.org/piggyback/>) for data file management
