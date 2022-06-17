@@ -35,3 +35,9 @@ Check back later for more info as project develops
 
 # Notes
 Need to look into [piggyback](<https://docs.ropensci.org/piggyback/>) for data file management
+
+## How to use temperature data?
+- [ ] Number of days above a certain temp?
+- [ ] Length of summer (defined as > 20 C)
+- [ ] Average summer temperature? Average temperature of May - September (US) and November - January (AUS)? We might need to plot of avg monthly temp in each lcation and how changes over time?
+- [ ] This paper may be helpful https://aslopubs.onlinelibrary.wiley.com/doi/full/10.1002/lno.10557. 
