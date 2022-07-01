@@ -250,11 +250,14 @@ gage1 <- dailydatacount[dailydatacount$site_no == "08382830",]
 a <- ggplot(gage1, aes(x = wyear, y = noflowdays)) + geom_point()
 a
 
-plot(gage1$wyear, gage1$noflowdays)
-
+#plot(gage1$wyear, gage1$noflowdays)
+dailydatacount$wyear
+library(effects)
 library(lme4)
-m1 <- glmer(noflowdays ~  wyear + (1|site_no), family = "poisson", data = dailydatacount)
-ee <- Effect("wyear", m1)
+
+
+m1 <- glmer(noflowdays ~  scale(wyear) + (1|site_no), family = "poisson", data = dailydatacount)
+ef <- Effect("wyear", m1)
 theme_set(theme_bw())
 ggplot(as.data.frame(ee),
        aes(wyear, fit))+
@@ -266,3 +269,8 @@ ggplot(as.data.frame(ee),
   geom_rug(data=ee$data,aes(y=NULL),sides="b")
 
 
+# Number of no flow days has decreased through time and not a large effect.
+# but it’s very small and the trend is opposite what we would expect (perhaps due to dam construction 
+# induced baseflows during summer for irrigation and whatnot ???
+# Maybe should separate perennial from non-perennial gages ? before and after 1960?
+#                                                                       
