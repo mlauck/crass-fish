@@ -40,12 +40,12 @@ tempUSE$year <- as.numeric(str_sub(tempUSE$date, 2, 5))
 # load(file = 'Data/tempUSE.rda')
 
 # look at temp by site
-ggplot(tempUSE, aes(y = Site, x = TempC, color = as.factor(month), fill = as.factor(month))) +
+ggplot(tempUSE, aes(y = year, x = Site, color = TempC, fill = TempC)) +
   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
   scale_fill_viridis_d(name = "Month", option = "C") +
   scale_color_viridis_d(name = "Month", option = "C") +
   ylab("Site No.") +
-  xlab("Temp in C") +
+  xlab("Year") +
   labs(
     title = 'Temperatures across years',
     subtitle = 'Mean temperatures (C) by month from 1980-2022'
