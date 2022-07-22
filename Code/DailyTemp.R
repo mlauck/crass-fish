@@ -80,8 +80,6 @@ tempanol <- ggplot(tempyear2, aes(x = year, y = anol, group = year)) +
 print(tempanol)
 
 
-
-
 # look at temp by site
 ggplot(tempyear2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
