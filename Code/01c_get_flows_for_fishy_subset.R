@@ -230,7 +230,10 @@ dailydata_10permissing <- subset(dailydatacount, dailydatacount$count < 330) #1,
 # Omit years with 10% or more discharge data missing
 daily_data_metrics <- subset(dailydatacount, dailydatacount$count > 330)
 
-# Join period and annual metrics to one dataset
+###
+df_daily_info %>% group_by(site_no) %>% summarise(first_yr = min(year),
+                                last_yr = max(year),
+                                total_samps = sum(unique(year)))
 
 
 ###################################################################################################################
@@ -238,10 +241,21 @@ daily_data_metrics <- subset(dailydatacount, dailydatacount$count > 330)
 # For trend analysis - do we want gages all time trend, or only for when there are fish data?
 # well other papers have for continental or global trend, so perhaps just where fish are, but 
 # they don't necessarily know what it's like for gages with fish - start big, and zoom in later if needed
-gages_10yrs <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] 
+
+# gages with 10yrs fish data
+gages_10yrs_fish <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] 
+min(gages_10yrs_fish$first_yr)
+gages_10yrs_fish_site <- dates_summary$site_no[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10] 
 df_daily[df_daily$site_no %in% gages_10yrs$site_no,] 
 
 str(df_daily)
+
+
+#gages 10 years of flow data
+gage_record <- daily_data_metrics %>% group_by(site_no) %>% summarise(first_yr = min(wyear),
+                                                  last_yr = max(wyear),
+                                                  total_samps = sum(unique(wyear)))
+gages_10wyr <- gage_record[gage_record$last_yr - gage_record$first_yr >=10 & gage_record$total_samps >=10, ]
 
 library(ggplot2)
 unique(dailydatacount$site_no)
@@ -255,9 +269,11 @@ dailydatacount$wyear
 library(effects)
 library(lme4)
 
+?glmer
+m1 <- glmer(noflowdays ~  wyear + (1|site_no), family = "poisson", data = daily_data_metrics)
+m1 <- lmer(noflowdays ~  wyear + (1|site_no),  data = daily_data_metrics)
 
-m1 <- glmer(noflowdays ~  scale(wyear) + (1|site_no), family = "poisson", data = dailydatacount)
-ef <- Effect("wyear", m1)
+ee <- Effect("wyear", m1)
 theme_set(theme_bw())
 ggplot(as.data.frame(ee),
        aes(wyear, fit))+
@@ -273,4 +289,218 @@ ggplot(as.data.frame(ee),
 # but it’s very small and the trend is opposite what we would expect (perhaps due to dam construction 
 # induced baseflows during summer for irrigation and whatnot ???
 # Maybe should separate perennial from non-perennial gages ? before and after 1960?
-#                                                                       
+#  
+
+unique(daily_data_metrics$site_no) # 359
+gage_w_zero <- unique(daily_data_metrics$site_no[daily_data_metrics$noflowdays > 0 ]) # 173
+
+daily_I_gages <- daily_data_metrics[daily_data_metrics$site_no %in% gage_w_zero, ]
+daily_I_gages_10wyr <- daily_I_gages[daily_I_gages$site_no %in% gages_10wyr$site_no, ]
+
+daily_I_gages_10wyr$s_wyear <- scale(daily_I_gages_10wyr$wyear)[,1]
+str(daily_I_gages$s_wyear)
+m2 <- glmer(noflowdays ~  s_wyear + (1|site_no), family = "poisson", data = daily_I_gages_10wyr)
+ef <- Effect("s_wyear", m2)
+theme_set(theme_bw())
+ggplot(as.data.frame(ef),
+       aes(s_wyear, fit))+
+  geom_line()+
+  ## colour=NA suppresses edges of the ribbon
+  geom_ribbon(colour=NA,alpha=0.1,
+              aes(ymin=lower,ymax=upper))+
+  ## add rug plot based on original data
+  geom_rug(data=ef$data,aes(y=NULL),sides="b")
+
+m3 <- glmer(noflowdays ~  wyear + (1|site_no), family = "poisson", data = daily_I_gages_10wyr)
+ef <- Effect("wyear", m3)
+theme_set(theme_bw())
+ggplot(as.data.frame(ef),
+       aes(wyear, fit))+
+  geom_line()+
+  ## colour=NA suppresses edges of the ribbon
+  geom_ribbon(colour=NA,alpha=0.1,
+              aes(ymin=lower,ymax=upper))+
+  ## add rug plot based on original data
+  geom_rug(data=ef$data,aes(y=NULL),sides="b")
+
+modern_daily_I <- daily_I_gages_10wyr[daily_I_gages_10wyr$wyear >= 1980, ]
+m4 <- glmer(noflowdays ~ wyear + (1|site_no), family = "poisson", data = modern_daily_I)
+ef <- Effect("wyear", m4)
+theme_set(theme_bw())
+ggplot(as.data.frame(ef),
+       aes(wyear, fit))+
+  geom_line()+
+  ## colour=NA suppresses edges of the ribbon
+  geom_ribbon(colour=NA,alpha=0.1,
+              aes(ymin=lower,ymax=upper))+
+  ## add rug plot based on original data
+  geom_rug(data=ef$data,aes(y=NULL),sides="b")
+
+
+gage_record_modern <- daily_data_metrics[daily_data_metrics$wyear >= 1980, ] %>% group_by(site_no) %>% summarise(first_yr = min(wyear),
+                                                                      last_yr = max(wyear),
+                                                                      total_samps = sum(unique(wyear)))
+gages_10wyr_modern <- gage_record_modern[gage_record_modern$last_yr - gage_record_modern$first_yr >=10 & gage_record_modern$total_samps >=10, ]
+
+modern_daily_I_10 <- modern_daily_I[modern_daily_I$site_no %in% gages_10wyr_modern$site_no, ]
+m5 <- glmer(noflowdays ~ wyear + (1|site_no), family = "poisson", data = modern_daily_I_10)
+ef <- Effect("wyear", m5)
+theme_set(theme_bw())
+ggplot(as.data.frame(ef),
+       aes(wyear, fit))+
+  geom_line()+
+  ## colour=NA suppresses edges of the ribbon
+  geom_ribbon(colour=NA,alpha=0.1,
+              aes(ymin=lower,ymax=upper))+
+  ## add rug plot based on original data
+  geom_rug(data=ef$data,aes(y=NULL),sides="b")
+
+# Make a plot of trends by gage. Scatterplot very unclear
+plot(noflowdays~wyear, data = daily_data_metrics)
+
+
+# Example from Effect library
+# data(cake, package="lme4")
+# fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
+#             REML = FALSE)
+# plot(Effect(c("recipe", "temperature"), fm1))
+# 
+# plot(effect("recipe:temperature", fm1),
+#      axes=list(grid=TRUE)) # equivalent (plus grid)
+?glmer
+m6 <- glmer(noflowdays ~ wyear + (wyear|site_no),  family = "poisson", data = modern_daily_I_10)
+m6l <- lmer(noflowdays ~ wyear + (wyear|site_no),  data = modern_daily_I_10)
+#str(m6)
+?Effect()
+?ranef()
+ef <- Effect("wyear", m6l)
+theme_set(theme_bw())
+ggplot(as.data.frame(ef),
+       aes(wyear, fit))+
+  geom_line()+ 
+  ## colour=NA suppresses edges of the ribbon
+  geom_ribbon(colour=NA,alpha=0.1,
+              aes(ymin=lower,ymax=upper))+
+  ## add rug plot based on original data
+  geom_rug(data=ef$data,aes(y=NULL),sides="b")
+
+?ranef
+rr6 <- ranef(m6)
+fixef(m6l)
+dotplot(rr6)
+qqmath(rr6)
+dotplot(rr6, scales = list(x = list(relation = 'free')))[["site_no"]]
+
+library(lattice) ## for dotplot, qqmath
+## as.data.frame() provides RE's and conditional standard deviations:
+str(dd <- as.data.frame(rr6))
+  ggplot(dd, aes(y=grp,x=condval)) +
+    geom_point() + facet_wrap(~term,scales="free_x") +
+    geom_errorbarh(aes(xmin=condval -2*condsd,
+                       xmax=condval +2*condsd), height=0)
+
+row.names(rr6$site_no)
+df6 <- cbind(dd$grp[1:142], as.data.frame(rr6$site_no))
+
+colnames(df6) <- c("site_no", "intercept", "slope_wyear")
+dff6 <- as.data.frame(df6)
+
+# ggplot(modern_daily_I_10) +
+#   aes(x = wyear, y = noflowdays) +
+#   geom_abline(
+#     aes(intercept = intercept, slope = slope_wyear),
+#     data = dff6,
+#     color = "#3366FF",
+#     alpha = .1
+#   ) +
+#    geom_point() # +
+#   # facet_wrap("site_no") +
+#   # scale_x_continuous(breaks = 0:4 * 2)
+
+ggplot(as.data.frame(ef),
+aes(wyear, fit))+
+  geom_line()+ 
+  ## colour=NA suppresses edges of the ribbon
+  geom_ribbon(colour=NA,alpha=0.1,
+              aes(ymin=lower,ymax=upper))+
+  ## add rug plot based on original data
+  geom_rug(data=ef$data,aes(y=NULL),sides="b") +
+
+  geom_abline(
+    aes(intercept = intercept, slope = slope_wyear), 
+    data = df6, 
+    color = "#3366FF", 
+    alpha = .5)
+
+?ggplot()
+ggplot(modern_daily_I_10) +
+       aes(wyear, noflowdays)+
+  geom_point()+
+  geom_abline(
+    aes(intercept = -1309.790310, slope = 0.698083),
+    color = "#3366FF",
+    size = 2
+    
+  ) + 
+  geom_abline(
+    aes(intercept = intercept, slope = slope_wyear), 
+    data = df6, 
+    color = "#3366FF", 
+    alpha = .5)
+
+
+library(ggeffects) # https://strengejacke.github.io/ggeffects/
+# https://strengejacke.github.io/ggeffects/articles/introduction_randomeffects.html
+
+library(sjPlot) # https://strengejacke.github.io/sjPlot/
+# # Examples from https://www.r-bloggers.com/2014/11/visualizing-generalized-linear-mixed-effects-models-part-2-rstats-lme4/
+
+
+plot_model(m6l, type = "pred")
+plot_model(m6l, type = "re", facet.grid = FALSE)
+
+fp <- ggpredict(m6, terms = "wyear", type = "random")
+plot(fp, ci = FALSE)
+
+fp <- ggpredict(m6l, terms = c("wyear", "site_no"), type = "random")
+plot(fp, ci = FALSE)
+
+m7 <- glmer(noflowdays ~ s_wyear + (1 + s_wyear|site_no), family = "poisson", data = modern_daily_I_10)
+
+fp <- ggpredict(m7, terms = "s_wyear", type = "random")
+plot(fp, ci = TRUE)
+
+fp <- ggpredict(m6, terms = c("wyear", "site_no [sample = 9]"), type = "random") # NOte the max lines it will plot is 9, something to do with paletted settings on plot I think
+fp_main <- ggpredict(m6, terms = "wyear", type = "random")
+plot(fp, ci = FALSE)
+plot(fp, add.data = TRUE, ci = FALSE)
+plot(fp_main, add.dat = TRUE,  ci = FALSE) #doesn't work
+ggpredict
+
+fp2 <- ggpredict(m6, terms = c("wyear", "site_no"), type = "random")
+plot (fp2)
+
+#ugh next time just use stanR and Freya's code this is ridiculous
+# https://www.tjmahr.com/plotting-partial-pooling-in-mixed-effects-models/
+# "PartialPoolingExample.R"
+## Rstanarm partial pooling model
+
+## example pulled from https://www.tjmahr.com/plotting-partial-pooling-in-mixed-effects-models/
+
+## libraries
+library(rstanarm)
+
+
+
+# OTHER THINGS I TRIED. THe ondes that aren't hashed out kind of worked----------------------------------------------------
+# http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#predictions-andor-confidence-or-prediction-intervals-on-predictions
+
+# Another way - maybe more flexible to plot all - DOESN"T WORK
+# https://drizopoulos.github.io/GLMMadaptive/articles/Methods_MixMod.html
+
+# A manual way to do it
+# from https://stackoverflow.com/questions/53255211/plotting-random-effects-for-a-binomial-glmer-in-ggplot
+# https://stackoverflow.com/questions/51519690/convert-cbind-format-for- binomial-glm-in-r-to-a-dataframe-with-individual-rows
+#
+
+
