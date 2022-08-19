@@ -99,6 +99,7 @@ tempnov2 <- left_join(tempnov, tempallNov, by = "hex.id")
 tempsummer2$anol <- tempsummer2$overallavg - tempsummer2$avgTemp
 tempnov2$anol <- tempnov2$overallavg - tempnov$avgTemp
 tempnov2$avgTemp[is.nan(tempnov2$avgTemp)]<-NA
+tempnov3 <- na.omit(tempnov2)
 
 
 ## plot temp anomaly
@@ -120,6 +121,26 @@ AUSsumm <- tempsummer3 %>%
   ggtitle("AUS summer temperature anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 ggsave(AUSsumm, filename = "figures/AUSsummertemp_box.png", dpi = 300, height = 5, width = 6)
+
+
+# plot avg November temp anomaly boxplots with fill
+AUSnov <- tempnov3 %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  # stat_summary(fun.y= "mean",
+  #              aes(y=mean.anol,color=mean.anol)) +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("November temperature anomaly (°C)") +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  ggtitle("AUS November temperature anomaly") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(AUSnov)
+ggsave(AUSnov, filename = "figures/AUSnovtemp_box.png", dpi = 300, height = 5, width = 6)
 
 # look at temp by year with grouped sites
 AUStempridges <- ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
