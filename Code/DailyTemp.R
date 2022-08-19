@@ -86,19 +86,19 @@ tempall <- tempsummer %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 
 # All time Nov temp C
-tempall <- tempnov %>%
-  group_by(Site) %>%
+tempallNov <- tempnov %>%
+  group_by(hex.id) %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 
 # merge overall avg with annual average
 tempsummer2 <- left_join(tempsummer, tempall, by = "hex.id")
 tempsummer3 <- na.omit(tempsummer2)
-tempnov2 <- left_join(tempnov, tempall, by = "hex.id")
+tempnov2 <- left_join(tempnov, tempallNov, by = "hex.id")
 
 # calculate annual anomaly
 tempsummer2$anol <- tempsummer2$overallavg - tempsummer2$avgTemp
 tempnov2$anol <- tempnov2$overallavg - tempnov$avgTemp
-
+tempnov2$avgTemp[is.nan(tempnov2$avgTemp)]<-NA
 
 
 ## plot temp anomaly
@@ -121,13 +121,13 @@ AUSsumm <- tempsummer3 %>%
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 ggsave(AUSsumm, filename = "figures/AUSsummertemp_box.png", dpi = 300, height = 5, width = 6)
 
-# look at temp by site
-ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
+# look at temp by year with grouped sites
+AUStempridges <- ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
   scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
   scale_color_viridis_c(name = "Temp anomaly", option = "C") +
   ylab("Year") +
-  xlab("Average summer temperature anomaly for Nov-Feb") +
+  xlab("Temperature anomaly for Dec-Feb") +
   labs(
     title = 'Australia summer temperature averages',
     subtitle = 'Mean temperature anomaly (°C) from 1979-2021'
@@ -135,18 +135,20 @@ ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
   theme_ridges(font_size = 14, grid = FALSE) + 
   theme(axis.title.y = element_blank()) +
   geom_vline(xintercept = 0, linetype = "dotted", size = 1)
+ggsave(AUStempridges, filename = "figures/AUS_summertemp_ridges.png", dpi = 300, height = 10, width = 5)
 
 ## only November temp anomalies
-ggplot(tempnov2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
+AUStempNov <- ggplot(tempnov2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
   scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
   scale_color_viridis_c(name = "Temp anomaly", option = "C") +
   ylab("Year") +
-  xlab("Temperature anomaly for November") +
+  xlab("Temperature anomaly") +
   labs(
-    title = 'Australia November temperatures',
+    title = 'AUS November temperatures',
     subtitle = 'Mean temperature anomaly (°C) from 1979-2021'
   ) +
   theme_ridges(font_size = 14, grid = FALSE) + 
   theme(axis.title.y = element_blank()) +
   geom_vline(xintercept = 0, linetype = "dotted", size = 1)
+ggsave(AUStempNov, filename = "figures/AUS_Novtemp_ridges.png", dpi = 300, height = 10, width = 5)
