@@ -1,5 +1,5 @@
 # climate data for AUS
-dailytemp <- read.csv("Data/Avg_daily_temp_fish_sites_1979-2022_NAremoved.csv", header = TRUE)
+dailytemp <- read.csv("Data/Avg_daily_temp_hex_centroids_1979-2022_0.1dd.csv", header = TRUE)
 
 # libraries
 library(dplyr)
@@ -19,10 +19,14 @@ templong <- dailytemp %>%
 summary(templong)
 
 # new dataframe
-tempUSE <- templong[,c(5:8, 125:126)]
+tempUSE <- templong[,c(2:4, 121:122)
+
+# # change NaN into NA
+# tempUSE[is.nan(tempUSE$TempC)]<-NA
+# View(tempUSE)
 
 # make habitat and site factors
-tempUSE$Site <- as.factor(tempUSE$Site)
+tempUSE$hex.id <- as.factor(tempUSE$hex.id)
 tempUSE$habitat <- as.factor(tempUSE$habitat)
 
 # extract month from date 
@@ -44,7 +48,7 @@ tempUSE <- filter(tempUSE, year != 2022)
 ## make average monthly temperature by site
 ## for Dec-Feb
 tempsummer <- tempUSE %>%
-  group_by(Site, decimalLatitude, year) %>%
+  group_by(hex.id, latitude, year) %>%
   filter(month == 12 | month == 1 | month == 2) %>%
   summarise(avgTemp = mean(TempC, na.rm = TRUE),
             sdTemp = sd(TempC, na.rm = TRUE),
@@ -52,15 +56,17 @@ tempsummer <- tempUSE %>%
 
 ## for Nov-Feb
 tempsummer <- tempUSE %>%
-  group_by(Site, decimalLatitude, year) %>%
+  group_by(hex.id, latitude, year) %>%
   filter(month == 11 | month == 12 | month == 1 | month == 2) %>%
   summarise(avgTemp = mean(TempC, na.rm = TRUE),
             sdTemp = sd(TempC, na.rm = TRUE),
             n = n())
+tempsummer$avgTemp[is.nan(tempsummer$avgTemp)]<-NA
+View(tempsummer)
 
 ## Nov only (start of summer -- is it getting earlier?)
 tempnov <- tempUSE %>%
-  group_by(Site, decimalLatitude, year) %>%
+  group_by(hex.id, latitude, year) %>%
   filter(month == 11) %>%
   summarise(avgTemp = mean(TempC, na.rm = TRUE),
             sdTemp = sd(TempC, na.rm = TRUE),
@@ -74,8 +80,9 @@ tempnov <- tempUSE %>%
 #             n = n())
 
 # All time average summer temp C
+## Do I need to take the average of averages?
 tempall <- tempsummer %>%
-  group_by(Site) %>%
+  group_by(hex.id) %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 
 # All time Nov temp C
@@ -84,25 +91,35 @@ tempall <- tempnov %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 
 # merge overall avg with annual average
-tempsummer2 <- left_join(tempsummer, tempall, by = "Site")
-tempnov2 <- left_join(tempnov, tempall, by = "Site")
+tempsummer2 <- left_join(tempsummer, tempall, by = "hex.id")
+tempsummer3 <- na.omit(tempsummer2)
+tempnov2 <- left_join(tempnov, tempall, by = "hex.id")
 
 # calculate annual anomaly
 tempsummer2$anol <- tempsummer2$overallavg - tempsummer2$avgTemp
 tempnov2$anol <- tempnov2$overallavg - tempnov$avgTemp
 
+
+
 ## plot temp anomaly
-tempanol <- ggplot(tempsummer2, aes(x = year, y = anol, group = year)) +
-  # geom_point(pch = 21, fill = "gray50", alpha = 0.5) +
-  geom_boxplot() +
+
+# plot avg temp anomaly boxplots with fill
+AUSsumm <- tempsummer3 %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  # stat_summary(fun.y= "mean",
+  #              aes(y=mean.anol,color=mean.anol)) +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   ylab("Summer temperature anomaly (°C)") +
-  ggtitle("Annual summer temperature anomaly") +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  ggtitle("AUS summer temperature anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
-print(tempanol)
-
+ggsave(AUSsumm, filename = "figures/AUSsummertemp_box.png", dpi = 300, height = 5, width = 6)
 
 # look at temp by site
 ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
