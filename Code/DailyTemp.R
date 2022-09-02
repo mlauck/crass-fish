@@ -1,5 +1,5 @@
 # climate data for AUS
-dailytemp <- read.csv("Data/Avg_daily_temp_hex_centroids_1979-2022_0.1dd.csv", header = TRUE)
+dailytemp <- read.csv("~/Repositories/LargeData/Avg_daily_temp_fish_sites_1979-2022_NAremoved.csv", header = TRUE)
 
 # libraries
 library(dplyr)
@@ -8,10 +8,21 @@ library(stringr)
 library(ggplot2)
 library(ggridges)
 
+# huge data frame. Try filtering out some values up front
+dailytemp2 <- dailytemp %>%
+  select(-contains('X2022'))
+
+# separate US and AUS gages
+AUStemp <- dailytemp2 %>%
+  filter(latitude < 0)
+
+UStemp <- dailytemp2 %>%
+  filter(latitude > 0)
+
 # convert from wide to long format using dplyr
-templong <- dailytemp %>%
+templong <- AUStemp %>%
   tidyr::pivot_longer(
-    cols = c("X1979.01.01":"X2022.01.01"),
+    cols = c("X1979.01.01":"X2021.12.31"),
     names_to = "date",
     values_to = "TempC"
   )
@@ -19,25 +30,23 @@ templong <- dailytemp %>%
 summary(templong)
 
 # new dataframe
-tempUSE <- templong[,c(2:4, 121:122)
+AUStempUSE <- templong
 
 # # change NaN into NA
 # tempUSE[is.nan(tempUSE$TempC)]<-NA
 # View(tempUSE)
 
 # make habitat and site factors
-tempUSE$hex.id <- as.factor(tempUSE$hex.id)
-tempUSE$habitat <- as.factor(tempUSE$habitat)
+AUStempUSE$hex.id <- as.factor(AUStempUSE$hex.id)
+
 
 # extract month from date 
 # format = X1979.01.01
-tempUSE$month <- as.numeric(str_sub(tempUSE$date, 7, 8))
+AUStempUSE$month <- as.numeric(str_sub(AUStempUSE$date, 7, 8))
 
 # extract year
-tempUSE$year <- as.numeric(str_sub(tempUSE$date, 2, 5))
+AUStempUSE$year <- as.numeric(str_sub(AUStempUSE$date, 2, 5))
 
-# eliminate 2022 because fewer data points
-tempUSE <- filter(tempUSE, year != 2022)
 
 # ## save this as rda
 # saveRDS(tempUSE, "Data/tempUSE.rda")
@@ -47,7 +56,7 @@ tempUSE <- filter(tempUSE, year != 2022)
 
 ## make average monthly temperature by site
 ## for Dec-Feb
-tempsummer <- tempUSE %>%
+tempsummer <- AUStempUSE %>%
   group_by(hex.id, latitude, year) %>%
   filter(month == 12 | month == 1 | month == 2) %>%
   summarise(avgTemp = mean(TempC, na.rm = TRUE),
@@ -73,11 +82,11 @@ tempnov <- tempUSE %>%
             n = n())
 
 # # temp year
-# tempyear <- tempUSE %>%
-#   group_by(Site, year) %>%
-#   summarise(avgTemp = mean(TempC, na.rm = TRUE),
-#             sdTemp = sd(TempC, na.rm = TRUE),
-#             n = n())
+tempyear <- tempUSE %>%
+  group_by(Site, year) %>%
+  summarise(avgTemp = mean(TempC, na.rm = TRUE),
+            sdTemp = sd(TempC, na.rm = TRUE),
+            n = n())
 
 # All time average summer temp C
 ## Do I need to take the average of averages?
@@ -92,15 +101,16 @@ tempallNov <- tempnov %>%
 
 # merge overall avg with annual average
 tempsummer2 <- left_join(tempsummer, tempall, by = "hex.id")
-tempsummer3 <- na.omit(tempsummer2)
 tempnov2 <- left_join(tempnov, tempallNov, by = "hex.id")
 
 # calculate annual anomaly
 tempsummer2$anol <- tempsummer2$overallavg - tempsummer2$avgTemp
 tempnov2$anol <- tempnov2$overallavg - tempnov$avgTemp
 tempnov2$avgTemp[is.nan(tempnov2$avgTemp)]<-NA
-tempnov3 <- na.omit(tempnov2)
 
+# remove NAs
+tempnov3 <- na.omit(tempnov2)
+tempsummer3 <- na.omit(tempsummer2)
 
 ## plot temp anomaly
 
@@ -118,8 +128,9 @@ AUSsumm <- tempsummer3 %>%
   xlab("Year") +
   ylab("Summer temperature anomaly (°C)") +
   scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
-  ggtitle("AUS summer temperature anomaly") +
+  ggtitle("Australia") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(AUSsumm)
 ggsave(AUSsumm, filename = "figures/AUSsummertemp_box.png", dpi = 300, height = 5, width = 6)
 
 
