@@ -1,6 +1,7 @@
 # climate data for AUS
 dailytemp <- read.csv("~/Repositories/LargeData/Avg_daily_temp_fish_sites_1979-2022_NAremoved.csv", header = TRUE)
 
+
 # libraries
 library(dplyr)
 library(tidyr)
@@ -316,7 +317,7 @@ ridgemulti <- ggarrange(labels = c("(a)", "(b)"),
                          legend = "right") 
 print(ridgemulti)
 
-ggsave(ridgemulti, filename = "figures/combined_ridges.png", height = 16, width = 12, dpi = 300)
+ggsave(ridgemulti, filename = "figures/combined_ridges.png", height = 14, width = 12, dpi = 300)
 
 
 # ## only November temp anomalies
