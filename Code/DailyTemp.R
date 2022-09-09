@@ -196,13 +196,13 @@ AUSsd <- tempsummer %>%
   group_by(year) %>% 
   mutate(mean.sd = mean(sdTemp)) %>% 
   ggplot( aes(x = year, y = sdTemp, group = year)) +
-  scale_fill_viridis_c(name = "Temp stdev", option = "C") +
+  scale_fill_viridis_c(name = "Avg temp sd", option = "C") +
   geom_boxplot(aes(fill = mean.sd)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
-  ylab("Summer temperature standard deviation") +
-  ggtitle("Australia temperature standard deviation") 
+  ylab("Summer temperature sd") +
+  ggtitle("Australia temperature sd") 
 print(AUSsd)
 ggsave(AUSsd, filename = "figures/AUSsdtemp_box.png", dpi = 300, height = 5, width = 6)
 
@@ -210,31 +210,29 @@ USsd <- tempsummer2US %>%
   group_by(year) %>% 
   mutate(mean.sd= mean(sdTemp)) %>% 
   ggplot( aes(x = year, y = sdTemp, group = year)) +
-  scale_fill_viridis_c(name = "Temp stdev", option = "C") +
+  scale_fill_viridis_c(name = "Avg temp sd", option = "C") +
   geom_boxplot(aes(fill = mean.sd)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
-  ylab("Summer temperature standard deviation") +
-  ggtitle("United States")
+  ylab("Summer temperature sd") +
+  ggtitle("United States temperature sd")
 print(USsd)
 ggsave(USsd, filename = "figures/USsdtemp_box.png", dpi = 300, height = 5, width = 6)
 
 
 ## make multipanel
-tempsdmulti <- ggarrange(labels = c("(a)", "(b)", "(c)", "(d)"),
+tempsdmulti <- ggarrange(labels = c("(a)", "(b)"),
                        align = "hv",
-                       AUSsumm, 
-                       USsumm,
                        AUSsd,
                        USsd,
-                       nrow = 2, 
+                       nrow = 1, 
                        ncol = 2,
                        common.legend = TRUE, 
                        legend = "right") 
 print(tempsdmulti)
 
-ggsave(tempsdmulti, filename = "figures/combined_temp&sd.png", height = 12, width = 12, dpi = 300)
+ggsave(tempsdmulti, filename = "figures/combined_tempsd.png", height = 5, width = 12, dpi = 300)
 
 
 
