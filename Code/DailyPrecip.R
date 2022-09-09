@@ -69,19 +69,37 @@ USprecipUSE2 <- na.omit(USprecipUSE)
 # summer precip?
 # intensity
 
-AUSprecipUSE2 <- AUSprecipUSE2 %>%
+AUSprecipUSE3 <- AUSprecipUSE2 %>%
   group_by(hex.id, latitude, year) %>%
   summarise(total = sum(Precip, na.rm = TRUE),
             intensity = sum(Precip/n(), na.rm = TRUE))
 
-USprecipUSE2 <- USprecipUSE2 %>%
+USprecipUSE3 <- USprecipUSE2 %>%
   group_by(hex.id, latitude, year) %>%
   summarise(total = sum(Precip, na.rm = TRUE),
             intensity = sum(Precip/n(), na.rm = TRUE))
 
+## overall averages
+AUSall <- AUSprecipUSE3 %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(total, na.rm = TRUE),
+            avginten = mean(intensity, na.rm = TRUE))
+
+USall <- USprecipUSE3 %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(total, na.rm = TRUE),
+  avginten = mean(intensity, na.rm = TRUE))
+
+# merge overall avg with annual average
+AUSprecipUSE4 <- left_join(AUSprecipUSE3, AUSall, by = "hex.id")
+USprecipUSE4 <- left_join(USprecipUSE3, USall, by = "hex.id")
+
+# calculate annual precipitation total anomaly
+AUSprecipUSE4$anol <- AUSprecipUSE4$total - AUSprecipUSE4$overallavg
+USprecipUSE4$anol <- USprecipUSE4$total - USprecipUSE4$overallavg
 
 ## plot annual precipitation change ----
-AUSprecip <- AUSprecipUSE2 %>% 
+AUSprecip <- AUSprecipUSE3 %>% 
   group_by(year) %>% 
   mutate(mean.precip= mean(total)) %>% 
   ggplot( aes(x = year, y = total, group = year)) +
@@ -96,7 +114,7 @@ print(AUSprecip)
 ggsave(AUSprecip, filename = "figures/AUSannualprecip_box.png", dpi = 300, height = 5, width = 6)
 
 
-USprecip <- USprecipUSE2 %>% 
+USprecip <- USprecipUSE3 %>% 
   group_by(year) %>% 
   mutate(mean.precip= mean(total)) %>% 
   ggplot( aes(x = year, y = total, group = year)) +
@@ -109,3 +127,36 @@ USprecip <- USprecipUSE2 %>%
   ggtitle("US precipitation")
 print(USprecip)
 ggsave(USprecip, filename = "figures/USannualprecip_box.png", dpi = 300, height = 5, width = 6)
+
+
+## plot anomaly
+AUSanol <- AUSprecipUSE4 %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  scale_fill_viridis_c(name = "Precip anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Total precip anomaly (mm)") +
+  ggtitle("Australia") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(AUSanol)
+ggsave(AUSanol, filename = "figures/AUSprecipanol_box.png", dpi = 300, height = 5, width = 6)
+
+
+USanol <- USprecipUSE4 %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  scale_fill_viridis_c(name = "Precip anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Total precip anomaly (mm)") +
+  ggtitle("United States") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(USanol)
+ggsave(USanol, filename = "figures/USprecipanol_box.png", dpi = 300, height = 5, width = 6)
