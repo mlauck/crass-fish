@@ -111,7 +111,7 @@ AUSprecip <- AUSprecipUSE3 %>%
   ylab("Total annual precip (mm)") +
   ggtitle("Australia precipitation")
 print(AUSprecip)
-ggsave(AUSprecip, filename = "figures/AUSannualprecip_box.png", dpi = 300, height = 5, width = 6)
+ggsave(AUSprecip, filename = "figures/AUSannualprecip_box.png", dpi = 300, height = 6, width = 8)
 
 
 USprecip <- USprecipUSE3 %>% 
@@ -126,7 +126,7 @@ USprecip <- USprecipUSE3 %>%
   ylab("Total annual precip (mm)") +
   ggtitle("US precipitation")
 print(USprecip)
-ggsave(USprecip, filename = "figures/USannualprecip_box.png", dpi = 300, height = 5, width = 6)
+ggsave(USprecip, filename = "figures/USannualprecip_box.png", dpi = 300, height = 6, width = 8)
 
 
 ## plot anomaly
@@ -134,7 +134,7 @@ AUSanol <- AUSprecipUSE4 %>%
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
   ggplot( aes(x = year, y = anol, group = year)) +
-  scale_fill_viridis_c(name = "Precip anomaly", option = "C") +
+  scale_fill_viridis_c(name = "Precip anomaly", direction = -1) +
   geom_boxplot(aes(fill = mean.anol)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
@@ -143,14 +143,14 @@ AUSanol <- AUSprecipUSE4 %>%
   ggtitle("Australia") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 print(AUSanol)
-ggsave(AUSanol, filename = "figures/AUSprecipanol_box.png", dpi = 300, height = 5, width = 6)
+ggsave(AUSanol, filename = "figures/AUSprecipanol_box.png", dpi = 300, height = 6, width = 8)
 
 
 USanol <- USprecipUSE4 %>% 
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
   ggplot( aes(x = year, y = anol, group = year)) +
-  scale_fill_viridis_c(name = "Precip anomaly", option = "C") +
+  scale_fill_viridis_c(name = "Precip anomaly", direction = -1) +
   geom_boxplot(aes(fill = mean.anol)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
@@ -159,4 +159,10 @@ USanol <- USprecipUSE4 %>%
   ggtitle("United States") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 print(USanol)
-ggsave(USanol, filename = "figures/USprecipanol_box.png", dpi = 300, height = 5, width = 6)
+ggsave(USanol, filename = "figures/USprecipanol_box.png", dpi = 300, height = 6, width = 8)
+
+## 
+mod <- lm(anol ~ year, data = USprecipUSE4)
+summary(mod)
+mod1 <- lm(anol ~ year, data = AUSprecipUSE4)
+summary(mod1)
