@@ -272,21 +272,51 @@ ggsave(tempsdmulti, filename = "figures/combined_tempsd.png", height = 5, width 
 # ggsave(AUSnov, filename = "figures/AUSnovtemp_box.png", dpi = 300, height = 5, width = 6)
 # 
 # # look at temp by year with grouped sites
-# AUStempridges <- ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
-#   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
-#   scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
-#   scale_color_viridis_c(name = "Temp anomaly", option = "C") +
-#   ylab("Year") +
-#   xlab("Temperature anomaly for Dec-Feb") +
-#   labs(
-#     title = 'Australia summer temperature averages',
-#     subtitle = 'Mean temperature anomaly (°C) from 1979-2021'
-#   ) +
-#   theme_ridges(font_size = 14, grid = FALSE) + 
-#   theme(axis.title.y = element_blank()) +
-#   geom_vline(xintercept = 0, linetype = "dotted", size = 1)
-# ggsave(AUStempridges, filename = "figures/AUS_summertemp_ridges.png", dpi = 300, height = 10, width = 5)
-# 
+AUStempridges <- ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  scale_color_viridis_c(name = "Temp anomaly", option = "C") +
+  ylab("Year") +
+  xlab("Temperature anomaly for Dec-Feb") +
+  labs(
+    title = 'Australia summer temperature averages',
+    subtitle = 'Mean temperature anomaly (°C) from 1979-2021'
+  ) +
+  theme_ridges(font_size = 14, grid = FALSE) +
+  theme(axis.title.y = element_blank()) +
+  geom_vline(xintercept = 0, linetype = "dotted", size = 1)
+print(AUStempridges)
+ggsave(AUStempridges, filename = "figures/AUS_summertemp_ridges.png", dpi = 300, height = 10, width = 5)
+
+UStempridges <- ggplot(tempsummer2US, aes(x = anol, y = as.factor(year), fill = stat(x))) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  scale_color_viridis_c(name = "Temp anomaly", option = "C") +
+  ylab("Year") +
+  xlab("Temperature anomaly for Jun-Aug") +
+  labs(
+    title = 'US summer temperature averages',
+    subtitle = 'Mean temperature anomaly (°C) from 1979-2021'
+  ) +
+  theme_ridges(font_size = 14, grid = FALSE) +
+  theme(axis.title.y = element_blank()) +
+  geom_vline(xintercept = 0, linetype = "dotted", size = 1)
+print(UStempridges)
+ggsave(UStempridges, filename = "figures/US_summertemp_ridges.png", dpi = 300, height = 10, width = 5)
+
+ridgemulti <- ggarrange(labels = c("(a)", "(b)"),
+                         align = "hv",
+                         AUStempridges,
+                         UStempridges,
+                         nrow = 1, 
+                         ncol = 2,
+                         common.legend = TRUE, 
+                         legend = "right") 
+print(ridgemulti)
+
+ggsave(ridgemulti, filename = "figures/combined_ridges.png", height = 14, width = 12, dpi = 300)
+
+
 # ## only November temp anomalies
 # AUStempNov <- ggplot(tempnov2, aes(x = anol, y = as.factor(year), fill = stat(x))) +
 #   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01, gradient_lwd = 1.) +
