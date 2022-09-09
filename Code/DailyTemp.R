@@ -277,6 +277,7 @@ AUStempridges <- ggplot(tempsummer2, aes(x = anol, y = as.factor(year), fill = s
   scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
   scale_color_viridis_c(name = "Temp anomaly", option = "C") +
   ylab("Year") +
+  xlim(-6,6) +
   xlab("Temperature anomaly for Dec-Feb") +
   labs(
     title = 'Australia summer temperature averages',
@@ -294,6 +295,7 @@ UStempridges <- ggplot(tempsummer2US, aes(x = anol, y = as.factor(year), fill = 
   scale_color_viridis_c(name = "Temp anomaly", option = "C") +
   ylab("Year") +
   xlab("Temperature anomaly for Jun-Aug") +
+  xlim(-6, 6) +
   labs(
     title = 'US summer temperature averages',
     subtitle = 'Mean temperature anomaly (°C) from 1979-2021'
@@ -314,7 +316,7 @@ ridgemulti <- ggarrange(labels = c("(a)", "(b)"),
                          legend = "right") 
 print(ridgemulti)
 
-ggsave(ridgemulti, filename = "figures/combined_ridges.png", height = 14, width = 12, dpi = 300)
+ggsave(ridgemulti, filename = "figures/combined_ridges.png", height = 16, width = 12, dpi = 300)
 
 
 # ## only November temp anomalies
