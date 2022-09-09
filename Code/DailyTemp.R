@@ -128,16 +128,16 @@ tempallUS <- tempsummerUS %>%
 
 # merge overall avg with annual average
 tempsummer2 <- left_join(tempsummer, tempall, by = "hex.id")
-tempnov2 <- left_join(tempnov, tempallNov, by = "hex.id")
+# tempnov2 <- left_join(tempnov, tempallNov, by = "hex.id")
 
 tempsummer2US <- left_join(tempsummerUS, tempallUS, by = "hex.id")
 
 # calculate annual anomaly
-tempsummer2$anol <- tempsummer2$overallavg - tempsummer2$avgTemp
-tempnov2$anol <- tempnov2$overallavg - tempnov$avgTemp
+tempsummer2$anol <- tempsummer2$avgTemp - tempsummer2$overallavg
+# tempnov2$anol <- tempnov$avgTemp - tempnov2$overallavg 
 tempnov2$avgTemp[is.nan(tempnov2$avgTemp)]<-NA
 
-tempsummer2US$anol <- tempsummer2US$overallavg - tempsummer2US$avgTemp
+tempsummer2US$anol <- tempsummer2US$avgTemp - tempsummer2US$overallavg
 
 # remove NAs
 tempnov3 <- na.omit(tempnov2)
