@@ -66,40 +66,10 @@ USprecipUSE2 <- na.omit(USprecipUSE)
 
 # number of zero precip days?
 # total precip
-# summer precip?
-# intensity
 
-AUSprecipUSE3 <- AUSprecipUSE2 %>%
-  group_by(hex.id, latitude, year) %>%
-  summarise(total = sum(Precip, na.rm = TRUE),
-            intensity = sum(Precip/n(), na.rm = TRUE))
-
-USprecipUSE3 <- USprecipUSE2 %>%
-  group_by(hex.id, latitude, year) %>%
-  summarise(total = sum(Precip, na.rm = TRUE),
-            intensity = sum(Precip/n(), na.rm = TRUE))
-
-## overall averages
-AUSall <- AUSprecipUSE3 %>%
-  group_by(hex.id) %>%
-  summarize(overallavg = mean(total, na.rm = TRUE),
-            avginten = mean(intensity, na.rm = TRUE))
-
-USall <- USprecipUSE3 %>%
-  group_by(hex.id) %>%
-  summarize(overallavg = mean(total, na.rm = TRUE),
-  avginten = mean(intensity, na.rm = TRUE))
-
-# merge overall avg with annual average
-AUSprecipUSE4 <- left_join(AUSprecipUSE3, AUSall, by = "hex.id")
-USprecipUSE4 <- left_join(USprecipUSE3, USall, by = "hex.id")
-
-# calculate annual precipitation total anomaly
-AUSprecipUSE4$anol <- AUSprecipUSE4$total - AUSprecipUSE4$overallavg
-USprecipUSE4$anol <- USprecipUSE4$total - USprecipUSE4$overallavg
 
 ## plot annual precipitation change ----
-AUSprecip <- AUSprecipUSE3 %>% 
+AUSprecip <- AUSprecipUSE4 %>% 
   group_by(year) %>% 
   mutate(mean.precip= mean(total)) %>% 
   ggplot( aes(x = year, y = total, group = year)) +
@@ -140,7 +110,7 @@ AUSanol <- AUSprecipUSE4 %>%
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   ylab("Total precip anomaly (mm)") +
-  ggtitle("Australia") +
+  ggtitle("Australia precip anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 print(AUSanol)
 ggsave(AUSanol, filename = "figures/AUSprecipanol_box.png", dpi = 300, height = 6, width = 8)
@@ -161,8 +131,36 @@ USanol <- USprecipUSE4 %>%
 print(USanol)
 ggsave(USanol, filename = "figures/USprecipanol_box.png", dpi = 300, height = 6, width = 8)
 
-## 
-mod <- lm(anol ~ year, data = USprecipUSE4)
-summary(mod)
-mod1 <- lm(anol ~ year, data = AUSprecipUSE4)
-summary(mod1)
+## summer precip ----
+# summer precip?
+# intensity --> 
+
+AUSprecipUSE3 <- AUSprecipUSE2 %>%
+  group_by(hex.id, latitude, year) %>%
+  summarise(total = sum(Precip, na.rm = TRUE),
+            intensity = sum(Precip/n(), na.rm = TRUE))
+
+USprecipUSE3 <- USprecipUSE2 %>%
+  group_by(hex.id, latitude, year) %>%
+  summarise(total = sum(Precip, na.rm = TRUE),
+            intensity = sum(Precip/n(), na.rm = TRUE))
+
+## overall averages
+AUSall <- AUSprecipUSE3 %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(total, na.rm = TRUE),
+            avginten = mean(intensity, na.rm = TRUE))
+
+USall <- USprecipUSE3 %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(total, na.rm = TRUE),
+            avginten = mean(intensity, na.rm = TRUE))
+
+# merge overall avg with annual average
+AUSprecipUSE4 <- left_join(AUSprecipUSE3, AUSall, by = "hex.id")
+USprecipUSE4 <- left_join(USprecipUSE3, USall, by = "hex.id")
+
+# calculate annual precipitation total anomaly
+AUSprecipUSE4$anol <- AUSprecipUSE4$total - AUSprecipUSE4$overallavg
+USprecipUSE4$anol <- USprecipUSE4$total - USprecipUSE4$overallavg
+
