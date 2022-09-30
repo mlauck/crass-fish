@@ -63,6 +63,36 @@ AUSprecipUSE2 <- na.omit(AUSprecipUSE)
 USprecipUSE2 <- na.omit(USprecipUSE)
 
 ### calculate precipitation variables of interest ----
+AUSprecipUSE3 <- AUSprecipUSE2 %>%
+  group_by(hex.id, latitude, year) %>%
+  summarise(total = sum(Precip, na.rm = TRUE),
+            intensity = sum(Precip/n(), na.rm = TRUE),
+            zeroDays = sum(Precip == 0, na.rm = TRUE))
+
+USprecipUSE3 <- USprecipUSE2 %>%
+  group_by(hex.id, latitude, year) %>%
+  summarise(total = sum(Precip, na.rm = TRUE),
+            intensity = sum(Precip/n(), na.rm = TRUE),
+            zeroDays = sum(Precip == 0, na.rm = TRUE))
+
+## overall averages
+AUSall <- AUSprecipUSE3 %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(total, na.rm = TRUE),
+            avginten = mean(intensity, na.rm = TRUE))
+
+USall <- USprecipUSE3 %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(total, na.rm = TRUE),
+            avginten = mean(intensity, na.rm = TRUE))
+
+# merge overall avg with annual average
+AUSprecipUSE4 <- left_join(AUSprecipUSE3, AUSall, by = "hex.id")
+USprecipUSE4 <- left_join(USprecipUSE3, USall, by = "hex.id")
+
+# calculate annual precipitation total anomaly
+AUSprecipUSE4$anol <- AUSprecipUSE4$total - AUSprecipUSE4$overallavg
+USprecipUSE4$anol <- USprecipUSE4$total - USprecipUSE4$overallavg
 
 # number of zero precip days?
 # total precip
@@ -99,7 +129,7 @@ print(USprecip)
 ggsave(USprecip, filename = "figures/USannualprecip_box.png", dpi = 300, height = 6, width = 8)
 
 
-## plot anomaly
+## plot anomaly in annual precip
 AUSanol <- AUSprecipUSE4 %>% 
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
@@ -131,36 +161,112 @@ USanol <- USprecipUSE4 %>%
 print(USanol)
 ggsave(USanol, filename = "figures/USprecipanol_box.png", dpi = 300, height = 6, width = 8)
 
+
+## plot zero precip days
+AUSprecip2 <- AUSprecipUSE3 %>% 
+  group_by(year) %>% 
+  mutate(mean.zero= mean(zeroDays)) %>% 
+  ggplot( aes(x = year, y = zeroDays, group = year)) +
+  scale_fill_viridis_c(name = "No. of zero precip days", direction = 1) +
+  geom_boxplot(aes(fill = mean.zero)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Total number of zero precip days") +
+  ggtitle("Australia zero precipitation")
+print(AUSprecip2)
+ggsave(AUSprecip2, filename = "figures/AUSprecipzero_box.png", dpi = 300, height = 6, width = 8)
+
+USprecip2 <- USprecipUSE3 %>% 
+  group_by(year) %>% 
+  mutate(mean.zero= mean(zeroDays)) %>% 
+  ggplot( aes(x = year, y = zeroDays, group = year)) +
+  scale_fill_viridis_c(name = "No. of zero precip days", direction = 1) +
+  geom_boxplot(aes(fill = mean.zero)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Total number of zero precip days") +
+  ggtitle("United States zero precipitation")
+print(USprecip2)
+ggsave(USprecip2, filename = "figures/USprecipzero_box.png", dpi = 300, height = 6, width = 8)
+
+
 ## summer precip ----
-# summer precip?
-# intensity --> 
 
-AUSprecipUSE3 <- AUSprecipUSE2 %>%
-  group_by(hex.id, latitude, year) %>%
-  summarise(total = sum(Precip, na.rm = TRUE),
-            intensity = sum(Precip/n(), na.rm = TRUE))
+## seasonal Mann-Kendall trend test ----
+# https://www.rdocumentation.org/packages/EnvStats/versions/2.3.1/topics/kendallSeasonalTrendTest
+library(EnvStats)
+# head(EPA.09.Ex.14.8.df)
+# 
+# 
+# 
+# # Plot the data
+# #--------------
+# Unadj.Conc <- EPA.09.Ex.14.8.df$Unadj.Conc
+# Adj.Conc   <- EPA.09.Ex.14.8.df$Adj.Conc
+# Month      <- EPA.09.Ex.14.8.df$Month
+# Year       <- EPA.09.Ex.14.8.df$Year
+# Time       <- paste(substring(Month, 1, 3), Year - 1900, sep = "-")
+# n          <- length(Unadj.Conc)
+# Three.Yr.Mean <- mean(Unadj.Conc)
+# 
+# dev.new()
+# par(mar = c(7, 4, 3, 1) + 0.1, cex.lab = 1.25)
+# plot(1:n, Unadj.Conc, type = "n", xaxt = "n",
+#      xlab = "Time (Month)", 
+#      ylab = "ANALYTE CONCENTRATION (mg/L)", 
+#      main = "Figure 14-15. Seasonal Time Series Over a Three Year Period",
+#      cex.main = 1.1)
+# axis(1, at = 1:n, labels = rep("", n))
+# at <- rep(c(1, 5, 9), 3) + rep(c(0, 12, 24), each = 3)
+# axis(1, at = at, labels = Time[at])
+# points(1:n, Unadj.Conc, pch = 0, type = "o", lwd = 2)
+# points(1:n, Adj.Conc, pch = 3, type = "o", col = 8, lwd = 2)
+# abline(h = Three.Yr.Mean, lwd = 2)
+# legend("topleft", c("Unadjusted", "Adjusted", "3-Year Mean"), bty = "n", 
+#        pch = c(0, 3, -1), lty = c(1, 1, 1), lwd = 2, col = c(1, 8, 1),
+#        inset = c(0.05, 0.01))
+# 
+# # run model
+# kendallSeasonalTrendTest(Unadj.Conc ~ Month + Year, 
+#                          data = EPA.09.Ex.14.8.df)
+# 
+# rm(Unadj.Conc, Adj.Conc, Month, Year, Time, n, Three.Yr.Mean, at)
+# graphics.off()
 
-USprecipUSE3 <- USprecipUSE2 %>%
-  group_by(hex.id, latitude, year) %>%
-  summarise(total = sum(Precip, na.rm = TRUE),
-            intensity = sum(Precip/n(), na.rm = TRUE))
+AUSprecipUSE2
 
-## overall averages
-AUSall <- AUSprecipUSE3 %>%
-  group_by(hex.id) %>%
-  summarize(overallavg = mean(total, na.rm = TRUE),
-            avginten = mean(intensity, na.rm = TRUE))
+# assign season
+library(tidyverse)    
+AUSprecipSeason <- AUSprecipUSE2 %>%
+  mutate(Season = case_when(month %in% 9:11 ~ 'Spring',
+                            month %in% 6:8 ~ 'Winter',
+                            month %in% 3:5 ~ 'Fall',
+                            TRUE ~ 'Summer'))
 
-USall <- USprecipUSE3 %>%
-  group_by(hex.id) %>%
-  summarize(overallavg = mean(total, na.rm = TRUE),
-            avginten = mean(intensity, na.rm = TRUE))
+kendallSeasonalTrendTest(Precip ~ Season + year, data = AUSprecipSeason)
 
-# merge overall avg with annual average
-AUSprecipUSE4 <- left_join(AUSprecipUSE3, AUSall, by = "hex.id")
-USprecipUSE4 <- left_join(USprecipUSE3, USall, by = "hex.id")
+# another option
+library(wql)
 
-# calculate annual precipitation total anomaly
-AUSprecipUSE4$anol <- AUSprecipUSE4$total - AUSprecipUSE4$overallavg
-USprecipUSE4$anol <- USprecipUSE4$total - USprecipUSE4$overallavg
+# examples
+# Seasonal Kendall test:
+chl <- sfbayChla # monthly chlorophyll at 16 stations in San Francisco Bay
+seaKen(sfbayChla[, 's27']) # results for a single series at station 27
+seaKen(sfbayChla) # results for all stations
+seaKen(sfbayChla, plot=TRUE, type="relative", order=TRUE)
 
+# Regional Kendall test:
+# Use mts2ts to change 16 series into a single series with 16 "seasons"
+seaKen(mts2ts(chl))  # too many missing data
+# better when just Feb-Apr, spring bloom period,
+# but last 4 stations still missing too much.
+seaKen(mts2ts(chl, seas = 2:4)) 
+seaKen(mts2ts(chl[, 1:12], 2:4)) # more reliable result
+
+# restructure data for seaKen
+# col = sites
+# rows = dates
+
+## want to use this: https://pubs.acs.org/doi/full/10.1021/es051650b
