@@ -192,6 +192,26 @@ print(USprecip2)
 ggsave(USprecip2, filename = "figures/USprecipzero_box.png", dpi = 300, height = 6, width = 8)
 
 
+## intensity
+## annual precip/number of days with rain
+AUSprecipUSE3$intensity <- AUSprecipUSE3$total/(365.25-AUSprecipUSE3$zeroDays)
+USprecipUSE3$intensity <- USprecipUSE3$total/(365.25-USprecipUSE3$zeroDays)
+
+# AUS intensity
+AUSprecipint <- AUSprecipUSE3 %>% 
+  group_by(year) %>% 
+  mutate(mean.zero= mean(intensity)) %>% 
+  ggplot( aes(x = year, y = intensity, group = year)) +
+  scale_fill_viridis_c(name = "Average intensity", direction = 1) +
+  geom_boxplot(aes(fill = mean.zero)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Precipitation intensity (total/days with rain)") +
+  ggtitle("Australia precipitation intensity")
+print(AUSprecipint)
+ggsave(AUSprecipint, filename = "figures/AUSprecipint_box.png", dpi = 300, height = 6, width = 8)
+
 ## summer precip ----
 
 ## seasonal Mann-Kendall trend test ----
