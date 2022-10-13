@@ -111,7 +111,7 @@ AUSprecip <- AUSprecipUSE4 %>%
   ylab("Total annual precip (mm)") +
   ggtitle("Australia precipitation")
 print(AUSprecip)
-ggsave(AUSprecip, filename = "figures/AUSannualprecip_box.png", dpi = 300, height = 6, width = 8)
+# ggsave(AUSprecip, filename = "figures/AUSannualprecip_box.png", dpi = 300, height = 6, width = 8)
 
 
 USprecip <- USprecipUSE3 %>% 
@@ -126,7 +126,7 @@ USprecip <- USprecipUSE3 %>%
   ylab("Total annual precip (mm)") +
   ggtitle("US precipitation")
 print(USprecip)
-ggsave(USprecip, filename = "figures/USannualprecip_box.png", dpi = 300, height = 6, width = 8)
+# ggsave(USprecip, filename = "figures/USannualprecip_box.png", dpi = 300, height = 6, width = 8)
 
 
 ## plot anomaly in annual precip
