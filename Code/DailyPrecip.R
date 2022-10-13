@@ -275,12 +275,23 @@ AUSprecipUSE2
 # assign season
 library(tidyverse)    
 AUSprecipSeason <- AUSprecipUSE2 %>%
-  mutate(Season = case_when(month %in% 9:11 ~ 'Spring',
+  mutate(Season = as.factor(case_when(month %in% 9:11 ~ 'Spring',
                             month %in% 6:8 ~ 'Winter',
                             month %in% 3:5 ~ 'Fall',
-                            TRUE ~ 'Summer'))
+                            TRUE ~ 'Summer')))
 
-kendallSeasonalTrendTest(Precip ~ Season + year, data = AUSprecipSeason)
+# reformat data for analysis
+# hex.id = center of polygon
+# Precip = daily precip
+# Season = season as factor
+# month and year
+AUSprecipSeason2 <- AUSprecipSeason %>%
+  select(hex.id, Precip, month, year, Season) %>%
+  group_by(hex.id, month, Season, year) %>%
+  summarize(monthlyPrec = sum(Precip),
+)
+
+test <- kendallSeasonalTrendTest(monthlyPrec ~ Season + year, data = AUSprecipSeason2)
 
 # another option
 library(wql)
