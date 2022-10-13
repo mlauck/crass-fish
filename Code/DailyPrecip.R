@@ -212,6 +212,21 @@ AUSprecipint <- AUSprecipUSE3 %>%
 print(AUSprecipint)
 ggsave(AUSprecipint, filename = "figures/AUSprecipint_box.png", dpi = 300, height = 6, width = 8)
 
+# US intensity
+USprecipint <- USprecipUSE3 %>% 
+  group_by(year) %>% 
+  mutate(mean.zero= mean(intensity)) %>% 
+  ggplot( aes(x = year, y = intensity, group = year)) +
+  scale_fill_viridis_c(name = "Average intensity", direction = 1) +
+  geom_boxplot(aes(fill = mean.zero)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Precipitation intensity (total/days with rain)") +
+  ggtitle("US precipitation intensity")
+print(USprecipint)
+ggsave(USprecipint, filename = "figures/USprecipint_box.png", dpi = 300, height = 6, width = 8)
+
 ## summer precip ----
 
 ## seasonal Mann-Kendall trend test ----
@@ -287,6 +302,8 @@ seaKen(mts2ts(chl[, 1:12], 2:4)) # more reliable result
 
 # restructure data for seaKen
 # col = sites
-# rows = dates
+# rows = month and year
+
+
 
 ## want to use this: https://pubs.acs.org/doi/full/10.1021/es051650b
