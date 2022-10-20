@@ -13,8 +13,10 @@ library(CircStats)
 ## Load discharge package
 library(discharge)
 
+
 # If you do not have the package you can download it 
 # from here: https://sourceforge.net/projects/discharge/ (see documentation)
+
 library(dataRetrieval)
 ### NOTE: cannot have dplyr library loaded, because also has a filter function
 
@@ -26,8 +28,8 @@ library(dataRetrieval)
 #       rprofile_path,
 #       append =  TRUE)
 # 
-# # cat('Your Rprofile has been updated to include GRAN.
-# #     Please restart R for changes to take effect.')
+# cat('Your Rprofile has been updated to include GRAN.
+#     Please restart R for changes to take effect.')
 #  install.packages("smwrBase")
 library(smwrBase)
 
@@ -50,7 +52,7 @@ SANPEDRO <- asStreamflow(rawDailyData, river.name="San Pedro River, AZ")
 dim(SANPEDRO$data)[1]
 summary(SANPEDRO)
 
-### Load the file with the subset of gages
+### Load the file with the subset of gages------------------------------------------------------
 # USA_subset <- read.csv("Data/from_GIS/USA_fish_nearest_gage_within5km.csv", row.names = 1, 
 #                        colClasses = c(rep(NA, 12), "character", rep(NA, 24)))
 #                         #import to excel and change the gage_ID to 00000000, 
@@ -78,20 +80,29 @@ for (i in 1:length(site_IDs)) {
 ?readNWISdv
 str(compDailyData)
 length(compDailyData)
-#   # Convert raw data to 'asStreamflow' object
-#   Verde.stream <- asStreamflow(rawDailyData, river.name= paste0('USGS', 'siteNumbers[i]')) # USGS 09503700 VERDE RIVER NEAR PAULDEN, AZ
-#   summary(Verde.stream)
-#   # Run Fourier on the 'asStreamflow' object
-#   Verde.stream_seas <- fourierAnalysis(Verde.stream)
-#   # Make a file of the main data
-#   #write.csv(Verde.stream_seas$signal, file = paste0('DFFT_export/USGS', ' ', siteNumbers[i],' ', gageName[i], ', AZ.csv'))
-#   # plot characteristic hydrograph
-#   # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
-#   plot(Verde.stream_seas)
-# }
+### GET NAAs----------------------------------------------------------------------------------
 
-# Make sure gages have at least 30 years of data
+
+i = 1
+CompSignal <- list()
+for (i in 1:length(site_IDs)) { 
+  rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
+  streamflow <- asStreamflow(rawDailyData[ ,3:4], river.name = rawDailyData$site_no[1]) # Convert raw data to 'asStreamflow' object
+  summary(streamflow)
+  USA_stream <- fourierAnalysis(streamflow) # Run Fourier on the 'asStreamflow' object
+  CompSignal[[i]] <- cbind(USA_stream$signal, site_no = streamflow$name)
+  # Make a file of the main data
+  #write.csv(cbind(USA_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/USGS', '_', rawDailyData$site_no[1],'.csv'))
+  # plot characteristic hydrograph
+  #   # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
+  plot(USA_stream)
+}
+
+# Make things not a list
 library(dplyr)
+signal_daily <- bind_rows(CompSignal)
+
+
 df_daily <- bind_rows(compDailyData)
 str(df_daily)
 head(df_daily)
@@ -100,44 +111,26 @@ df_daily[df_daily$site_no == "08427500",]
 #write.csv(df_daily, file = "Output/Discharge_win5kmfish_USA.csv")
 
 
-# year(df_daily$Date)
-# unique(df_daily$site_no)
-# ?match
-# #anti_join(as.factor(site_IDs), as.factor(df_daily$site_no))
-# site_IDs[site_IDs %in% df_daily$site_no == FALSE] #"09096100" "09470920" "09522005" 
-# which(site_IDs %in% df_daily$site_no == FALSE) # 18, 60, 74 # these don't come up with any data using readNWIS
-
-# "09096100" only has temperature and gage height in the reservoir, no discharge
-# "09470920"only has gage height
-# "09522005" temp conductivity and dissolved solids
-# So we're good.
-
-# df_daily2 <- df_daily[ ,1:3]  %>% mutate(year = year(Date))
-# str(df_daily2)
-# head(df_daily2)
-# ?n_distinct
-# 
-# yr_count <- df_daily2 %>% group_by(site_no) %>% summarise(yrs_record = n_distinct(year))
-# yr_count
-# yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # most (114 of 155) of these have long records yay!
-
 
 # See what dates match with fish data surveys
 # info on fish data "points_daterange_location.csv"
 # use that to determine which time frame is most important for analyzing discharge and getting summary metrics.
 library(dplyr)
-
+library(tidyr)
 
 fish_dates <- read.csv("Data/points_daterange_location.csv")
 df_daily <- read.csv("Output/Discharge_win5kmfish_USA.csv", colClasses = c(NA, "character", rep(NA,3)))
 USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.names = 1,
-                       colClasses = c(rep(NA, 13), "character", rep(NA, 22)))
+                       colClasses = c(rep(NA, 12), "character", rep(NA, 22)))
 
 USA_subset
 USA_subset[USA_subset$Dataset == "NEON", ]
 fish_dates[fish_dates$Dataset == "NEON", ] # hmmm. maybe they are not near a gage well REDB is near 10172200
 USA_subset[USA_subset$site_no == "10172200",] # ok now that's there after the update, good.
 str(df_daily)
+
+USA_subset[USA_subset$site_no == "10163000",] # huc_cd = 0, why? don't know but the HUC8 it's in is	"16020203"
+
 
 nrow(USA_subset[USA_subset$Total_Samp > 1,])
 nrow(USA_subset[USA_subset$Total_Samp >= 10,]) #update 31 # old 13
@@ -268,6 +261,7 @@ a
 dailydatacount$wyear
 library(effects)
 library(lme4)
+library(lattice)
 
 ?glmer
 m1 <- glmer(noflowdays ~  wyear + (1|site_no), family = "poisson", data = daily_data_metrics)
@@ -342,8 +336,34 @@ gage_record_modern <- daily_data_metrics[daily_data_metrics$wyear >= 1980, ] %>%
                                                                       total_samps = sum(unique(wyear)))
 gages_10wyr_modern <- gage_record_modern[gage_record_modern$last_yr - gage_record_modern$first_yr >=10 & gage_record_modern$total_samps >=10, ]
 
-modern_daily_I_10 <- modern_daily_I[modern_daily_I$site_no %in% gages_10wyr_modern$site_no, ]
-m5 <- glmer(noflowdays ~ wyear + (1|site_no), family = "poisson", data = modern_daily_I_10)
+# Should make with 15wyr instead. Found this citation in McManamay 2022
+# Kennard, M. J., Mackay, S. J., Pusey, B. J., Olden, J. D. & Marsh, N. 
+# Quantifying uncertainty in estimation of hydrologic metrics for ecohydrological studies. 
+# River Res. Applic. 26, 137–156, https://doi.org/10.1002/rra.1249 (2010).
+
+### Data subset for analyses -----------
+modern_daily_I_10b <- modern_daily_I[modern_daily_I$site_no %in% gages_10wyr_modern$site_no, ] #sites with 10yrs of data that have recorded 0 flow at least once since 1980
+
+ 
+str(USA_subset)
+USA_subset_HUCS <- as.data.frame(cbind(as.character(USA_subset$site_no), USA_subset$huc_cd)) %>% distinct()
+colnames(USA_subset_HUCS) <- c("site_no", "huc_cd")
+USA_subset_HUCS$huc_cd[USA_subset_HUCS$huc_cd == "0"] <- "16020203"
+USA_subset_HUCS[USA_subset_HUCS$huc_cd == "16020203",]
+
+
+
+#Why are some HUCS 0? 
+# Ok only for site_no 10163000
+USA_subset_HUCS$huc_cd[USA_subset_HUCS$huc_cd == "0"] <- "16020203"
+USA_subset_HUCS[USA_subset_HUCS$huc_cd == "16020203",]
+
+modern_daily_I_10 <- left_join(modern_daily_I_10b, USA_subset_HUCS, by = "site_no")
+modern_daily_I_10[modern_daily_I_10$huc_cd == "0",]
+
+m5 <- glmer(noflowdays ~ s_wyear + (1|site_no), family = "poisson", data = modern_daily_I_10)
+summary(m5)
+?anova
 ef <- Effect("wyear", m5)
 theme_set(theme_bw())
 ggplot(as.data.frame(ef),
@@ -368,8 +388,10 @@ plot(noflowdays~wyear, data = daily_data_metrics)
 # plot(effect("recipe:temperature", fm1),
 #      axes=list(grid=TRUE)) # equivalent (plus grid)
 ?glmer
-m6 <- glmer(noflowdays ~ wyear + (wyear|site_no),  family = "poisson", data = modern_daily_I_10)
-m6l <- lmer(noflowdays ~ wyear + (wyear|site_no),  data = modern_daily_I_10)
+# m6 <- glmer(noflowdays ~ wyear + (wyear|site_no),  family = "poisson", data = modern_daily_I_10)
+# m6l <- lmer(noflowdays ~ wyear + (wyear|site_no),  data = modern_daily_I_10)
+m6 <- glmer(noflowdays ~ wyear + (wyear|huc_cd),  family = "poisson", data = modern_daily_I_10)
+m6l <- lmer(noflowdays ~ wyear + (wyear|huc_cd),  data = modern_daily_I_10)
 #str(m6)
 ?Effect()
 ?ranef()
@@ -386,12 +408,19 @@ ggplot(as.data.frame(ef),
 
 ?ranef
 rr6 <- ranef(m6)
-fixef(m6l)
+# How make predictions?
+exp(76.97632692 + -0.0365064476*1980) #try transforming b/c log link
+76.97632692 + -0.0365064476*1980 #without transformation
+exp(76.97632692) + exp(-0.0365064476*1980)# does this work to fit in ggplot framework? same answer? NOPE
+
+
+ff6 <- fixef(m6)
 dotplot(rr6)
 qqmath(rr6)
-dotplot(rr6, scales = list(x = list(relation = 'free')))[["site_no"]]
+# dotplot(rr6, scales = list(x = list(relation = 'free')))[["site_no"]]
+dotplot(rr6, scales = list(x = list(relation = 'free')))[["huc_cd"]]
 
-library(lattice) ## for dotplot, qqmath
+
 ## as.data.frame() provides RE's and conditional standard deviations:
 str(dd <- as.data.frame(rr6))
   ggplot(dd, aes(y=grp,x=condval)) +
@@ -399,11 +428,38 @@ str(dd <- as.data.frame(rr6))
     geom_errorbarh(aes(xmin=condval -2*condsd,
                        xmax=condval +2*condsd), height=0)
 
-row.names(rr6$site_no)
-df6 <- cbind(dd$grp[1:142], as.data.frame(rr6$site_no))
+#row.names(rr6$site_no)
+#df6 <- cbind(dd$grp[1:142], as.data.frame(rr6$site_no))
+row.names(rr6$huc_cd)
+df6 <- cbind(dd$grp[1:61], as.data.frame(rr6$huc_cd))
 
-colnames(df6) <- c("site_no", "intercept", "slope_wyear")
+
+colnames(df6) <- c("huc_cd", "intercept", "slope_wyear")
 dff6 <- as.data.frame(df6)
+
+df6v2 <- df6
+#str(df6v2$site_no)
+str(df6v2$huc_cd)
+# df6v2[143, ] <- c(paste0(11111111), ff6[[1]], ff6[[2]])
+
+df6v2$'1980' <- exp(df6v2$intercept + df6v2$slope_wyear*1980) # predicts infinite zero flow days. makes no sense.
+
+wyear_dates <- seq(from = 1980, to = 2020, by = 5)
+for (i in 1:length(wyear_dates)){
+  df6v2[,(i+3)]<- exp(df6v2$intercept + df6v2$slope_wyear*wyear_dates[i])
+}
+
+# colnames(df6v2) <- c("site_no", "intercept", "slope_wyear", "1980", "1985", "1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")
+colnames(df6v2) <- c("huc_cd", "intercept", "slope_wyear", "1980", "1985", "1990", "1995", "2000", "2005", "2010", "2015", "2020")
+str(df6v2)
+
+
+# library(reshape)
+#  df6v3 <- melt(df6v2, id.vars = "site_no") # in reshape library
+
+# ?gather
+# ?pivot_longer
+ df6v3 <- df6v2 %>% pivot_longer(cols = '1980':'2020', names_to = "wyear_dates", values_to = "preds")
 
 # ggplot(modern_daily_I_10) +
 #   aes(x = wyear, y = noflowdays) +
@@ -416,7 +472,7 @@ dff6 <- as.data.frame(df6)
 #    geom_point() # +
 #   # facet_wrap("site_no") +
 #   # scale_x_continuous(breaks = 0:4 * 2)
-
+ef$fit
 ggplot(as.data.frame(ef),
 aes(wyear, fit))+
   geom_line()+ 
@@ -436,17 +492,80 @@ aes(wyear, fit))+
 ggplot(modern_daily_I_10) +
        aes(wyear, noflowdays)+
   geom_point()+
-  geom_abline(
-    aes(intercept = -1309.790310, slope = 0.698083),
-    color = "#3366FF",
-    size = 2
-    
-  ) + 
+  # ylim(0,25)+
   geom_abline(
     aes(intercept = intercept, slope = slope_wyear), 
     data = df6, 
     color = "#3366FF", 
-    alpha = .5)
+    alpha = .5)+
+  geom_abline(
+    aes(intercept = ff6[[1]], slope = ff6[[2]]),
+    color = "red",
+    size = 2)
+
+ggplot(modern_daily_I_10) +
+  aes(wyear, noflowdays)+
+  geom_point()+# ylim(0,25)+
+  
+  geom_line(
+    aes(wyear_dates, preds, group = huc_cd), #site_no
+    data = as.data.frame(df6v3), 
+    color = "#3366FF", 
+    alpha = .5)+
+  geom_abline(
+    aes(intercept = ff6[[1]], slope = ff6[[2]]),
+    color = "red",
+    size = 2)
+
+
+main_preds <- c((ff6[[1]]+ ff6[[2]]*1980), (ff6[[1]]+ ff6[[2]]*1985), 
+                (ff6[[1]]+ ff6[[2]]*1990), (ff6[[1]]+ ff6[[2]]*1995),
+                (ff6[[1]]+ ff6[[2]]*2000), (ff6[[1]]+ ff6[[2]]*2005),
+                (ff6[[1]]+ ff6[[2]]*2010), (ff6[[1]]+ ff6[[2]]*2015),
+                (ff6[[1]]+ ff6[[2]]*2020) )
+main_dates <- c("1980", "1985", "1990", "1995", "2000", "2005", "2010", "2015", "2020")
+
+mod_daily_I_10v2 <- modern_daily_I_10[modern_daily_I_10$wyear %in% wyear_dates, ]
+
+ggplot(as.data.frame(df6v3),
+       aes(wyear_dates, preds, group = huc_cd, color =huc_cd))+ # group = site_no
+  geom_line()+ 
+  theme(legend.position="none") +
+
+  geom_line(aes(rep(main_dates, 61), rep(main_preds, 61)), #122, 142
+  
+    color = "red",
+    size = 1)
+
+str(df6v3)
+str(as.data.frame(mod_daily_I_10v2))
+
+
+ggplot(NULL, aes(x=Year, y=NoFlowDays))+
+  geom_line(data = as.data.frame(df6v3),
+            aes(x = wyear_dates, y = preds, group = huc_cd, color =huc_cd))+ 
+  theme(legend.position="none") +
+  ylim(0,400)+
+  geom_line(aes(rep(main_dates, 61), rep(main_preds, 61)), #142
+            color = "red",
+            size = 1)+
+  geom_point(data = as.data.frame(modern_daily_I_10),
+             aes(x = as.character(wyear), y = noflowdays, group = site_no, color = site_no))
+
+ggplot(data = as.data.frame(df6v3), 
+       aes(x=wyear_dates, y=preds,group = huc_cd, color =huc_cd))+
+  geom_line()+ 
+  theme(legend.position="none") +
+  ylim(0,400)+
+  geom_line(aes(rep(main_dates, 61), rep(main_preds, 61)),
+            color = "red",
+            size = 1)+
+  geom_point(data = as.data.frame(modern_daily_I_10),
+             aes(x= as.character(wyear), y = noflowdays)) #group = site_no, color = "blue"
+
+modern_daily_I_10$wyear
+
+?geom_abline
 
 
 library(ggeffects) # https://strengejacke.github.io/ggeffects/
@@ -456,13 +575,13 @@ library(sjPlot) # https://strengejacke.github.io/sjPlot/
 # # Examples from https://www.r-bloggers.com/2014/11/visualizing-generalized-linear-mixed-effects-models-part-2-rstats-lme4/
 
 
-plot_model(m6l, type = "pred")
-plot_model(m6l, type = "re", facet.grid = FALSE)
+plot_model(m6, type = "pred")
+plot_model(m6, type = "re", facet.grid = TRUE)
 
 fp <- ggpredict(m6, terms = "wyear", type = "random")
-plot(fp, ci = FALSE)
+plot(fp, ci = TRUE)
 
-fp <- ggpredict(m6l, terms = c("wyear", "site_no"), type = "random")
+fp <- ggpredict(m6, terms = c("wyear", "site_no"), type = "random")
 plot(fp, ci = FALSE)
 
 m7 <- glmer(noflowdays ~ s_wyear + (1 + s_wyear|site_no), family = "poisson", data = modern_daily_I_10)
@@ -470,37 +589,17 @@ m7 <- glmer(noflowdays ~ s_wyear + (1 + s_wyear|site_no), family = "poisson", da
 fp <- ggpredict(m7, terms = "s_wyear", type = "random")
 plot(fp, ci = TRUE)
 
-fp <- ggpredict(m6, terms = c("wyear", "site_no [sample = 9]"), type = "random") # NOte the max lines it will plot is 9, something to do with paletted settings on plot I think
-fp_main <- ggpredict(m6, terms = "wyear", type = "random")
+fp <- ggpredict(m6, terms = c("wyear", "site_no [sample = 1]"), type = "random") # NOte the max lines it will plot is 9, something to do with paletted settings on plot I think
+fp_main <- ggpredict(m6, terms = "wyear", type = "fixed")
 plot(fp, ci = FALSE)
-plot(fp, add.data = TRUE, ci = FALSE)
-plot(fp_main, add.dat = TRUE,  ci = FALSE) #doesn't work
+plot(fp, add.data = TRUE, ci = TRUE)
+plot(fp_main, add.data = TRUE,  ci = FALSE) #doesn't work
 ggpredict
+ggpredict_helper()
+?predict
+fbp <- predict(m6)
 
 fp2 <- ggpredict(m6, terms = c("wyear", "site_no"), type = "random")
 plot (fp2)
-
-#ugh next time just use stanR and Freya's code this is ridiculous
-# https://www.tjmahr.com/plotting-partial-pooling-in-mixed-effects-models/
-# "PartialPoolingExample.R"
-## Rstanarm partial pooling model
-
-## example pulled from https://www.tjmahr.com/plotting-partial-pooling-in-mixed-effects-models/
-
-## libraries
-library(rstanarm)
-
-
-
-# OTHER THINGS I TRIED. THe ondes that aren't hashed out kind of worked----------------------------------------------------
-# http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#predictions-andor-confidence-or-prediction-intervals-on-predictions
-
-# Another way - maybe more flexible to plot all - DOESN"T WORK
-# https://drizopoulos.github.io/GLMMadaptive/articles/Methods_MixMod.html
-
-# A manual way to do it
-# from https://stackoverflow.com/questions/53255211/plotting-random-effects-for-a-binomial-glmer-in-ggplot
-# https://stackoverflow.com/questions/51519690/convert-cbind-format-for- binomial-glm-in-r-to-a-dataframe-with-individual-rows
-#
 
 
