@@ -68,12 +68,16 @@ AUSprecipUSE3 <- AUSprecipUSE2 %>%
   summarise(total = sum(Precip, na.rm = TRUE),
             intensity = sum(Precip/n(), na.rm = TRUE),
             zeroDays = sum(Precip == 0, na.rm = TRUE))
+AUS2007 <- AUSprecipUSE3 %>%
+  filter(year > 2006)
 
 USprecipUSE3 <- USprecipUSE2 %>%
   group_by(hex.id, latitude, year) %>%
   summarise(total = sum(Precip, na.rm = TRUE),
             intensity = sum(Precip/n(), na.rm = TRUE),
             zeroDays = sum(Precip == 0, na.rm = TRUE))
+US2007 <- USprecipUSE3 %>%
+  filter(year > 2006)
 
 ## overall averages
 AUSall <- AUSprecipUSE3 %>%
@@ -361,13 +365,17 @@ USrain <- USprecipUSE2 %>%
 AUSrain2 <- AUSrain %>%
   pivot_wider(names_from = hex.id, values_from = monthlyPrec)
 
-USrain2 <- USrain %>%
-  pivot_wider(names_from = hex.id, values_from = monthlyPrec)
+# USrain2 <- USrain %>%
+  # pivot_wider(names_from = hex.id, values_from = monthlyPrec)
+
+# start with subset
+USrainsub <- USrain2 %>% 
+  filter('hex.id' < 100)
 
 # make row a month/year
 library(zoo)
-AUSrain2$Date <- zoo::as.yearmon(paste(AUSrain2$year, AUSrain2$month), "%Y %m")
-USrain2$Date <- zoo::as.yearmon(paste(USrain2$year, USrain2$month), "%Y %m")
+AUSrain$Date <- zoo::as.yearmon(paste(AUSrain$year, AUSrain$month), "%Y %m")
+USrain$Date <- zoo::as.yearmon(paste(USrain$year, USrain$month), "%Y %m")
 
 
 # # make row names the month and year
@@ -383,9 +391,9 @@ USrain2$Date <- zoo::as.yearmon(paste(USrain2$year, USrain2$month), "%Y %m")
 library(xts)
 
 # AUS
-str(AUSrain2)
+str(AUSrain)
 AUSrain3 <- AUSrain[,-c(2:4)]
-AUSrainUSE 
+AUSrain3 
 # AUSrainUSE <- xts(x = AUSrain$monthlyPrec, order.by = AUSrain$Date)
 # AUSrainUSE  
 z <- read.zoo(file = AUSrain3, index.column = "Date", split = "hex.id")
@@ -406,7 +414,18 @@ library(wql)
 
 # test Seasonal Kendall test
 seaKen(z2)
-seaKen(z2, plot = TRUE, type = "relative", order = TRUE)
+seaKen(z2, plot = TRUE, type = "slope", order = TRUE, xlab = "Sen slope", ylab = "AUS Hexagon ID")
+
+seaKen(y2)
+seaKen(
+  y2,
+  plot = TRUE,
+  type = "relative",
+  order = TRUE,
+  xlab = "Sen slope",
+  ylab = "US Hexagon ID",
+  yaxt="n"
+)
 
 # Seasonal Kendall test:
 chl <- sfbayChla # monthly chlorophyll at 16 stations in San Francisco Bay
@@ -416,16 +435,20 @@ chl <- sfbayChla # monthly chlorophyll at 16 stations in San Francisco Bay
 
 # Regional Kendall test:
 # Use mts2ts to change 16 series into a single series with 16 "seasons"
-seaKen(mts2ts(z2))   # too many missing data
+seaKen(mts2ts(z2))  # AUS
+seaKen(mts2ts(y2)) # US
 
-# better when just Feb-Apr, spring bloom period,
-# but last 4 stations still missing too much.
+# Separate by seasons
 seaKen(mts2ts(z2, seas = c(12,1:2))) # summer AUS
 seaKen(mts2ts(z2, seas = c(9:11))) # spring AUS
 seaKen(mts2ts(z2, seas = c(3:5))) # fall AUS
 seaKen(mts2ts(z2, seas = c(6:8))) # winter AUS
-# seaKen(mts2ts(chl, seas = 2:4))
-# seaKen(mts2ts(chl[, 1:12], 2:4)) # more reliable result
+
+seaKen(mts2ts(y2, seas = c(12,1:2))) # winter US
+seaKen(mts2ts(y2, seas = c(9:11))) # fall US
+seaKen(mts2ts(y2, seas = c(3:5))) # spring US
+seaKen(mts2ts(y2, seas = c(6:8))) # summer US
+
 
 
 
