@@ -1,6 +1,6 @@
 ##### Precipitation data
 ## Code by FER
-## last edit 9/9/2022
+## last edit 10/27/2022
 
 # load data
 dailyprecip <- read.csv("~/Repositories/LargeData/Total_daily_precip_hex_centroids_1979-2022_0.1dd.csv", header = TRUE)
@@ -344,37 +344,95 @@ AUSprecipSeason <- AUSprecipUSE2 %>%
 # Precip = daily precip
 # Season = season as factor
 # month and year
-AUSprecipSeason2 <- AUSprecipSeason %>%
+AUSrain <- AUSprecipSeason %>%
   select(hex.id, Precip, month, year, Season) %>%
   group_by(hex.id, month, Season, year) %>%
   summarize(monthlyPrec = sum(Precip),
 )
 
-test <- kendallSeasonalTrendTest(monthlyPrec ~ Season + year, data = AUSprecipSeason2)
-summary(test)
-
-# another option
-library(wql)
-
-# examples
-# Seasonal Kendall test:
-chl <- sfbayChla # monthly chlorophyll at 16 stations in San Francisco Bay
-seaKen(sfbayChla[, 's27']) # results for a single series at station 27
-seaKen(sfbayChla) # results for all stations
-seaKen(sfbayChla, plot=TRUE, type="relative", order=TRUE)
-
-# Regional Kendall test:
-# Use mts2ts to change 16 series into a single series with 16 "seasons"
-seaKen(mts2ts(chl))  # too many missing data
-# better when just Feb-Apr, spring bloom period,
-# but last 4 stations still missing too much.
-seaKen(mts2ts(chl, seas = 2:4)) 
-seaKen(mts2ts(chl[, 1:12], 2:4)) # more reliable result
+USrain <- USprecipUSE2 %>%
+  select(hex.id, Precip, month, year) %>%
+  group_by(hex.id, month, year) %>%
+  summarize(monthlyPrec = sum(Precip))
 
 # restructure data for seaKen
 # col = sites
 # rows = month and year
+AUSrain2 <- AUSrain %>%
+  pivot_wider(names_from = hex.id, values_from = monthlyPrec)
+
+USrain2 <- USrain %>%
+  pivot_wider(names_from = hex.id, values_from = monthlyPrec)
+
+# make row a month/year
+library(zoo)
+AUSrain2$Date <- zoo::as.yearmon(paste(AUSrain2$year, AUSrain2$month), "%Y %m")
+USrain2$Date <- zoo::as.yearmon(paste(USrain2$year, USrain2$month), "%Y %m")
+
+
+# # make row names the month and year
+# AUSrain3 <- data.frame(AUSrain2, row.names = 4)
+
+# # remove old month, season, year columns
+# AUSrain4 <- AUSrain3[,-c(1:3)]
+# 
+# test <- kendallSeasonalTrendTest(monthlyPrec ~ Season + year, data = AUSprecipSeason2)
+# summary(test)
+
+# convert into a time-series xts object
+library(xts)
+
+# AUS
+str(AUSrain2)
+AUSrain3 <- AUSrain[,-c(2:4)]
+AUSrainUSE 
+# AUSrainUSE <- xts(x = AUSrain$monthlyPrec, order.by = AUSrain$Date)
+# AUSrainUSE  
+z <- read.zoo(file = AUSrain3, index.column = "Date", split = "hex.id")
+z
+# convert to ts object for analysis
+z2 <- as.ts(z)
+
+## make US data into xts object
+str(USrain)
+USrain2 <- USrain[,-c(2:3)]
+y <- read.zoo(file = USrain2, index.column = "Date", split = "hex.id")
+y
+y2 <- as.ts(y)
+
+# another option
+# https://jsta.github.io/wql/reference/seaKen.html
+library(wql)
+
+# test Seasonal Kendall test
+seaKen(z2)
+seaKen(z2, plot = TRUE, type = "relative", order = TRUE)
+
+# Seasonal Kendall test:
+chl <- sfbayChla # monthly chlorophyll at 16 stations in San Francisco Bay
+# seaKen(sfbayChla[, 's27']) # results for a single series at station 27
+# seaKen(sfbayChla) # results for all stations
+# seaKen(sfbayChla, plot=TRUE, type="relative", order=TRUE)
+
+# Regional Kendall test:
+# Use mts2ts to change 16 series into a single series with 16 "seasons"
+seaKen(mts2ts(z2))   # too many missing data
+
+# better when just Feb-Apr, spring bloom period,
+# but last 4 stations still missing too much.
+seaKen(mts2ts(z2, seas = c(12,1:2))) # summer AUS
+seaKen(mts2ts(z2, seas = c(9:11))) # spring AUS
+seaKen(mts2ts(z2, seas = c(3:5))) # fall AUS
+seaKen(mts2ts(z2, seas = c(6:8))) # winter AUS
+# seaKen(mts2ts(chl, seas = 2:4))
+# seaKen(mts2ts(chl[, 1:12], 2:4)) # more reliable result
 
 
 
+seaKen(mts2ts(AUSrain4))
 ## want to use this: https://pubs.acs.org/doi/full/10.1021/es051650b
+
+
+#### ----
+# check out 'trend' package
+
