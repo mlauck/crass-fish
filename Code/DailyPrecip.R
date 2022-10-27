@@ -351,6 +351,7 @@ AUSprecipSeason2 <- AUSprecipSeason %>%
 )
 
 test <- kendallSeasonalTrendTest(monthlyPrec ~ Season + year, data = AUSprecipSeason2)
+summary(test)
 
 # another option
 library(wql)
