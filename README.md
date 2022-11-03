@@ -1,4 +1,4 @@
-## This is the Collaborative for Research on Aridland Stream Systems (CRASS) - Fish repository
+## This is the Collaborative Research on Aridland Stream Systems (CRASS) - Fish repository
 ### Authors
 - Corey Krabbenhoft
 - Marina Lauck
