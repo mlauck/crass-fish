@@ -73,9 +73,23 @@ tempsummer <- AUStempUSE %>%
             sdTemp = sd(TempC, na.rm = TRUE),
             n = n())
 
+tempspring <- AUStempUSE %>%
+  group_by(hex.id, latitude, year) %>%
+  filter(month == 9 | month == 10 | month == 11) %>%
+  summarise(avgTemp = mean(TempC, na.rm = TRUE),
+            sdTemp = sd(TempC, na.rm = TRUE),
+            n = n())
+
 tempsummerUS <- UStempUSE %>%
   group_by(hex.id, latitude, year) %>%
   filter(month == 6 | month == 7 | month == 8) %>%
+  summarise(avgTemp = mean(TempC, na.rm = TRUE),
+            sdTemp = sd(TempC, na.rm = TRUE),
+            n = n())
+
+tempspringUS <- UStempUSE %>%
+  group_by(hex.id, latitude, year) %>%
+  filter(month == 3 | month == 4 | month == 5) %>%
   summarise(avgTemp = mean(TempC, na.rm = TRUE),
             sdTemp = sd(TempC, na.rm = TRUE),
             n = n())
@@ -144,6 +158,40 @@ tempsummer2US$anol <- tempsummer2US$avgTemp - tempsummer2US$overallavg
 tempnov3 <- na.omit(tempnov2)
 tempsummer3 <- na.omit(tempsummer2)
 
+#### plot summer temp  ----
+
+# plot avg temp anomaly boxplots with fill 
+AUSrawsumm <- tempsummer3 %>% 
+  group_by(year) %>% 
+  mutate(mean.temp= mean(avgTemp)) %>% 
+  ggplot( aes(x = year, y = avgTemp, group = year)) +
+  scale_fill_viridis_c(name = "Avg summer temperature", option = "C") +
+  geom_boxplot(aes(fill = mean.temp)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  # ylab("Summer temperature (°C)") +
+  ylab("") +
+  ggtitle("Australia summer temperature")
+print(AUSrawsumm)
+# ggsave(AUSsumm, filename = "figures/AUSsummertemp_box.png", dpi = 300, height = 5, width = 6)
+
+USrawsumm <- tempsummer2US %>% 
+  group_by(year) %>% 
+  mutate(mean.temp= mean(avgTemp)) %>% 
+  ggplot( aes(x = year, y = avgTemp, group = year)) +
+  geom_boxplot(aes(fill = mean.temp)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Summer temperature (°C)") +
+  scale_fill_viridis_c(name = "Avg summer temperature", option = "C") +
+  ggtitle("United States summer temperatures")
+print(USrawsumm)
+# ggsave(USsumm, filename = "figures/USsummertemp_box.png", dpi = 300, height = 5, width = 6)
+
+
+
 #### plot temp anomaly ----
 
 # plot avg temp anomaly boxplots with fill 
@@ -192,49 +240,49 @@ print(tempanolmulti)
 # ggsave(tempanolmulti, filename = "figures/combined_temp.png", height = 5, width = 12, dpi = 300)
 
 
-
-#### plot sd across time ----
-AUSsd <- tempsummer %>% 
-  group_by(year) %>% 
-  mutate(mean.sd = mean(sdTemp)) %>% 
-  ggplot( aes(x = year, y = sdTemp, group = year)) +
-  scale_fill_viridis_c(name = "Avg temp sd", option = "C") +
-  geom_boxplot(aes(fill = mean.sd)) +
-  theme_classic(base_size = 14) +
-  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
-  xlab("Year") +
-  ylab("Summer temperature sd") +
-  ggtitle("Australia temperature sd") 
-print(AUSsd)
-ggsave(AUSsd, filename = "figures/AUSsdtemp_box.png", dpi = 300, height = 5, width = 6)
-
-USsd <- tempsummer2US %>% 
-  group_by(year) %>% 
-  mutate(mean.sd= mean(sdTemp)) %>% 
-  ggplot( aes(x = year, y = sdTemp, group = year)) +
-  scale_fill_viridis_c(name = "Avg temp sd", option = "C") +
-  geom_boxplot(aes(fill = mean.sd)) +
-  theme_classic(base_size = 14) +
-  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
-  xlab("Year") +
-  ylab("Summer temperature sd") +
-  ggtitle("United States temperature sd")
-print(USsd)
-ggsave(USsd, filename = "figures/USsdtemp_box.png", dpi = 300, height = 5, width = 6)
-
-
-## make multipanel
-tempsdmulti <- ggarrange(labels = c("(a)", "(b)"),
-                       align = "hv",
-                       AUSsd,
-                       USsd,
-                       nrow = 1, 
-                       ncol = 2,
-                       common.legend = TRUE, 
-                       legend = "right") 
-print(tempsdmulti)
-
-ggsave(tempsdmulti, filename = "figures/combined_tempsd.png", height = 5, width = 12, dpi = 300)
+## Sd of temp plot is garbage
+# #### plot sd across time ----
+# AUSsd <- tempsummer %>% 
+#   group_by(year) %>% 
+#   mutate(mean.sd = mean(sdTemp)) %>% 
+#   ggplot( aes(x = year, y = sdTemp, group = year)) +
+#   scale_fill_viridis_c(name = "Avg temp sd", option = "C") +
+#   geom_boxplot(aes(fill = mean.sd)) +
+#   theme_classic(base_size = 14) +
+#   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+#   xlab("Year") +
+#   ylab("Summer temperature sd") +
+#   ggtitle("Australia temperature sd") 
+# print(AUSsd)
+# ggsave(AUSsd, filename = "figures/AUSsdtemp_box.png", dpi = 300, height = 5, width = 6)
+# 
+# USsd <- tempsummer2US %>% 
+#   group_by(year) %>% 
+#   mutate(mean.sd= mean(sdTemp)) %>% 
+#   ggplot( aes(x = year, y = sdTemp, group = year)) +
+#   scale_fill_viridis_c(name = "Avg temp sd", option = "C") +
+#   geom_boxplot(aes(fill = mean.sd)) +
+#   theme_classic(base_size = 14) +
+#   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+#   xlab("Year") +
+#   ylab("Summer temperature sd") +
+#   ggtitle("United States temperature sd")
+# print(USsd)
+# ggsave(USsd, filename = "figures/USsdtemp_box.png", dpi = 300, height = 5, width = 6)
+# 
+# 
+# ## make multipanel
+# tempsdmulti <- ggarrange(labels = c("(a)", "(b)"),
+#                        align = "hv",
+#                        AUSsd,
+#                        USsd,
+#                        nrow = 1, 
+#                        ncol = 2,
+#                        common.legend = TRUE, 
+#                        legend = "right") 
+# print(tempsdmulti)
+# 
+# ggsave(tempsdmulti, filename = "figures/combined_tempsd.png", height = 5, width = 12, dpi = 300)
 
 
 
