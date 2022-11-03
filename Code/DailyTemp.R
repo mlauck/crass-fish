@@ -206,6 +206,7 @@ print(USrawsumm)
 
 #### plot temp anomaly ----
 
+## summer temperature anomaly
 # plot avg temp anomaly boxplots with fill 
 AUSsumm <- tempsummer3 %>% 
   group_by(year) %>% 
@@ -231,7 +232,7 @@ USsumm <- tempsummer2US %>%
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
-  ylab("Summer temperature anomaly (°C)") +
+  ylab("Summer anomaly (°C)") +
   scale_fill_viridis_c(name = "Avg anomaly", option = "C") +
   ggtitle("United States summer anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
@@ -251,6 +252,70 @@ print(tempanolmulti)
 
 # ggsave(tempanolmulti, filename = "figures/combined_temp.png", height = 5, width = 12, dpi = 300)
 
+
+
+####### spring temperature anomaly
+# plot avg temp anomaly boxplots with fill 
+AUSsp <- tempspring2 %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  # ylab("Summer temperature anomaly (°C)") +
+  ylab("") +
+  ggtitle("Australia spring anomaly") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(AUSsp)
+# ggsave(AUSsp, filename = "figures/AUSspringtemp_box.png", dpi = 300, height = 5, width = 6)
+
+USsp <- tempspring2US %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Spring anomaly (°C)") +
+  scale_fill_viridis_c(name = "Avg anomaly", option = "C") +
+  ggtitle("United States spring anomaly") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(USsp)
+# ggsave(USsumm, filename = "figures/USsummertemp_box.png", dpi = 300, height = 5, width = 6)
+
+spmod <- lm(anol ~ year, data = tempspring2)
+summary(spmod)
+plot(spmod)
+
+## make multipanel
+tempanolspring <- ggarrange(labels = c("A", "B"),
+                           align = "hv",
+                           USsp, 
+                           AUSsp, 
+                           nrow = 1, 
+                           common.legend = TRUE, 
+                           legend = "bottom") 
+print(tempanolspring)
+
+## multimulti ----
+## Multipanel figure
+tempall <- ggarrange(
+  tempanolspring,
+  tempanolmulti,
+  nrow = 2,
+  ncol = 1,
+  align = "hv",
+  legend = "bottom",
+  common.legend = FALSE
+)
+tempall
+ggsave(tempall, filename = "figures/alltemp.png", dpi = 300, height = 8, width = 14)
+
+# 
 
 ## Sd of temp plot is garbage
 # #### plot sd across time ----
