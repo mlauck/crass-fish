@@ -156,11 +156,12 @@ AUSsumm <- tempsummer3 %>%
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
-  ylab("Summer temperature anomaly (°C)") +
-  ggtitle("Australia") +
+  # ylab("Summer temperature anomaly (°C)") +
+  ylab("") +
+  ggtitle("Australia summer anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 print(AUSsumm)
-ggsave(AUSsumm, filename = "figures/AUSsummertemp_box.png", dpi = 300, height = 5, width = 6)
+# ggsave(AUSsumm, filename = "figures/AUSsummertemp_box.png", dpi = 300, height = 5, width = 6)
 
 USsumm <- tempsummer2US %>% 
   group_by(year) %>% 
@@ -171,24 +172,24 @@ USsumm <- tempsummer2US %>%
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   ylab("Summer temperature anomaly (°C)") +
-  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
-  ggtitle("United States") +
+  scale_fill_viridis_c(name = "Avg anomaly", option = "C") +
+  ggtitle("United States summer anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 print(USsumm)
-ggsave(USsumm, filename = "figures/USsummertemp_box.png", dpi = 300, height = 5, width = 6)
+# ggsave(USsumm, filename = "figures/USsummertemp_box.png", dpi = 300, height = 5, width = 6)
 
 
 ## make multipanel
-tempmulti <- ggarrange(labels = c("(a)", "(b)"),
+tempanolmulti <- ggarrange(labels = c("C", "D"),
                            align = "hv",
-                           AUSsumm, 
                            USsumm, 
+                           AUSsumm, 
                            nrow = 1, 
                            common.legend = TRUE, 
-                           legend = "right") 
-print(tempmulti)
+                           legend = "bottom") 
+print(tempanolmulti)
 
-ggsave(tempmulti, filename = "figures/combined_temp.png", height = 5, width = 12, dpi = 300)
+# ggsave(tempanolmulti, filename = "figures/combined_temp.png", height = 5, width = 12, dpi = 300)
 
 
 
