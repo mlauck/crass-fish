@@ -127,12 +127,19 @@ tempspringUS <- UStempUSE %>%
 #             sdTemp = sd(TempC, na.rm = TRUE),
 #             n = n())
 
-# All time average summer temp C
-## Do I need to take the average of averages?
+# Summer averages
 tempall <- tempsummer %>%
   group_by(hex.id) %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 tempallUS <- tempsummerUS %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(avgTemp, na.rm = TRUE))
+
+# Spring averages
+tempSp_all <- tempspring %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(avgTemp, na.rm = TRUE))
+tempSP_allUS <- tempspringUS %>%
   group_by(hex.id) %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 
@@ -141,18 +148,23 @@ tempallUS <- tempsummerUS %>%
 #   group_by(hex.id) %>%
 #   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 
-# merge overall avg with annual average
+### merge overall avg with annual average
+## summer
 tempsummer2 <- left_join(tempsummer, tempall, by = "hex.id")
-# tempnov2 <- left_join(tempnov, tempallNov, by = "hex.id")
-
 tempsummer2US <- left_join(tempsummerUS, tempallUS, by = "hex.id")
 
-# calculate annual anomaly
-tempsummer2$anol <- tempsummer2$avgTemp - tempsummer2$overallavg
-# # tempnov2$anol <- tempnov$avgTemp - tempnov2$overallavg 
-# tempnov2$avgTemp[is.nan(tempnov2$avgTemp)]<-NA
+## spring
+tempspring2 <- left_join(tempspring, tempSp_all, by = "hex.id")
+tempspring2US <- left_join(tempspringUS, tempSP_allUS, by = "hex.id")
 
+### calculate annual anomaly
+# summer
+tempsummer2$anol <- tempsummer2$avgTemp - tempsummer2$overallavg
 tempsummer2US$anol <- tempsummer2US$avgTemp - tempsummer2US$overallavg
+
+# spring
+tempspring2$anol <- tempspring2$avgTemp - tempspring2$overallavg
+tempspring2US$anol <- tempspring2US$avgTemp - tempspring2US$overallavg
 
 # remove NAs
 tempnov3 <- na.omit(tempnov2)
