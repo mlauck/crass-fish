@@ -203,6 +203,23 @@ print(USrawsumm)
 # ggsave(USsumm, filename = "figures/USsummertemp_box.png", dpi = 300, height = 5, width = 6)
 
 
+## overall temp
+
+# AUS
+AUStempUSE2 <- na.omit(AUStempUSE)
+AUSraw <- AUStempUSE2 %>% 
+  group_by(year) %>% 
+  mutate(mean.temp= mean(TempC)) %>% 
+  ggplot( aes(x = year, y = TempC, group = year)) +
+  scale_fill_viridis_c(name = "Avg temperature", option = "C") +
+  geom_boxplot(aes(fill = mean.temp)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  # ylab("Summer temperature (°C)") +
+  ylab("") +
+  ggtitle("Australia temperature")
+print(AUSraw)
 
 #### plot temp anomaly ----
 
@@ -461,3 +478,128 @@ ggsave(ridgemulti, filename = "figures/combined_ridges.png", height = 14, width 
 #   theme(axis.title.y = element_blank()) +
 #   geom_vline(xintercept = 0, linetype = "dotted", size = 1)
 # ggsave(AUStempNov, filename = "figures/AUS_Novtemp_ridges.png", dpi = 300, height = 10, width = 5)
+
+
+
+
+
+
+########
+## seasonal Mann-Kendall trend test ----
+# https://www.rdocumentation.org/packages/EnvStats/versions/2.3.1/topics/kendallSeasonalTrendTest
+library(EnvStats)
+
+## make dataframe for model
+AUStempUSE2
+
+# assign season
+library(tidyverse)    
+AUStempSeason <- AUStempUSE2 %>%
+  mutate(Season = as.factor(case_when(month %in% 9:11 ~ 'Spring',
+                                      month %in% 6:8 ~ 'Winter',
+                                      month %in% 3:5 ~ 'Fall',
+                                      TRUE ~ 'Summer')))
+
+UStempSeason <- UStempUSE %>%
+  mutate(Season = as.factor(case_when(month %in% 9:11 ~ 'Fall',
+                                      month %in% 6:8 ~ 'Summer',
+                                      month %in% 3:5 ~ 'Spring',
+                                      TRUE ~ 'Summer')))
+
+# reformat data for analysis
+# hex.id = center of polygon
+# Precip = daily precip
+# Season = season as factor
+# month and year
+AUStempF <- AUStempSeason %>%
+  select(hex.id, TempC, month, year, Season) %>%
+  group_by(hex.id, month, Season, year) %>%
+  summarize(TempF = mean(TempC*9/5+32)
+  )
+UStempF <- UStempSeason %>%
+  select(hex.id, TempC, month, year, Season) %>%
+  group_by(hex.id, month, Season, year) %>%
+  summarize(TempF = mean(TempC*9/5+32)
+  )
+
+
+# make row a month/year
+library(zoo)
+AUStempF$Date <- zoo::as.yearmon(paste(AUStempF$year, AUStempF$month), "%Y %m")
+UStempF$Date <- zoo::as.yearmon(paste(UStempF$year, UStempF$month), "%Y %m")
+
+
+# convert into a time-series xts object
+library(xts)
+
+# AUS
+str(AUStempF)
+str(UStempF)
+
+# make AUS tempF into xts object
+AUStempF3 <- AUStempF[,-c(2:4)]
+Faus<- read.zoo(file = AUStempF3, index.column = "Date", split = "hex.id")
+Faus2 <- as.ts(Faus)
+
+UStempF2 <- na.omit(UStempF)
+UStempF3 <- UStempF2[,-c(2:4)]
+Fus<- read.zoo(file = UStempF3, index.column = "Date", split = "hex.id")
+Fus2 <- as.ts(Fus)
+
+# another option
+# https://jsta.github.io/wql/reference/seaKen.html
+library(wql)
+
+# test Seasonal Kendall test by site in AUS
+seaKen(Faus2)
+seaKen(
+  Faus2,
+  plot = TRUE,
+  type = "slope",
+  order = TRUE,
+  xlab = "Sen slope for temperature",
+  ylab = "AUS Hexagon ID"
+)
+
+# US
+seaKen(Fus2)
+seaKen(
+  Fus2,
+  plot = TRUE,
+  type = "relative",
+  order = TRUE,
+  xlab = "Sen slope for temperature",
+  ylab = "US Hexagon ID",
+  yaxt="n"
+)
+
+# # Seasonal Kendall test:
+# chl <- sfbayChla # monthly chlorophyll at 16 stations in San Francisco Bay
+# # seaKen(sfbayChla[, 's27']) # results for a single series at station 27
+# # seaKen(sfbayChla) # results for all stations
+# # seaKen(sfbayChla, plot=TRUE, type="relative", order=TRUE)
+
+# Regional Kendall test:
+# Use mts2ts to change 16 series into a single series with 16 "seasons"
+seaKen(mts2ts(Faus2))  # AUS
+seaKen(mts2ts(Fus2)) # US
+
+# Separate by seasons
+seaKen(mts2ts(Faus2, seas = c(12,1:2))) # summer AUS
+seaKen(mts2ts(Faus2, seas = c(9:11))) # spring AUS
+seaKen(mts2ts(Faus2, seas = c(3:5))) # fall AUS
+seaKen(mts2ts(Faus2, seas = c(6:8))) # winter AUS
+
+
+seaKen(mts2ts(Fus2, seas = c(3:5))) # spring US
+seaKen(mts2ts(Fus2, seas = c(6:8))) # summer US
+seaKen(mts2ts(Fus2, seas = c(9:11))) # fall US
+seaKen(mts2ts(Fus2, seas = c(12,1:2))) # winter US
+
+
+
+## want to use this: https://pubs.acs.org/doi/full/10.1021/es051650b
+
+
+#### ----
+# check out 'trend' package
