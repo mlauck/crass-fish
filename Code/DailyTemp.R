@@ -65,6 +65,8 @@ UStempUSE$year <- as.numeric(str_sub(UStempUSE$date, 2, 5))
 # load(file = 'Data/tempUSE.rda')
 
 ## make average monthly temperature by site
+
+### Australia
 ## for Dec-Feb
 tempsummer <- AUStempUSE %>%
   group_by(hex.id, latitude, year) %>%
@@ -80,6 +82,21 @@ tempspring <- AUStempUSE %>%
             sdTemp = sd(TempC, na.rm = TRUE),
             n = n())
 
+tempwinterAUS <- AUStempUSE %>%
+  group_by(hex.id, latitude, year) %>%
+  filter(month == 6 | month == 7 | month == 8) %>%
+  summarise(avgTemp = mean(TempC, na.rm = TRUE),
+            sdTemp = sd(TempC, na.rm = TRUE),
+            n = n())
+
+tempfallAUS <- AUStempUSE %>%
+  group_by(hex.id, latitude, year) %>%
+  filter(month == 3 | month == 4 | month == 5) %>%
+  summarise(avgTemp = mean(TempC, na.rm = TRUE),
+            sdTemp = sd(TempC, na.rm = TRUE),
+            n = n())
+
+### US
 tempsummerUS <- UStempUSE %>%
   group_by(hex.id, latitude, year) %>%
   filter(month == 6 | month == 7 | month == 8) %>%
@@ -90,6 +107,20 @@ tempsummerUS <- UStempUSE %>%
 tempspringUS <- UStempUSE %>%
   group_by(hex.id, latitude, year) %>%
   filter(month == 3 | month == 4 | month == 5) %>%
+  summarise(avgTemp = mean(TempC, na.rm = TRUE),
+            sdTemp = sd(TempC, na.rm = TRUE),
+            n = n())
+
+tempwinterUS <- UStempUSE %>%
+  group_by(hex.id, latitude, year) %>%
+  filter(month == 12 | month == 1 | month == 2) %>%
+  summarise(avgTemp = mean(TempC, na.rm = TRUE),
+            sdTemp = sd(TempC, na.rm = TRUE),
+            n = n())
+
+tempfallUS <- UStempUSE %>%
+  group_by(hex.id, latitude, year) %>%
+  filter(month == 9 | month == 10 | month == 11) %>%
   summarise(avgTemp = mean(TempC, na.rm = TRUE),
             sdTemp = sd(TempC, na.rm = TRUE),
             n = n())
@@ -139,7 +170,23 @@ tempallUS <- tempsummerUS %>%
 tempSp_all <- tempspring %>%
   group_by(hex.id) %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
-tempSP_allUS <- tempspringUS %>%
+tempSp_allUS <- tempspringUS %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(avgTemp, na.rm = TRUE))
+
+# winter averages
+tempWi_all <- tempwinterAUS %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(avgTemp, na.rm = TRUE))
+tempWi_allUS <- tempwinterUS %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(avgTemp, na.rm = TRUE))
+
+# fall averages
+tempFa_all <- tempfallAUS %>%
+  group_by(hex.id) %>%
+  summarize(overallavg = mean(avgTemp, na.rm = TRUE))
+tempFa_allUS <- tempfallUS %>%
   group_by(hex.id) %>%
   summarize(overallavg = mean(avgTemp, na.rm = TRUE))
 
@@ -155,7 +202,17 @@ tempsummer2US <- left_join(tempsummerUS, tempallUS, by = "hex.id")
 
 ## spring
 tempspring2 <- left_join(tempspring, tempSp_all, by = "hex.id")
-tempspring2US <- left_join(tempspringUS, tempSP_allUS, by = "hex.id")
+tempspring2US <- left_join(tempspringUS, tempSp_allUS, by = "hex.id")
+
+## winter
+tempwinter2 <- left_join(tempwinterAUS, tempWi_all, by = "hex.id")
+tempwinter2US <- left_join(tempwinterUS, tempWi_allUS, by = "hex.id")
+
+## fall
+tempfall2 <- left_join(tempfallAUS, tempFa_all, by = "hex.id")
+tempfall2US <- left_join(tempfallUS, tempFa_allUS, by = "hex.id")
+
+
 
 ### calculate annual anomaly
 # summer
@@ -166,14 +223,22 @@ tempsummer2US$anol <- tempsummer2US$avgTemp - tempsummer2US$overallavg
 tempspring2$anol <- tempspring2$avgTemp - tempspring2$overallavg
 tempspring2US$anol <- tempspring2US$avgTemp - tempspring2US$overallavg
 
-# remove NAs
-tempnov3 <- na.omit(tempnov2)
-tempsummer3 <- na.omit(tempsummer2)
+# fall
+tempfall2$anol <- tempfall2$avgTemp - tempfall2$overallavg
+tempfall2US$anol <- tempfall2US$avgTemp - tempfall2US$overallavg
+
+# winter
+tempwinter2$anol <- tempwinter2$avgTemp - tempwinter2$overallavg
+tempwinter2US$anol <- tempwinter2US$avgTemp - tempwinter2US$overallavg
+
+# # remove NAs
+# tempnov3 <- na.omit(tempnov2)
+# tempsummer3 <- na.omit(tempsummer2)
 
 #### plot summer temp  ----
 
 # plot avg temp anomaly boxplots with fill 
-AUSrawsumm <- tempsummer3 %>% 
+AUSrawsumm <- tempsummer2 %>% 
   group_by(year) %>% 
   mutate(mean.temp= mean(avgTemp)) %>% 
   ggplot( aes(x = year, y = avgTemp, group = year)) +
@@ -225,7 +290,7 @@ print(AUSraw)
 
 ## summer temperature anomaly
 # plot avg temp anomaly boxplots with fill 
-AUSsumm <- tempsummer3 %>% 
+AUSsumm <- tempsummer2 %>% 
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
   ggplot( aes(x = year, y = anol, group = year)) +
@@ -318,19 +383,95 @@ tempanolspring <- ggarrange(labels = c("A", "B"),
                            legend = "bottom") 
 print(tempanolspring)
 
+
+####### fall temperature anomaly
+# plot avg temp anomaly boxplots with fill 
+AUSfa <- tempfall2 %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  # ylab("Fall temperature anomaly (°C)") +
+  ylab("") +
+  ggtitle("Australia fall anomaly") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(AUSfa)
+# ggsave(AUSfa, filename = "figures/AUSfalltemp_box.png", dpi = 300, height = 5, width = 6)
+
+USfa <- tempfall2US %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Fall anomaly (°C)") +
+  scale_fill_viridis_c(name = "Avg anomaly", option = "C") +
+  ggtitle("United States fall anomaly") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(USfa)
+# ggsave(USfa, filename = "figures/USfalltemp_box.png", dpi = 300, height = 5, width = 6)
+
+####### winter temperature anomaly
+# plot avg temp anomaly boxplots with fill 
+AUSwi <- tempwinter2 %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  scale_fill_viridis_c(name = "Temp anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  # ylab("Winter temperature anomaly (°C)") +
+  ylab("") +
+  ggtitle("Australia winter anomaly") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(AUSwi)
+# ggsave(AUSwi, filename = "figures/AUSwintertemp_box.png", dpi = 300, height = 5, width = 6)
+
+USwi <- tempwinter2US %>% 
+  group_by(year) %>% 
+  mutate(mean.anol= mean(anol)) %>% 
+  ggplot( aes(x = year, y = anol, group = year)) +
+  geom_boxplot(aes(fill = mean.anol)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Winter anomaly (°C)") +
+  scale_fill_viridis_c(name = "Avg anomaly", option = "C") +
+  ggtitle("United States winter anomaly") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
+print(USwi)
+# ggsave(USfa, filename = "figures/USfalltemp_box.png", dpi = 300, height = 5, width = 6)
+
+
+
 ## multimulti ----
 ## Multipanel figure
 tempall <- ggarrange(
-  tempanolspring,
-  tempanolmulti,
-  nrow = 2,
-  ncol = 1,
+  USsp + theme(axis.title.x=element_blank()),
+  AUSsp + theme(axis.title.x=element_blank()),
+  USsumm + theme(axis.title.x=element_blank()),
+  AUSsumm + theme(axis.title.x=element_blank()),
+  USfa + theme(axis.title.x=element_blank()),
+  AUSfa + theme(axis.title.x=element_blank()), 
+  USwi,
+  AUSwi,
+  nrow = 4,
+  ncol = 2,
+  labels = "AUTO",
   align = "hv",
   legend = "bottom",
-  common.legend = FALSE
+  common.legend = TRUE
 )
 tempall
-ggsave(tempall, filename = "figures/alltemp.png", dpi = 300, height = 8, width = 14)
+ggsave(tempall, filename = "figures/alltemp.png", dpi = 300, height = 16, width = 14)
 
 # 
 
