@@ -15,8 +15,14 @@ library(tidyr)
 library(stringr)
 library(ggplot2)
 library(ggpubr)
+library(viridis)
 
 summary(longfish)
 summary <- longfish %>%
   group_by(year, hexID) %>%
   summarize(speciescount = count(species, na.rm = TRUE))
+
+ggplot(aes(x = year, y = species, fill = hexID), data = longfish) +
+  geom_point(pch = 21) +
+  scale_fill_viridis_d() +
+  theme_bw()
