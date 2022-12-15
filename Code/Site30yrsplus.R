@@ -10,6 +10,7 @@ head(longfish)
 longfish$hexID <- as.factor(longfish$hexID)
 longfish$species <- as.factor(longfish$species)
 
+
 # libraries
 library(dplyr)
 library(tidyr)
@@ -19,6 +20,16 @@ library(ggpubr)
 library(viridis)
 library(ggridges)
 library(lme4)
+library(brms)
+library(magrittr)
+library(rstan)
+library(tidybayes)
+library(emmeans)
+library(broom)
+library(modelr)
+library(forcats)
+library(RColorBrewer)
+library(lattice)
 
 summary(longfish)
 
@@ -59,21 +70,19 @@ richmod <- lmer(richness ~ year + (1|hexID), data = rich)
 print(richmod)
 summary(richmod)
 
-library(brms)
-library(magrittr)
-library(dplyr)
-library(ggplot2)
-library(rstan)
-library(tidybayes)
-library(emmeans)
-library(broom)
-library(modelr)
-library(forcats)
-library(RColorBrewer)
+
+
+# trellis plot
+# a nice way to look at likely estimates but in frequentist frameworks
+
+# trellis of fish richness vs. TP by month
+xyplot(richness ~ year|as.factor(hexID), data = rich, panel=function(x,y,...){
+  panel.xyplot(x, y, ...)
+  panel.lmline(x,y,...)}, ylab="Richness", xlab="Year")
 
 
 mod_rich = brm(
-  richness ~ year + (1|hexID), 
+  richness ~ year + (year|hexID), 
   data = rich, 
   family = gaussian,
 )
@@ -83,7 +92,7 @@ rich %>%
   data_grid(year = seq_range(year, n = 101)) %>%    # add am to the prediction grid
   add_predicted_draws(mod_rich) %>%
   ggplot(aes(x = year, y = richness)) +
-  stat_lineribbon(aes(y = .prediction), .width = c(.99, .95, .8, .5), color = "#08519C") +
+  stat_lineribbon(aes(y = .prediction), .width = c(.95, .8, .5), color = "#08519C") +
   geom_point(data = rich) +
   scale_fill_brewer(palette = "BuGn") +
   facet_wrap(~ hexID)                                  # facet by hexID
@@ -102,6 +111,9 @@ b <- stan_glmer(
   prior_intercept = normal(0, 5, autoscale = TRUE),
   prior_covariance = decov(regularization = 2),
   prior_aux = cauchy(0, 1, autoscale = TRUE), 
+  chains = 4,
+  iter = 10000,
+  ncore = 3,
   # reproducible blogging
   seed = 20211116
 )
@@ -128,8 +140,8 @@ df_effects <- df_posterior %>%
     ),
     # Again for slope
     across(
-      .cols = matches("b\\[Day"), 
-      .fns = ~ . + Days
+      .cols = matches("b\\[year"), 
+      .fns = ~ . + year
     )
   )
 
@@ -145,55 +157,129 @@ df_long_effects <- df_effects %>%
     values_to = "Value"
   )
 
+df_long_effects <- df_effects %>% 
+  dplyr::select(starts_with("b[")) %>% 
+  rownames_to_column("draw") %>%
+  tidyr::gather(Parameter, Value, -draw)
+
 # Extract the effect type and subject number from each parameter name
+df_long_effects$Type <- df_long_effects$Parameter %>%
+  stringr::str_detect("Intercept") %>%
+  ifelse(., "Intercept", "Slope_year")
+
+df_long_effects$hexID <- df_long_effects$Parameter %>%
+  stringr::str_extract(c("\\d+|other"))
+
 df_long_effects <- df_long_effects %>% 
-  mutate(
-    Effect = Parameter %>% 
-      stringr::str_detect("Intercept") %>%
-      ifelse(., "Intercept", "Slope_Day"),
-    Subject = Parameter %>%
-      stringr::str_extract("\\d\\d\\d")
-  ) %>% 
-  select(draw, Subject, Effect, Value)
+  dplyr::select(draw, hexID, Effect = Type, Value)
 
-# Finally!
-df_long_effects
-#> # A tibble: 160,000 × 4
-#>     draw Subject Effect     Value
-#>    <int> <chr>   <chr>      <dbl>
-#>  1     1 308     Intercept 256.  
-#>  2     1 308     Slope_Day  19.5 
-#>  3     1 309     Intercept 208.  
-#>  4     1 309     Slope_Day   2.49
-#>  5     1 310     Intercept 197.  
-#>  6     1 310     Slope_Day   9.00
-#>  7     1 330     Intercept 281.  
-#>  8     1 330     Slope_Day   5.21
-#>  9     1 331     Intercept 307.  
-#> 10     1 331     Slope_Day   1.16
-#> # … with 159,990 more rows
-
-
-# For reproducibility
-set.seed(20220330)
-
-## Choose 50 posterior samples for plotting
+# choose 50 posterior samples
 df_samples <- df_long_effects %>%
   filter(draw %in% sample(1:4000, size = 50)) %>%
-  tidyr::pivot_wider(names_from = Effect, values_from = Value)
+  tidyr::spread(Effect, Value)
 df_samples
 
+# # Extract the effect type and subject number from each parameter name
+# df_long_effects <- df_long_effects %>% 
+#   mutate(
+#     Effect = Parameter %>% 
+#       stringr::str_detect("Intercept") %>%
+#       ifelse(., "Intercept", "Slope_year"),
+#     hexID = Parameter %>%
+#       stringr::str_extract("\\d\\d\\d")
+#   ) %>% 
+#   select(draw, hexID, Effect, Value)
+
+# # Finally!
+# df_long_effects
+# #> # A tibble: 160,000 × 4
+# #>     draw Subject Effect     Value
+# #>    <int> <chr>   <chr>      <dbl>
+# #>  1     1 308     Intercept 256.  
+# #>  2     1 308     Slope_Day  19.5 
+# #>  3     1 309     Intercept 208.  
+# #>  4     1 309     Slope_Day   2.49
+# #>  5     1 310     Intercept 197.  
+# #>  6     1 310     Slope_Day   9.00
+# #>  7     1 330     Intercept 281.  
+# #>  8     1 330     Slope_Day   5.21
+# #>  9     1 331     Intercept 307.  
+# #> 10     1 331     Slope_Day   1.16
+# #> # … with 159,990 more rows
+
+# df_long_effects2 <- df_long_effects %>%
+#   tidyr::pivot_wider(names_from = Effect, values_from = Value)
+
+# # For reproducibility
+# set.seed(20220330)
+# 
+# ## Choose 50 posterior samples for plotting
+# df_samples <- df_long_effects %>%
+#   group_by(draw, hexID) %>%
+#   filter(draw %in% sample(1:4000, size = 50)) %>%
+#   mutate(row = row_number()) %>%
+#   tidyr::pivot_wider(names_from = Effect, values_from = Value) %>%
+#   select(-row)
+
+df_samples
+
+# # plot up slope and intercept estimates
+# ggplot(df_long_effects %>% tidyr::spread(Effect, Value)) + 
+#   aes(x = Intercept, y = Slope_year) + 
+#   stat_density_2d(aes(fill = ..level..), geom = "polygon") +
+#   facet_wrap("hexID") + 
+#   xlab("Intercept estimate") + 
+#   ylab("Slope estimate") +
+#   theme(legend.position = "bottom") +
+#   guides(fill = "none")
+
+# get rid of NAs
+df_samples <- sapply(df_samples, as.character)
+df_samples[is.na(df_samples)] <- " "
+df_samples <- as.data.frame(df_samples)
+
+df_samples2 <- df_samples %>% 
+  group_by(draw, hexID) %>% 
+  summarise_all(funs(trimws(paste(., collapse = '')))) -> df
+
+df_samples2 %>%
+  mutate(Intercept = as.numeric(Intercept),
+         Slope_year = as.numeric(Slope_year))
 
 ## plot with posteriors for each site
-ggplot(df_sleep) +
-  aes(x = Days, y = Reaction) +
-  geom_abline(
-    aes(intercept = Intercept, slope = Slope_Day), 
-    data = df_samples, 
-    color = "#3366FF", 
-    alpha = .1
-  ) +
-  geom_point() +
-  facet_wrap("Subject") + 
-  scale_x_continuous(breaks = 0:4 * 2) + 
-  labs(x = xlab, y = ylab) 
+# ggplot(rich) +
+#   aes(x = year, y = richness) +
+#   geom_abline(
+#     aes(intercept = Intercept, slope = Slope_year), 
+#     data = df_samples2, 
+#     color = "#3366FF", 
+#     alpha = .1
+#   ) +
+#   geom_point() +
+#   facet_wrap("hexID") + 
+#   scale_x_continuous(breaks = 0:4 * 2) + 
+#   labs(x = xlab, y = ylab) 
+
+# Figure 3 final
+# plot all stations with posterior draws
+richplot2 <- ggplot(rich) +
+  aes(x = year, y = richness) +
+  geom_abline(aes(intercept = Intercept, slope = Slope_year), 
+              data = df_samples, color = "dark gray", alpha = .2) +
+  # geom_abline(aes(intercept = b(Intercept), slope = b(Slope)), data = rich) + 
+  geom_point(alpha = 0.7, pch = 21, aes(fill = as.factor(hexID)), size = 2) +
+  scale_fill_brewer(palette = "BrBG") +
+  theme_classic() + 
+  facet_wrap("hexID", ncol = 5) +
+  xlab("Year") +
+  ylab("Fish species richness") +
+  # theme(axis.title.x = element_blank(), 
+  #       axis.title.y = element_blank(),
+  #       axis.text.x = element_blank(),
+  #       axis.text.y = element_blank()) +
+  #ylab(expression(paste("ln(Chl ", italic("a"),") (", mu,g," ", L^-1,")"))) +
+  guides(color = guide_legend(title = "Year")) + # to make three columns, ncol = 3)) + 
+  theme(legend.position = "none") # to move to bottom: c(.75,.1)) +
+print(richplot2)
+
+ggsave(richplot2, filename = "figures/longfishrichness.png", dpi = 300, width = 10, height = 5)
