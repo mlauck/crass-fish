@@ -3,7 +3,7 @@
 # December 2022
 
 # load data
-longfish <- read.csv("Data/fish_data_30yr_site_subset.csv", header = TRUE)
+longfish <- read.csv("Data/fish_data_30yr_site_subset.csv", header = TRUE, fileEncoding="UTF-8-BOM")
 head(longfish)
 
 # site as factor
@@ -565,11 +565,28 @@ mod10
 # plot as unpooled
 library(ggplot2)
 
+rsidat <- read.csv("data/RSI.csv", header = TRUE, fileEncoding="UTF-8-BOM")
+rsidat$hexID <- as.factor(rsidat$hexID)
+# filter only window = 8
+rsidat8 <- filter(rsidat, window == 8)
+
+richmerg <- left_join(rich,rsidat8, by = "hexID")
+
+
+
 #create regression lines for all three groups
-longfish2 <- ggplot(rich, aes(x = year, y = richness)) +
-  geom_point(pch = 21, size = 2, aes(fill = hexID), alpha = 0.5) +
-  geom_smooth(method = "lm", fill = NA) +
-  theme_bw(base_size = 14) +
+longfish2 <- ggplot(richmerg, aes(x = year.x, y = richness)) +
+  geom_point(pch = 21, size = 2.5, aes(fill = hexID), alpha = 0.7) +
+  geom_point(pch = 6, aes(x = year.y, y = richness)) +
+  geom_smooth(method = "lm", fill = NA, color = "black") +
+  theme_classic(base_size = 14) +
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "white", colour = "grey50"),
+        ) +
   scale_fill_viridis_d() +
-  facet_wrap(~hexID, ncol = 5)
+  facet_wrap(~hexID, ncol = 4) +
+  ylab("Fish species richness") +
+  xlab("Year")
+  
 print(longfish2)
+ggsave(longfish2, filename = "figures/longtermtrends&breaks.png", dpi = 300, width = 10, height = 6)
