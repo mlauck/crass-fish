@@ -76,15 +76,22 @@ summary(richmod)
 # a nice way to look at likely estimates but in frequentist frameworks
 
 # trellis of fish richness vs. TP by month
+# non-pooled
 xyplot(richness ~ year|as.factor(hexID), data = rich, panel=function(x,y,...){
   panel.xyplot(x, y, ...)
   panel.lmline(x,y,...)}, ylab="Richness", xlab="Year")
 
+# why won't this work?
+mod_rich1 <- lmer(richness ~ year + (1|hexID), data = rich)
+summary(mod_rich1)
 
-mod_rich = brm(
-  richness ~ year + (year|hexID), 
+mod_rich <- brm(
+  richness ~ year + (1 + year|hexID), 
   data = rich, 
   family = gaussian,
+  iter = 10000,
+  chains = 4,
+  thin = 5000
 )
 summary(mod_rich)
 
@@ -92,6 +99,7 @@ rich %>%
   data_grid(year = seq_range(year, n = 101)) %>%    # add am to the prediction grid
   add_predicted_draws(mod_rich) %>%
   ggplot(aes(x = year, y = richness)) +
+  theme_bw() +
   stat_lineribbon(aes(y = .prediction), .width = c(.95, .8, .5), color = "#08519C") +
   geom_point(data = rich) +
   scale_fill_brewer(palette = "BuGn") +
@@ -113,13 +121,13 @@ b <- stan_glmer(
   prior_aux = cauchy(0, 1, autoscale = TRUE), 
   chains = 4,
   iter = 10000,
-  ncore = 3,
+  cores = 3,
   # reproducible blogging
   seed = 20211116
 )
 
 # print model
-b
+summary(b, digits = 4)
 
 # Get a dataframe: One row per posterior sample
 df_posterior <- b %>% 
@@ -283,3 +291,285 @@ richplot2 <- ggplot(rich) +
 print(richplot2)
 
 ggsave(richplot2, filename = "figures/longfishrichness.png", dpi = 300, width = 10, height = 5)
+
+
+
+# moving window manual
+# trellis of fish richness vs. TP by month
+# non-pooled
+xyplot(richness ~ year|as.factor(hexID), data = rich, panel=function(x,y,...){
+  panel.xyplot(x, y, ...)
+  panel.lmline(x,y,...)}, ylab="Richness", xlab="Year")
+lm <- lmer(richness ~ year + (1|hexID), data = rich)
+summary(lm)
+
+rich1980 <- subset(rich, year >1979)
+xyplot(richness ~ year|as.factor(hexID), data = rich1980, panel=function(x,y,...){
+  panel.xyplot(x, y, ...)
+  panel.lmline(x,y,...)}, ylab="Richness", xlab="Year")
+
+rich1990 <- subset(rich, year >1989)
+xyplot(richness ~ year|as.factor(hexID), data = rich1990, panel=function(x,y,...){
+  panel.xyplot(x, y, ...)
+  panel.lmline(x,y,...)}, ylab="Richness", xlab="Year")
+
+rich2000 <- subset(rich, year >1999)
+xyplot(richness ~ year|as.factor(hexID), data = rich2000, panel=function(x,y,...){
+  panel.xyplot(x, y, ...)
+  panel.lmline(x,y,...)}, ylab="Richness", xlab="Year")
+
+rich2010 <- subset(rich, year >2009)
+xyplot(richness ~ year|as.factor(hexID), data = rich2010, panel=function(x,y,...){
+  panel.xyplot(x, y, ...)
+  panel.lmline(x,y,...)}, ylab="Richness", xlab="Year")
+
+library(nlme)
+fit <-lme(richness ~ year, random = ~1 + year | hexID, data= rich)
+summary(fit)
+
+# make predictions dataframe
+new_data <- data.frame(expand.grid(year = unique(rich$year), hexID = unique(rich$hexID), stringsAsFactors = FALSE))
+
+# add predictions 
+new_data$richness <- predict(fit, newdata = new_data, re.form=NA)
+
+# # OPTIONAL EXTRA
+# # get confidence and prediction intervals around mean prediction 
+# # get model matrix
+# mm <- model.matrix(terms(fit_lme), new_data)
+# 
+# ## or newdat$distance <- mm %*% fixef(fm1)
+# # variance of fixed effect
+# pvar <- diag(mm %*% tcrossprod(vcov(fit_lme), mm))
+# # variance of random effects
+# tvar <- pvar + VarCorr(fit_lme)$individual[1]  
+# cmult <- 1.96
+# 
+# # add columns to dataframes
+# # CI gives uncertainty around fixed effects only
+# # PI gives uncertainty based on random effects as well!
+# new_data <- mutate(new_data,
+#                    PI_low = Hue - cmult*sqrt(tvar),
+#                    PI_high = Hue + cmult*sqrt(tvar),
+#                    CI_low = Hue - cmult*sqrt(pvar), 
+#                    CI_high = Hue + cmult*sqrt(pvar))
+# 
+# # create dataframe for new_data for each individual ####
+# new_data_ind <- select(d, time, prawn_col, individual)
+# # predict each individuals relationship including the random effects
+# new_data_ind$Hue <- predict(fit_lme, new_data_ind, re.form = NULL)
+
+# option 2
+# plots the mean relationship and each individual random relationship
+ggplot(rich) +
+  geom_point(aes(year, richness, fill = hexID), alpha = 0.5, pch = 21, size = 2, rich) +
+  # geom_line(aes(year, richness, col = hexID, group = hexID), alpha = 0.25, new_data_ind) +
+  geom_line(aes(year, richness, col = hexID), new_data) +
+  ylab('Fish species richness') +
+  xlab('Years') +
+  # facet_wrap(~ prawn_col) +
+  scale_fill_viridis_d() +
+  scale_color_viridis_d() +
+  theme_bw(base_size = 14)
+
+## package rshift
+library(rshift)
+
+# how long for each regime shift?
+# start with 5
+# next try 8
+# end with 10
+
+## window = 8 ----
+## hexID 216
+# first attempt!
+hex216 <- filter(rich, hexID == "216")
+hex216red <- hex216[,-1]
+# for answer
+mod1 <- Rodionov(hex216red, col = "richness", time = "year", l = 8)
+mod1
+# for figure
+mod1 <- Rodionov(hex216red, col = "richness", time = "year", l = 8, merge = TRUE)
+mod1
+RSI_graph(mod1, col = "richness", time = "year", rsi ="RSI")
+
+## hexID 217
+hex217 <- filter(rich, hexID == "217")
+hex217red <- hex217[,-1]
+# for answer
+mod2 <- Rodionov(hex217red, col = "richness", time = "year", l = 8)
+mod2
+# for figure
+mod2 <- Rodionov(hex217red, col = "richness", time = "year", l = 8, merge = TRUE)
+RSI_graph(mod2, col = "richness", time = "year", rsi ="RSI")
+
+## hexID 247
+hex247 <- filter(rich, hexID == "247")
+hex247red <- hex247[,-1]
+# for answer
+mod3 <- Rodionov(hex247red, col = "richness", time = "year", l = 8)
+mod3
+# for figure
+mod3 <- Rodionov(hex247red, col = "richness", time = "year", l = 8, merge = TRUE)
+RSI_graph(mod3, col = "richness", time = "year", rsi ="RSI")
+
+
+## hexID 248
+hex248 <- filter(rich, hexID == "248")
+hex248red <- hex248[,-1]
+# for answer
+mod4 <- Rodionov(hex248red, col = "richness", time = "year", l = 8)
+mod4
+
+
+## hexID 262
+hex262 <- filter(rich, hexID == "262")
+hex262red <- hex262[,-1]
+# for answer
+mod5 <- Rodionov(hex262red, col = "richness", time = "year", l = 8)
+mod5
+
+
+## hexID 263
+hex263 <- filter(rich, hexID == "263")
+hex263red <- hex263[,-1]
+# for answer
+mod6 <- Rodionov(hex263red, col = "richness", time = "year", l = 8)
+mod6
+
+
+## hexID 279
+hex279 <- filter(rich, hexID == "279")
+hex279red <- hex279[,-1]
+# for answer
+mod7 <- Rodionov(hex279red, col = "richness", time = "year", l = 8)
+mod7
+
+
+## hexID 344
+hex344 <- filter(rich, hexID == "344")
+hex344red <- hex344[,-1]
+# for answer
+mod8 <- Rodionov(hex344red, col = "richness", time = "year", l = 8)
+mod8
+
+
+## hexID 1370
+hex1370 <- filter(rich, hexID == "1370")
+hex1370red <- hex1370[,-1]
+# for answer
+mod9 <- Rodionov(hex1370red, col = "richness", time = "year", l = 8)
+mod9
+
+
+## hexID 1372
+hex1372 <- filter(rich, hexID == "1372")
+hex1372red <- hex1372[,-1]
+# for answer
+mod10 <- Rodionov(hex1372red, col = "richness", time = "year", l = 8)
+mod10
+
+
+
+
+## window = 10 ----
+## hexID 216
+# first attempt!
+hex216 <- filter(rich, hexID == "216")
+hex216red <- hex216[,-1]
+# for answer
+mod1 <- Rodionov(hex216red, col = "richness", time = "year", l = 10)
+mod1
+# for figure
+mod1 <- Rodionov(hex216red, col = "richness", time = "year", l = 10, merge = TRUE)
+mod1
+RSI_graph(mod1, col = "richness", time = "year", rsi ="RSI")
+
+## hexID 217
+hex217 <- filter(rich, hexID == "217")
+hex217red <- hex217[,-1]
+# for answer
+mod2 <- Rodionov(hex217red, col = "richness", time = "year", l = 10)
+mod2
+# for figure
+mod2 <- Rodionov(hex217red, col = "richness", time = "year", l = 10, merge = TRUE)
+RSI_graph(mod2, col = "richness", time = "year", rsi ="RSI")
+
+## hexID 247
+hex247 <- filter(rich, hexID == "247")
+hex247red <- hex247[,-1]
+# for answer
+mod3 <- Rodionov(hex247red, col = "richness", time = "year", l = 10)
+mod3
+# for figure
+mod3 <- Rodionov(hex247red, col = "richness", time = "year", l = 10, merge = TRUE)
+RSI_graph(mod3, col = "richness", time = "year", rsi ="RSI")
+
+
+## hexID 248
+hex248 <- filter(rich, hexID == "248")
+hex248red <- hex248[,-1]
+# for answer
+mod4 <- Rodionov(hex248red, col = "richness", time = "year", l = 10)
+mod4
+
+
+## hexID 262
+hex262 <- filter(rich, hexID == "262")
+hex262red <- hex262[,-1]
+# for answer
+mod5 <- Rodionov(hex262red, col = "richness", time = "year", l = 10)
+mod5
+
+
+## hexID 263
+hex263 <- filter(rich, hexID == "263")
+hex263red <- hex263[,-1]
+# for answer
+mod6 <- Rodionov(hex263red, col = "richness", time = "year", l = 10)
+mod6
+
+
+## hexID 279
+hex279 <- filter(rich, hexID == "279")
+hex279red <- hex279[,-1]
+# for answer
+mod7 <- Rodionov(hex279red, col = "richness", time = "year", l = 10)
+mod7
+
+
+## hexID 344
+hex344 <- filter(rich, hexID == "344")
+hex344red <- hex344[,-1]
+# for answer
+mod8 <- Rodionov(hex344red, col = "richness", time = "year", l = 10)
+mod8
+
+
+## hexID 1370
+hex1370 <- filter(rich, hexID == "1370")
+hex1370red <- hex1370[,-1]
+# for answer
+mod9 <- Rodionov(hex1370red, col = "richness", time = "year", l = 10)
+mod9
+
+
+## hexID 1372
+hex1372 <- filter(rich, hexID == "1372")
+hex1372red <- hex1372[,-1]
+# for answer
+mod10 <- Rodionov(hex1372red, col = "richness", time = "year", l = 10)
+mod10
+
+
+# plot as unpooled
+library(ggplot2)
+
+#create regression lines for all three groups
+longfish2 <- ggplot(rich, aes(x = year, y = richness)) +
+  geom_point(pch = 21, size = 2, aes(fill = hexID), alpha = 0.5) +
+  geom_smooth(method = "lm", fill = NA) +
+  theme_bw(base_size = 14) +
+  scale_fill_viridis_d() +
+  facet_wrap(~hexID, ncol = 5)
+print(longfish2)
