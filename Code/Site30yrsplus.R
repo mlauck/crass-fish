@@ -577,7 +577,7 @@ richmerg <- left_join(rich,rsidat8, by = "hexID")
 #create regression lines for all three groups
 longfish2 <- ggplot(richmerg, aes(x = year.x, y = richness)) +
   geom_point(pch = 21, size = 2.5, aes(fill = hexID), alpha = 0.7) +
-  geom_point(pch = 6, aes(x = year.y, y = richness)) +
+  geom_point(pch = 25, size = 2, aes(x = year.y, y = 2), fill = "black") +
   geom_smooth(method = "lm", fill = NA, color = "black") +
   theme_classic(base_size = 14) +
   theme(legend.position = "none",
