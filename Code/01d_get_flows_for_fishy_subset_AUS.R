@@ -1,6 +1,6 @@
 ### Jane S. Rogosch
-### Created 18 Feb 2022
-### This code is to extract USGS discharge data from subset of gages that are in HUCs where
+### Created 15 Dec 2022
+### This code is to extract AUS gage discharge data from subset of gages that are in watershed where
 ### we have fish sampling data. The subset of gages was found using ArcGIS 10.2 select by location functions
 
 ### Load libraries--------------------------------------------------------------
@@ -33,64 +33,95 @@ library(dataRetrieval)
 #  install.packages("smwrBase")
 library(smwrBase)
 #########################################################################################################################
-##### IF NOT RUNNING FOR FIRST TIME SKIP AHEAD #####
-### Example code to extract one ------------------------------------------------------------------------------------------------------
-# using San Pedro River, Arizona (USGS station 09471000)
-# Now let's download data from USGS servers
-siteNumber <-"09471000"
-parameterCd <- "00060" # this is discharge
-rawDailyData <-readNWISdv(siteNumber, parameterCd, "1996-10-01","2015-09-30")
-head(rawDailyData)
-rawDailyData <- rawDailyData[,3:4]
-class(rawDailyData$Date) # needs to be class 'Date', if not run next line
-#rawDailyData$Date<-as.Date(rawDailyData$Date, "%m/%d/%Y")
-head(rawDailyData) # OK
+### Load the file with the subset of gages that are in watersheds with fish data ------------------------------------------------------
+AUS_GRDC_subset <- read.csv("Data/from_GIS/AUS_gage_wfish_table.csv", row.names = 1)
+                       # colClasses = c(rep(NA, 12), "character", rep(NA, 24)))
+AUS_CAMEL_subset <- read.csv("Data/from_GIS/AUS_CAMEL_gage_wfish_table.csv", row.names = 1)
 
-# Convert raw data to 'asStreamflow' object
-SANPEDRO <- asStreamflow(rawDailyData, river.name="San Pedro River, AZ")
+### Load discharge files
+CAMELS_streamflow <- read.csv("Data/AUS_data/03_streamflow/streamflow_MLd.csv")
 
-dim(SANPEDRO$data)[1]
-summary(SANPEDRO)
+# Get the files we want
+# column name is "site_no" for GRDC
+# for CAMEL us "station_id" and lat_outlet and long_outle for the dec_lat_va and dec_long_v
 
-### Load the file with the subset of gages------------------------------------------------------
-# USA_subset <- read.csv("Data/from_GIS/USA_fish_nearest_gage_within5km.csv", row.names = 1, 
-#                        colClasses = c(rep(NA, 12), "character", rep(NA, 24)))
-#                         #import to excel and change the gage_ID to 00000000, 
-# # then save as text file, then import and switch column format from general to "text" nOPE
-?read.delim
-USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.names = 1,
-                       colClasses = c(rep(NA, 12), "character", rep(NA, 22)))
-#import to excel and change the gage_ID to 00000000, 
-# then save as .csv file, then run this. 
-unique(USA_subset$site_no)
-head(USA_subset)
-str(USA_subset)
+temp <- paste0(AUS_GRDC_subset$site_no, "_Q_Day.Cmd.txt")
 
-site_IDs <- unique(USA_subset$site_no)
-compDailyData <- list()
+AUS_gage_files <- lapply(paste0("Data/GRDC_data/",temp), read.delim)
+str(AUS_gage_files)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(lubridate)
 
-site_IDs <- site_IDs[-98]
-# IDs that don't make it: 18, 60, 74
-# i <- 60 #18, 60, 74
-for (i in 1:length(site_IDs)) { 
-  rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
-  compDailyData[[i]] <- rawDailyData[,2:4] # stopped at 98 site_IDs[98] "09285000"
-  #charge <- print(rawDailyData)
-}
-?readNWISdv
+AUS_gage_files[[17]]
+
+unlist(strsplit(substr(AUS_gage_files[[1]][c(37:nrow(AUS_gage_files[[1]])), ], 1, 31), "   "))
+
+AUS_split <- strsplit(substr(AUS_gage_files[[1]][c(37:nrow(AUS_gage_files[[1]])), ], 1, 31), "    ")
+AUS_gage_sub <- data.frame(matrix(unlist(AUS_split), nrow=length(AUS_split), byrow=TRUE),
+           stringsAsFactors=FALSE)
+colnames(AUS_gage_sub) <- c("Date", "discharge")
+
+
+AUS_split <- cbind(str_sub(AUS_gage_files[[2]][c(37:nrow(AUS_gage_files[[2]])), ], start = 1, end = 10),
+                       str_sub(AUS_gage_files[[2]][c(37:nrow(AUS_gage_files[[2]])), ], start = -7 ))
+AUS_gage_sub <- as.data.frame(AUS_split)
+colnames(AUS_gage_sub) <- c("Date", "discharge")
+
+
+test_list <- lapply(AUS_gage_files, function(x) cbind(site_no = str_sub(x[8, ], start = -7),
+                                                      Date = str_sub(x[c(37:nrow(x)), ], start = 1, end = 10),
+                                                      X_00060_00003 = str_sub(x[c(37:nrow(x)), ], start = -7 ),
+                                                      dec_lat_va = str_sub(x[12, ], start = -10),
+                                                      dec_long_v = str_sub(x[13, ], start = -9)))
+
+AUS_gage_sub <- lapply(test_list, function(x) as.data.frame(x)) #units are cms cubic meters per second
+
+head(CAMELS_streamflow)
+CAM <- select(CAMELS_streamflow, year, month, day, A0030501, G0010005, G0050115, G0060005) #units are MLd Mega Liters per day
+# 1 megalitres per day to cubic metre/second = 0.01157 cubic metre/second
+?paste
+?unite
+CAM <- unite(CAM, Date, 1:3, sep = "-")
+CAM$Date <- ymd(CAM$Date)
+
+# Separate sites into their own dataframes with site name, discharge, date
+# Omit rows with missing values (i.e. -99.99)
+CAM_A0030501 <- CAM[CAM$A0030501 != -99.99, 1:2]
+CAM_G0010005 <- CAM[CAM$G0010005 != -99.99, c(1, 3)]
+CAM_G0050115 <- CAM[CAM$G0050115 != -99.99, c(1, 4)]
+CAM_G0060005 <- CAM[CAM$G0060005 != -99.99, c(1, 5)]
+
+
+# Convert to cms
+CAM_cms <- CAM[,2:5]*0.01157
+
+CAM_A0030501$cms <- CAM_A0030501[,2]*0.01157
+CAM_G0010005$cms <- CAM_G0010005[,2]*0.01157
+CAM_G0050115$cms <- CAM_G0050115[,2]*0.01157
+CAM_G0060005$cms <- CAM_G0060005[,2]*0.01157
+
+
+### Next steps
+### Get daily discharge for the sites in this subset (AUS_gage_sub and CAM objects)
+### Format data: Date format YYYY-MM-DD Discharge format is cubic meters per second (convert to cfs? or does it matter for unitless metrics?)
+### If need to have same column heading they are "site_no", "Date", "X00060_00003"
+
+
 str(compDailyData)
-length(compDailyData)
+str(AUS_gage_sub)
 ### GET NAAs----------------------------------------------------------------------------------
 ?asStreamflow
 CompSignal <- list() #IDs that don't make it 24, 115, 117, 158,239,245
-for (i in 246:length(site_IDs)) { 
-  rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
+for (i in 1:length(site_IDs)) { 
+  #rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
   streamflow <- asStreamflow(rawDailyData[ ,3:4], river.name = rawDailyData$site_no[1], max.na = 1815) # Convert raw data to 'asStreamflow' object
   summary(streamflow)
   USA_stream <- fourierAnalysis(streamflow) # Run Fourier on the 'asStreamflow' object
   CompSignal[[i]] <- cbind(USA_stream$signal, site_no = streamflow$name)
   # Make a file of the main data
-  write.csv(cbind(USA_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/USGS', '_', rawDailyData$site_no[1],'.csv'))
+  write.csv(cbind(AUS_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/AUS/AUS', '_', AUS_gage_sub$site_no[i],'.csv'))
   # plot characteristic hydrograph
   #   # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
   #plot(USA_stream)
