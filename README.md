@@ -18,7 +18,7 @@ Check back later for more info as project develops
 - Draft figures: https://docs.google.com/presentation/d/1JrgYoNF1s1kZuVJffNZ1w5jQdHiiCk8w-bvRikgbGU4/edit?usp=sharing
 - Fish traits: https://docs.google.com/spreadsheets/d/1e635zaYSAnfXS-tnaylRyoS3HWPc1yCXkABXRlYl8z0/edit?usp=sharing
 - Annotated bibliogrphay: https://docs.google.com/document/d/1jXX2khXqDzatlZ5YO2RR6jawOZwgBnRI5BK9FIzbpZI/edit?usp=sharing
-- Meeting notes: https://docs.google.com/document/d/1wx79PGzT_aape9A20DuZeVhPFxhzEnHqJbmFcAQeWnI/edit?usp=sharing
+- Meeting notes: https://docs.google.com/document/d/1z1VCsd23RGk1SV4hZ4b2Chf414RmpXtYJorFNXoASZI/edit
 
 # Working figures
 
