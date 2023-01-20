@@ -63,8 +63,9 @@ richplot <- ggplot(aes(x = year, y = richness, fill = hexID), data = rich) +
   theme_bw(base_size = 14) +
   xlab("Year") +
   ylab("Fish species richness") +
-  geom_smooth(method = "loess")
+  geom_smooth(method = "lm")
 print(richplot)
+ggsave(richplot, filename = "figures/lm30yr.png", dpi = 300, width = 6, height = 4)
 
 richmod <- lmer(richness ~ year + (1|hexID), data = rich)
 print(richmod)
@@ -292,9 +293,337 @@ print(richplot2)
 
 ggsave(richplot2, filename = "figures/longfishrichness.png", dpi = 300, width = 10, height = 5)
 
+### permanova with species over time
+# NOT RUN {
+library(PERMANOVA)
+data(wine)
+X = wine[,4:21]
+X=IniTransform(X)
+D = DistContinuous (X)
+perwine=PERMANOVA(D, wine$Group)
+perwine
 
 
-# moving window manual
+C = matrix(c(1, 1, -1, 1, 1, -1, 1, 1, 1, -1, -1, 1), nrow=3, byrow=TRUE)
+rownames(C)=c("C1", "C2", "C3")
+colnames(C)=levels(wine$Group)
+
+effects=factor(c(1,2,3))
+levels(effects)=c("Origin", "Year", "Interaction")
+perwine2=PERMANOVA(D, wine$Group, C=C, Effects=effects, CoordPrinc = TRUE)
+summary(perwine2)
+
+
+## species changes over time ----
+unique(longfish$species)
+# [1] Catostomus clarkii       Gambusia affinis         Agosia chrysogaster     
+# [4] Catostomus insignis      Cyprinella lutrensis     Rhinichthys cobitis     
+# [7] Micropterus dolomieu     Micropterus salmoides    Ameiurus natalis        
+# [10] Pimephales promelas      Pylodictis olivaris      Ameiurus melas          
+# [13] Cyprinus carpio          Ictalurus punctatus      Lepomis cyanellus       
+# [16] Gila robusta             Meda fulgida             Gila nigra              
+# [19] Rhinichthys osculus      Oncorhynchus mykiss      Salmo trutta            
+# [22] Oncorhynchus gilae       Culaea inconstans        Salvelinus fontinalis   
+# [25] Oncorhynchus nerka       Catostomus platyrhynchus Prosopium williamsoni   
+# [28] Salvelinus namaycush     Richardsonius balteatus  Cottus bairdii          
+# [31] Couesius plumbeus        Oncorhynchus clarkii     Thymallus arcticus
+
+# Catostomus clarkii
+cacl <- longfish %>% filter(species == "Catostomus clarkii")
+caclplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cacl) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Catostomus clarkii")
+print(caclplot)
+
+# Gambusia affinis
+gaaf <- longfish %>% filter(species == "Gambusia affinis")
+gaafplot <- ggplot(aes(x = year, y = hexID, fill = year), data = gaaf) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Gambusia affinis")
+print(gaafplot)
+
+# Agosia chrysogaster
+agch <- longfish %>% filter(species == "Agosia chrysogaster")
+agchplot <- ggplot(aes(x = year, y = hexID, fill = year), data = agch) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Agosia chrysogaster")
+print(agchplot)
+
+# Catostomus insignis
+cain <- longfish %>% filter(species == "Catostomus insignis")
+cainplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cain) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Catostomus insignis")
+print(cainplot)
+
+#  Cyprinella lutrensis
+cylu <- longfish %>% filter(species == "Cyprinella lutrensis")
+cyluplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cylu) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Cyprinella lutrensis")
+print(cyluplot)
+
+#  Rhinichthys cobitis
+rhco <- longfish %>% filter(species == "Rhinichthys cobitis")
+rhcoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = rhco) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Rhinichthys cobitis")
+print(rhcoplot)
+
+#  Micropterus dolomieu
+mido <- longfish %>% filter(species == "Micropterus dolomieu")
+midoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = mido) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Micropterus dolomieu")
+print(midoplot)
+
+# Micropterus salmoides
+misa <- longfish %>% filter(species == "Micropterus salmoides")
+misaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = misa) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Micropterus salmoides")
+print(misaplot)
+
+# Ameiurus natalis
+amna <- longfish %>% filter(species == "Ameiurus natalis")
+amnaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = amna) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Ameiurus natalis")
+print(amnaplot)
+
+# Pimephales promelas
+pipo <- longfish %>% filter(species == "Pimephales promelas")
+pipoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = pipo) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Pimephales promelas")
+print(pipoplot)
+
+# Pylodictis olivaris
+pyol <- longfish %>% filter(species == "Pylodictis olivaris")
+pyolplot <- ggplot(aes(x = year, y = hexID, fill = year), data = pyol) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Pylodictis olivaris")
+print(pyolplot)
+
+# Ameiurus melas
+amme <- longfish %>% filter(species == "Ameiurus melas")
+ammeplot <- ggplot(aes(x = year, y = hexID, fill = year), data = amme) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Ameiurus melas")
+print(ammeplot)
+
+# Cyprinus carpio
+cyca <- longfish %>% filter(species == "Cyprinus carpio")
+cycaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cyca) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Cyprinus carpio")
+print(cycaplot)
+
+# Ictalurus punctatus
+icpu <- longfish %>% filter(species == "Ictalurus punctatus")
+icpuplot <- ggplot(aes(x = year, y = hexID, fill = year), data = icpu) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Ictalurus punctatus")
+print(icpuplot)
+
+# Lepomis cyanellus
+lecy <- longfish %>% filter(species == "Lepomis cyanellus")
+lecyplot <- ggplot(aes(x = year, y = hexID, fill = year), data = lecy) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Lepomis cyanellus")
+print(lecyplot)
+
+# Gila robusta
+giro <- longfish %>% filter(species == "Gila robusta")
+giroplot <- ggplot(aes(x = year, y = hexID, fill = year), data = giro) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Gila robusta")
+print(giroplot)
+
+# Meda fulgida
+mefu <- longfish %>% filter(species == "Meda fulgida")
+mefuplot <- ggplot(aes(x = year, y = hexID, fill = year), data = mefu) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Meda fulgida")
+print(mefuplot)
+
+# Gila nigra
+gini <- longfish %>% filter(species == "Gila nigra")
+giniplot <- ggplot(aes(x = year, y = hexID, fill = year), data = gini) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Gila nigra")
+print(giniplot)
+
+# Rhinichthys osculus
+rhos <- longfish %>% filter(species == "Rhinichthys osculus")
+rhosplot <- ggplot(aes(x = year, y = hexID, fill = year), data = rhos) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Rhinichthys osculus")
+print(rhosplot)
+
+# Oncorhynchus mykiss
+onmy <- longfish %>% filter(species == "Oncorhynchus mykiss")
+onmyplot <- ggplot(aes(x = year, y = hexID, fill = year), data = onmy) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Oncorhynchus mykiss")
+print(onmyplot)
+
+# Salmo trutta
+satr <- longfish %>% filter(species == "Salmo trutta")
+satrplot <- ggplot(aes(x = year, y = hexID, fill = year), data = satr) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Salmo trutta")
+print(satrplot)
+
+# Oncorhynchus gilae
+ongi <- longfish %>% filter(species == "Oncorhynchus gilae")
+ongiplot <- ggplot(aes(x = year, y = hexID, fill = year), data = ongi) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Oncorhynchus gilae")
+print(ongiplot)
+
+# Culaea inconstans
+cuin <- longfish %>% filter(species == "Culaea inconstans")
+cuinplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cuin) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Culaea inconstans")
+print(cuinplot)
+
+# Salvelinus fontinalis
+safo <- longfish %>% filter(species == "Salvelinus fontinalis")
+safoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = safo) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Salvelinus fontinalis")
+print(safoplot)
+
+# Oncorhynchus nerka
+onne <- longfish %>% filter(species == "Oncorhynchus nerka")
+onneplot <- ggplot(aes(x = year, y = hexID, fill = year), data = onne) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Oncorhynchus nerka")
+print(onneplot)
+
+# Catostomus platyrhynchus
+capl <- longfish %>% filter(species == "Catostomus platyrhynchus")
+caplplot <- ggplot(aes(x = year, y = hexID, fill = year), data = capl) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Catostomus platyrhynchus")
+print(caplplot)
+
+# Prosopium williamsoni
+prwi <- longfish %>% filter(species == "Prosopium williamsoni")
+prwiplot <- ggplot(aes(x = year, y = hexID, fill = year), data = prwi) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Prosopium williamsoni")
+print(prwiplot)
+
+# Salvelinus namaycush
+sana <- longfish %>% filter(species == "Salvelinus namaycush")
+sanaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = sana) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Salvelinus namaycush")
+print(sanaplot)
+
+# Richardsonius balteatus
+riba <- longfish %>% filter(species == "Richardsonius balteatus")
+ribaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = riba) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Richardsonius balteatus")
+print(ribaplot)
+
+# Cottus bairdii
+coba <- longfish %>% filter(species == "Cottus bairdii")
+cobaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = coba) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Cottus bairdii")
+print(cobaplot)
+
+# Couesius plumbeus
+copl <- longfish %>% filter(species == "Couesius plumbeus")
+coplplot <- ggplot(aes(x = year, y = hexID, fill = year), data = copl) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Couesius plumbeus")
+print(coplplot)
+
+# Oncorhynchus clarkii
+oncl <- longfish %>% filter(species == "Oncorhynchus clarkii")
+onclplot <- ggplot(aes(x = year, y = hexID, fill = year), data = oncl) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  theme_bw(base_size = 14) +
+  ggtitle("Oncorhynchus clarkii")
+print(onclplot)
+
+
+
+
+
+
+
+
+# moving window manual ----
 # trellis of fish richness vs. TP by month
 # non-pooled
 xyplot(richness ~ year|as.factor(hexID), data = rich, panel=function(x,y,...){
