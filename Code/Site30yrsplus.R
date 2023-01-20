@@ -343,6 +343,7 @@ gaafplot <- ggplot(aes(x = year, y = hexID, fill = year), data = gaaf) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Gambusia affinis")
 print(gaafplot)
 
@@ -352,6 +353,7 @@ agchplot <- ggplot(aes(x = year, y = hexID, fill = year), data = agch) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Agosia chrysogaster")
 print(agchplot)
 
@@ -360,6 +362,7 @@ cain <- longfish %>% filter(species == "Catostomus insignis")
 cainplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cain) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Catostomus insignis")
 print(cainplot)
@@ -370,6 +373,7 @@ cyluplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cylu) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Cyprinella lutrensis")
 print(cyluplot)
 
@@ -379,6 +383,7 @@ rhcoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = rhco) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Rhinichthys cobitis")
 print(rhcoplot)
 
@@ -387,6 +392,7 @@ mido <- longfish %>% filter(species == "Micropterus dolomieu")
 midoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = mido) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Micropterus dolomieu")
 print(midoplot)
@@ -397,6 +403,7 @@ misaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = misa) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Micropterus salmoides")
 print(misaplot)
 
@@ -406,6 +413,7 @@ amnaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = amna) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Ameiurus natalis")
 print(amnaplot)
 
@@ -415,6 +423,7 @@ pipoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = pipo) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Pimephales promelas")
 print(pipoplot)
 
@@ -423,6 +432,7 @@ pyol <- longfish %>% filter(species == "Pylodictis olivaris")
 pyolplot <- ggplot(aes(x = year, y = hexID, fill = year), data = pyol) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Pylodictis olivaris")
 print(pyolplot)
@@ -433,6 +443,7 @@ ammeplot <- ggplot(aes(x = year, y = hexID, fill = year), data = amme) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Ameiurus melas")
 print(ammeplot)
 
@@ -442,6 +453,7 @@ cycaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cyca) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Cyprinus carpio")
 print(cycaplot)
 
@@ -451,6 +463,7 @@ icpuplot <- ggplot(aes(x = year, y = hexID, fill = year), data = icpu) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Ictalurus punctatus")
 print(icpuplot)
 
@@ -459,6 +472,7 @@ lecy <- longfish %>% filter(species == "Lepomis cyanellus")
 lecyplot <- ggplot(aes(x = year, y = hexID, fill = year), data = lecy) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Lepomis cyanellus")
 print(lecyplot)
@@ -468,6 +482,7 @@ giro <- longfish %>% filter(species == "Gila robusta")
 giroplot <- ggplot(aes(x = year, y = hexID, fill = year), data = giro) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Gila robusta")
 print(giroplot)
@@ -478,6 +493,7 @@ mefuplot <- ggplot(aes(x = year, y = hexID, fill = year), data = mefu) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Meda fulgida")
 print(mefuplot)
 
@@ -486,7 +502,8 @@ gini <- longfish %>% filter(species == "Gila nigra")
 giniplot <- ggplot(aes(x = year, y = hexID, fill = year), data = gini) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
-  theme_bw(base_size = 14) +
+  theme_bw(base_size = 14) +  
+  xlim(1968, 2020) +
   ggtitle("Gila nigra")
 print(giniplot)
 
@@ -496,6 +513,7 @@ rhosplot <- ggplot(aes(x = year, y = hexID, fill = year), data = rhos) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Rhinichthys osculus")
 print(rhosplot)
 
@@ -505,6 +523,7 @@ onmyplot <- ggplot(aes(x = year, y = hexID, fill = year), data = onmy) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Oncorhynchus mykiss")
 print(onmyplot)
 
@@ -513,6 +532,7 @@ satr <- longfish %>% filter(species == "Salmo trutta")
 satrplot <- ggplot(aes(x = year, y = hexID, fill = year), data = satr) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Salmo trutta")
 print(satrplot)
@@ -523,6 +543,7 @@ ongiplot <- ggplot(aes(x = year, y = hexID, fill = year), data = ongi) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Oncorhynchus gilae")
 print(ongiplot)
 
@@ -532,6 +553,7 @@ cuinplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cuin) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Culaea inconstans")
 print(cuinplot)
 
@@ -540,6 +562,7 @@ safo <- longfish %>% filter(species == "Salvelinus fontinalis")
 safoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = safo) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Salvelinus fontinalis")
 print(safoplot)
@@ -550,6 +573,7 @@ onneplot <- ggplot(aes(x = year, y = hexID, fill = year), data = onne) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Oncorhynchus nerka")
 print(onneplot)
 
@@ -559,6 +583,7 @@ caplplot <- ggplot(aes(x = year, y = hexID, fill = year), data = capl) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Catostomus platyrhynchus")
 print(caplplot)
 
@@ -568,6 +593,7 @@ prwiplot <- ggplot(aes(x = year, y = hexID, fill = year), data = prwi) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Prosopium williamsoni")
 print(prwiplot)
 
@@ -577,6 +603,7 @@ sanaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = sana) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Salvelinus namaycush")
 print(sanaplot)
 
@@ -586,6 +613,7 @@ ribaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = riba) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
   theme_bw(base_size = 14) +
+  xlim(1968, 2020) +
   ggtitle("Richardsonius balteatus")
 print(ribaplot)
 
@@ -594,6 +622,7 @@ coba <- longfish %>% filter(species == "Cottus bairdii")
 cobaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = coba) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Cottus bairdii")
 print(cobaplot)
@@ -603,6 +632,7 @@ copl <- longfish %>% filter(species == "Couesius plumbeus")
 coplplot <- ggplot(aes(x = year, y = hexID, fill = year), data = copl) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Couesius plumbeus")
 print(coplplot)
@@ -612,12 +642,69 @@ oncl <- longfish %>% filter(species == "Oncorhynchus clarkii")
 onclplot <- ggplot(aes(x = year, y = hexID, fill = year), data = oncl) +
   geom_point(pch = 21, size = 3) + 
   scale_fill_viridis_c() +
+  xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Oncorhynchus clarkii")
 print(onclplot)
 
+# Thymallus arcticus
+thar <- longfish %>% filter(species == "Thymallus arcticus")
+tharplot <- ggplot(aes(x = year, y = hexID, fill = year), data = thar) +
+  geom_point(pch = 21, size = 3) + 
+  scale_fill_viridis_c() +
+  xlim(1968, 2020) +
+  theme_bw(base_size = 14) +
+  ggtitle("Thymallus arcticus")
+print(tharplot)
+
+declines <- ggpubr::ggarrange(
+          agchplot,
+          cyluplot,
+          rhcoplot,
+          midoplot,
+          misaplot,
+          amnaplot,
+          pipoplot,
+          pyolplot,
+          ncol = 2,
+          nrow = 4,
+          align = "hv",
+          common.legend = TRUE,
+          legend = "right")
+print(declines)
+ggsave(declines, filename = "figures/LongfishSpeciesDeclines.png", dpi = 300, height = 10, width = 9)
+
+declines2 <- ggpubr::ggarrange(
+  ammeplot,
+  cycaplot,
+  icpuplot,
+  lecyplot,
+  mefuplot,
+  giniplot,
+  onmyplot,
+  satrplot,
+  ncol = 2,
+  nrow = 4,
+  align = "hv",
+  common.legend = TRUE,
+  legend = "right")
+print(declines2)
+ggsave(declines2, filename = "figures/LongfishSpeciesDeclines2.png", dpi = 300, height = 10, width = 9)
 
 
+declines3 <- ggpubr::ggarrange(
+  cuinplot,
+  tharplot,
+  prwiplot,
+  sanaplot,
+  onclplot,
+  ncol = 2,
+  nrow = 3,
+  align = "hv",
+  common.legend = TRUE,
+  legend = "right")
+print(declines3)
+ggsave(declines3, filename = "figures/LongfishSpeciesDeclines3.png", dpi = 300, height = 10*3/4, width = 9)
 
 
 
