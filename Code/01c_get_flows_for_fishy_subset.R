@@ -78,7 +78,7 @@ for (i in 1:length(site_IDs)) {
   #charge <- print(rawDailyData)
 }
 ?readNWISdv
-str(compDailyData)
+head(compDailyData)
 length(compDailyData)
 ### GET NAAs----------------------------------------------------------------------------------
 ?asStreamflow
@@ -530,7 +530,7 @@ NAA_plot <- signal_daily[signal_daily$year >= 1980, ] %>%
   ggtitle("USA") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1) 
 print(NAA_plot)
-ggsave(NAA_plot, filename = "figures/Discharge_NAA_box.png", dpi = 300, height = 5, width = 6)
+ggsave(NAA_plot, filename = "figures/Discharge_NAA_box_USA.jpg", dpi = 300, height = 5, width = 7)
 
 # No, this is not right.
 # NAA_summ <- NAA %>%
