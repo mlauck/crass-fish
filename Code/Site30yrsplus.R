@@ -119,117 +119,117 @@ rich %>%
   facet_wrap(~ hexID)                                  # facet by hexID
 
 
-## hierarchical model
-## libraries
-library(rstanarm)
-
-
-b <- stan_glmer(
-  richness ~ year + (year | hexID),
-  family = gaussian(),
-  data = rich,
-  prior = normal(0, 2, autoscale = TRUE),
-  prior_intercept = normal(0, 5, autoscale = TRUE),
-  prior_covariance = decov(regularization = 2),
-  prior_aux = cauchy(0, 1, autoscale = TRUE), 
-  chains = 4,
-  iter = 10000,
-  cores = 3,
-  # reproducible blogging
-  seed = 20211116
-)
-
-# print model
-summary(b, digits = 4)
-
-# Get a dataframe: One row per posterior sample
-df_posterior <- b %>% 
-  as.data.frame() %>% 
-  as_tibble()
-
-## Manipulate data into a usable form for plotting
-# For each sample, add the average intercept and average slope values to each
-# participant's deviation from that average. These yields the intercept and
-# slope parameters for each participant.
-df_effects <- df_posterior %>%
-  mutate(
-    # Find all the columns with the pattern "b[(Intercept". Add the column
-    # `(Intercept)` to each of those columns.
-    across(
-      .cols = matches("b\\[\\(Intercept"), 
-      .fns = ~ . + `(Intercept)`
-    ),
-    # Again for slope
-    across(
-      .cols = matches("b\\[year"), 
-      .fns = ~ . + year
-    )
-  )
-
-# Convert to a long format
-df_long_effects <- df_effects %>%
-  select(matches("b\\[")) %>%
-  rowid_to_column("draw") %>%
-  tidyr::pivot_longer(
-    cols = c(-draw),
-    # when we make new columns with pivot_ functions, the
-    # they get quotes
-    names_to = "Parameter", 
-    values_to = "Value"
-  )
-
-df_long_effects <- df_effects %>% 
-  dplyr::select(starts_with("b[")) %>% 
-  rownames_to_column("draw") %>%
-  tidyr::gather(Parameter, Value, -draw)
-
-# Extract the effect type and subject number from each parameter name
-df_long_effects$Type <- df_long_effects$Parameter %>%
-  stringr::str_detect("Intercept") %>%
-  ifelse(., "Intercept", "Slope_year")
-
-df_long_effects$hexID <- df_long_effects$Parameter %>%
-  stringr::str_extract(c("\\d+|other"))
-
-df_long_effects <- df_long_effects %>% 
-  dplyr::select(draw, hexID, Effect = Type, Value)
-
-# choose 50 posterior samples
-df_samples <- df_long_effects %>%
-  filter(draw %in% sample(1:4000, size = 50)) %>%
-  tidyr::spread(Effect, Value)
-df_samples
-
-# # Extract the effect type and subject number from each parameter name
-# df_long_effects <- df_long_effects %>% 
+# ## hierarchical model
+# ## libraries
+# library(rstanarm)
+# 
+# 
+# b <- stan_glmer(
+#   richness ~ year + (year | hexID),
+#   family = gaussian(),
+#   data = rich,
+#   prior = normal(0, 2, autoscale = TRUE),
+#   prior_intercept = normal(0, 5, autoscale = TRUE),
+#   prior_covariance = decov(regularization = 2),
+#   prior_aux = cauchy(0, 1, autoscale = TRUE), 
+#   chains = 4,
+#   iter = 10000,
+#   cores = 3,
+#   # reproducible blogging
+#   seed = 20211116
+# )
+# 
+# # print model
+# summary(b, digits = 4)
+# 
+# # Get a dataframe: One row per posterior sample
+# df_posterior <- b %>% 
+#   as.data.frame() %>% 
+#   as_tibble()
+# 
+# ## Manipulate data into a usable form for plotting
+# # For each sample, add the average intercept and average slope values to each
+# # participant's deviation from that average. These yields the intercept and
+# # slope parameters for each participant.
+# df_effects <- df_posterior %>%
 #   mutate(
-#     Effect = Parameter %>% 
-#       stringr::str_detect("Intercept") %>%
-#       ifelse(., "Intercept", "Slope_year"),
-#     hexID = Parameter %>%
-#       stringr::str_extract("\\d\\d\\d")
-#   ) %>% 
-#   select(draw, hexID, Effect, Value)
-
-# # Finally!
-# df_long_effects
-# #> # A tibble: 160,000 × 4
-# #>     draw Subject Effect     Value
-# #>    <int> <chr>   <chr>      <dbl>
-# #>  1     1 308     Intercept 256.  
-# #>  2     1 308     Slope_Day  19.5 
-# #>  3     1 309     Intercept 208.  
-# #>  4     1 309     Slope_Day   2.49
-# #>  5     1 310     Intercept 197.  
-# #>  6     1 310     Slope_Day   9.00
-# #>  7     1 330     Intercept 281.  
-# #>  8     1 330     Slope_Day   5.21
-# #>  9     1 331     Intercept 307.  
-# #> 10     1 331     Slope_Day   1.16
-# #> # … with 159,990 more rows
-
-# df_long_effects2 <- df_long_effects %>%
-#   tidyr::pivot_wider(names_from = Effect, values_from = Value)
+#     # Find all the columns with the pattern "b[(Intercept". Add the column
+#     # `(Intercept)` to each of those columns.
+#     across(
+#       .cols = matches("b\\[\\(Intercept"), 
+#       .fns = ~ . + `(Intercept)`
+#     ),
+#     # Again for slope
+#     across(
+#       .cols = matches("b\\[year"), 
+#       .fns = ~ . + year
+#     )
+#   )
+# 
+# # Convert to a long format
+# df_long_effects <- df_effects %>%
+#   select(matches("b\\[")) %>%
+#   rowid_to_column("draw") %>%
+#   tidyr::pivot_longer(
+#     cols = c(-draw),
+#     # when we make new columns with pivot_ functions, the
+#     # they get quotes
+#     names_to = "Parameter", 
+#     values_to = "Value"
+#   )
+# 
+# df_long_effects <- df_effects %>% 
+#   dplyr::select(starts_with("b[")) %>% 
+#   rownames_to_column("draw") %>%
+#   tidyr::gather(Parameter, Value, -draw)
+# 
+# # Extract the effect type and subject number from each parameter name
+# df_long_effects$Type <- df_long_effects$Parameter %>%
+#   stringr::str_detect("Intercept") %>%
+#   ifelse(., "Intercept", "Slope_year")
+# 
+# df_long_effects$hexID <- df_long_effects$Parameter %>%
+#   stringr::str_extract(c("\\d+|other"))
+# 
+# df_long_effects <- df_long_effects %>% 
+#   dplyr::select(draw, hexID, Effect = Type, Value)
+# 
+# # choose 50 posterior samples
+# df_samples <- df_long_effects %>%
+#   filter(draw %in% sample(1:4000, size = 50)) %>%
+#   tidyr::spread(Effect, Value)
+# df_samples
+# 
+# # # Extract the effect type and subject number from each parameter name
+# # df_long_effects <- df_long_effects %>% 
+# #   mutate(
+# #     Effect = Parameter %>% 
+# #       stringr::str_detect("Intercept") %>%
+# #       ifelse(., "Intercept", "Slope_year"),
+# #     hexID = Parameter %>%
+# #       stringr::str_extract("\\d\\d\\d")
+# #   ) %>% 
+# #   select(draw, hexID, Effect, Value)
+# 
+# # # Finally!
+# # df_long_effects
+# # #> # A tibble: 160,000 × 4
+# # #>     draw Subject Effect     Value
+# # #>    <int> <chr>   <chr>      <dbl>
+# # #>  1     1 308     Intercept 256.  
+# # #>  2     1 308     Slope_Day  19.5 
+# # #>  3     1 309     Intercept 208.  
+# # #>  4     1 309     Slope_Day   2.49
+# # #>  5     1 310     Intercept 197.  
+# # #>  6     1 310     Slope_Day   9.00
+# # #>  7     1 330     Intercept 281.  
+# # #>  8     1 330     Slope_Day   5.21
+# # #>  9     1 331     Intercept 307.  
+# # #> 10     1 331     Slope_Day   1.16
+# # #> # … with 159,990 more rows
+# 
+# # df_long_effects2 <- df_long_effects %>%
+# #   tidyr::pivot_wider(names_from = Effect, values_from = Value)
 
 # # For reproducibility
 # set.seed(20220330)
@@ -242,68 +242,68 @@ df_samples
 #   tidyr::pivot_wider(names_from = Effect, values_from = Value) %>%
 #   select(-row)
 
-df_samples
-
-# # plot up slope and intercept estimates
-# ggplot(df_long_effects %>% tidyr::spread(Effect, Value)) + 
-#   aes(x = Intercept, y = Slope_year) + 
-#   stat_density_2d(aes(fill = ..level..), geom = "polygon") +
-#   facet_wrap("hexID") + 
-#   xlab("Intercept estimate") + 
-#   ylab("Slope estimate") +
-#   theme(legend.position = "bottom") +
-#   guides(fill = "none")
-
-# get rid of NAs
-df_samples <- sapply(df_samples, as.character)
-df_samples[is.na(df_samples)] <- " "
-df_samples <- as.data.frame(df_samples)
-
-df_samples2 <- df_samples %>% 
-  group_by(draw, hexID) %>% 
-  summarise_all(funs(trimws(paste(., collapse = '')))) -> df
-
-df_samples2 %>%
-  mutate(Intercept = as.numeric(Intercept),
-         Slope_year = as.numeric(Slope_year))
-
-## plot with posteriors for each site
-# ggplot(rich) +
+# df_samples
+# 
+# # # plot up slope and intercept estimates
+# # ggplot(df_long_effects %>% tidyr::spread(Effect, Value)) + 
+# #   aes(x = Intercept, y = Slope_year) + 
+# #   stat_density_2d(aes(fill = ..level..), geom = "polygon") +
+# #   facet_wrap("hexID") + 
+# #   xlab("Intercept estimate") + 
+# #   ylab("Slope estimate") +
+# #   theme(legend.position = "bottom") +
+# #   guides(fill = "none")
+# 
+# # get rid of NAs
+# df_samples <- sapply(df_samples, as.character)
+# df_samples[is.na(df_samples)] <- " "
+# df_samples <- as.data.frame(df_samples)
+# 
+# df_samples2 <- df_samples %>% 
+#   group_by(draw, hexID) %>% 
+#   summarise_all(funs(trimws(paste(., collapse = '')))) -> df
+# 
+# df_samples2 %>%
+#   mutate(Intercept = as.numeric(Intercept),
+#          Slope_year = as.numeric(Slope_year))
+# 
+# ## plot with posteriors for each site
+# # ggplot(rich) +
+# #   aes(x = year, y = richness) +
+# #   geom_abline(
+# #     aes(intercept = Intercept, slope = Slope_year), 
+# #     data = df_samples2, 
+# #     color = "#3366FF", 
+# #     alpha = .1
+# #   ) +
+# #   geom_point() +
+# #   facet_wrap("hexID") + 
+# #   scale_x_continuous(breaks = 0:4 * 2) + 
+# #   labs(x = xlab, y = ylab) 
+# 
+# # Figure 3 final
+# # plot all stations with posterior draws
+# richplot2 <- ggplot(rich) +
 #   aes(x = year, y = richness) +
-#   geom_abline(
-#     aes(intercept = Intercept, slope = Slope_year), 
-#     data = df_samples2, 
-#     color = "#3366FF", 
-#     alpha = .1
-#   ) +
-#   geom_point() +
-#   facet_wrap("hexID") + 
-#   scale_x_continuous(breaks = 0:4 * 2) + 
-#   labs(x = xlab, y = ylab) 
-
-# Figure 3 final
-# plot all stations with posterior draws
-richplot2 <- ggplot(rich) +
-  aes(x = year, y = richness) +
-  geom_abline(aes(intercept = Intercept, slope = Slope_year), 
-              data = df_samples, color = "dark gray", alpha = .2) +
-  # geom_abline(aes(intercept = b(Intercept), slope = b(Slope)), data = rich) + 
-  geom_point(alpha = 0.7, pch = 21, aes(fill = as.factor(hexID)), size = 2) +
-  scale_fill_brewer(palette = "BrBG") +
-  theme_classic() + 
-  facet_wrap("hexID", ncol = 5) +
-  xlab("Year") +
-  ylab("Fish species richness") +
-  # theme(axis.title.x = element_blank(), 
-  #       axis.title.y = element_blank(),
-  #       axis.text.x = element_blank(),
-  #       axis.text.y = element_blank()) +
-  #ylab(expression(paste("ln(Chl ", italic("a"),") (", mu,g," ", L^-1,")"))) +
-  guides(color = guide_legend(title = "Year")) + # to make three columns, ncol = 3)) + 
-  theme(legend.position = "none") # to move to bottom: c(.75,.1)) +
-print(richplot2)
-
-ggsave(richplot2, filename = "figures/longfishrichness.png", dpi = 300, width = 10, height = 5)
+#   geom_abline(aes(intercept = Intercept, slope = Slope_year), 
+#               data = df_samples, color = "dark gray", alpha = .2) +
+#   # geom_abline(aes(intercept = b(Intercept), slope = b(Slope)), data = rich) + 
+#   geom_point(alpha = 0.7, pch = 21, aes(fill = as.factor(hexID)), size = 2) +
+#   scale_fill_brewer(palette = "BrBG") +
+#   theme_classic() + 
+#   facet_wrap("hexID", ncol = 5) +
+#   xlab("Year") +
+#   ylab("Fish species richness") +
+#   # theme(axis.title.x = element_blank(), 
+#   #       axis.title.y = element_blank(),
+#   #       axis.text.x = element_blank(),
+#   #       axis.text.y = element_blank()) +
+#   #ylab(expression(paste("ln(Chl ", italic("a"),") (", mu,g," ", L^-1,")"))) +
+#   guides(color = guide_legend(title = "Year")) + # to make three columns, ncol = 3)) + 
+#   theme(legend.position = "none") # to move to bottom: c(.75,.1)) +
+# print(richplot2)
+# 
+# ggsave(richplot2, filename = "figures/longfishrichness.png", dpi = 300, width = 10, height = 5)
 
 ### permanova with species over time
 # NOT RUN {
@@ -347,7 +347,7 @@ cacl <- longfish %>% filter(species == "Catostomus clarkii")
 cacl <- presmat[,c(1:2,4)]
 cacl$count <- cacl$`Catostomus clarkii`
 cacl$presabs <- as.factor(ifelse(cacl$count >= 1, 1, 0))
-caclplot2 <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cacl) +
+caclplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cacl) +
   geom_point(pch = 21, size = 3, alpha = 0.9) +
   scale_fill_manual(name = "Present?",
                     values = c("white", "darkblue")) +
@@ -418,10 +418,10 @@ cyluplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cylu) +
 print(cyluplot)
 
 #  Rhinichthys cobitis
-rhco <- presmat[,c(1:2,13)]
+rhco <- presmat[,c(1:2,9)]
 rhco$count <- rhco$`Rhinichthys cobitis`
 rhco$presabs <- as.factor(ifelse(rhco$count >= 1, 1, 0))
-rhco <- longfish %>% filter(species == "Rhinichthys cobitis")
+# rhco <- longfish %>% filter(species == "Rhinichthys cobitis")
 rhcoplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = rhco) +
   geom_point(pch = 21, size = 3, alpha = 0.9) + 
   scale_fill_manual(name = "Present?",
@@ -432,7 +432,7 @@ rhcoplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = rhco) +
 print(rhcoplot)
 
 #  Micropterus dolomieu
-mido <- longfish %>% filter(species == "Micropterus dolomieu")
+# mido <- longfish %>% filter(species == "Micropterus dolomieu")
 mido <- presmat[,c(1:2,8)]
 mido$count <- mido$`Micropterus dolomieu`
 mido$presabs <- as.factor(ifelse(mido$count >= 1, 1, 0))
@@ -531,9 +531,13 @@ print(cycaplot)
 
 # Ictalurus punctatus
 icpu <- longfish %>% filter(species == "Ictalurus punctatus")
-icpuplot <- ggplot(aes(x = year, y = hexID, fill = year), data = icpu) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+icpu <- presmat[,c(1:2,10)]
+icpu$count <- icpu$`Ictalurus punctatus`
+icpu$presabs <- as.factor(ifelse(icpu$count >= 1, 1, 0))
+icpuplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = icpu) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Ictalurus punctatus")
@@ -541,19 +545,27 @@ print(icpuplot)
 
 # Lepomis cyanellus
 lecy <- longfish %>% filter(species == "Lepomis cyanellus")
-lecyplot <- ggplot(aes(x = year, y = hexID, fill = year), data = lecy) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+lecy <- presmat[,c(1:2,11)]
+lecy$count <- lecy$`Lepomis cyanellus`
+lecy$presabs <- as.factor(ifelse(lecy$count >= 1, 1, 0))
+lecyplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = lecy) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Lepomis cyanellus")
 print(lecyplot)
 
 # Gila robusta
-giro <- longfish %>% filter(species == "Gila robusta")
-giroplot <- ggplot(aes(x = year, y = hexID, fill = year), data = giro) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# giro <- longfish %>% filter(species == "Gila robusta")
+giro <- presmat[,c(1:2,18)]
+giro$count <- giro$`Gila robusta`
+giro$presabs <- as.factor(ifelse(giro$count >= 1, 1, 0))
+giroplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = giro) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Gila robusta")
@@ -561,9 +573,13 @@ print(giroplot)
 
 # Meda fulgida
 mefu <- longfish %>% filter(species == "Meda fulgida")
-mefuplot <- ggplot(aes(x = year, y = hexID, fill = year), data = mefu) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+mefu <- presmat[,c(1:2,7)]
+mefu$count <- mefu[,3]
+mefu$presabs <- as.factor(ifelse(mefu$count >= 1, 1, 0))
+mefuplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = mefu) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Meda fulgida")
@@ -571,9 +587,13 @@ print(mefuplot)
 
 # Gila nigra
 gini <- longfish %>% filter(species == "Gila nigra")
-giniplot <- ggplot(aes(x = year, y = hexID, fill = year), data = gini) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+gini <- presmat[,c(1:2,20)]
+gini$count <- gini$`Gila nigra`
+gini$presabs <- as.factor(ifelse(gini$count >= 1, 1, 0))
+giniplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = gini) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +  
   xlim(1968, 2020) +
   ggtitle("Gila nigra")
@@ -581,9 +601,13 @@ print(giniplot)
 
 # Rhinichthys osculus
 rhos <- longfish %>% filter(species == "Rhinichthys osculus")
-rhosplot <- ggplot(aes(x = year, y = hexID, fill = year), data = rhos) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+rhos <- presmat[,c(1:2,21)]
+rhos$count <- rhos$`Rhinichthys osculus`
+rhos$presabs <- as.factor(ifelse(rhos$count >= 1, 1, 0))
+rhosplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = rhos) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Rhinichthys osculus")
@@ -591,9 +615,13 @@ print(rhosplot)
 
 # Oncorhynchus mykiss
 onmy <- longfish %>% filter(species == "Oncorhynchus mykiss")
-onmyplot <- ggplot(aes(x = year, y = hexID, fill = year), data = onmy) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+onmy <- presmat[,c(1:2,23)]
+onmy$count <- onmy$`Oncorhynchus mykiss`
+onmy$presabs <- as.factor(ifelse(onmy$count >= 1, 1, 0))
+onmyplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = onmy) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Oncorhynchus mykiss")
@@ -601,9 +629,13 @@ print(onmyplot)
 
 # Salmo trutta
 satr <- longfish %>% filter(species == "Salmo trutta")
-satrplot <- ggplot(aes(x = year, y = hexID, fill = year), data = satr) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+satr <- presmat[,c(1:2,22)]
+satr$count <- satr$`Salmo trutta`
+satr$presabs <- as.factor(ifelse(satr$count >= 1, 1, 0))
+satrplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = satr) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Salmo trutta")
@@ -611,9 +643,13 @@ print(satrplot)
 
 # Oncorhynchus gilae
 ongi <- longfish %>% filter(species == "Oncorhynchus gilae")
-ongiplot <- ggplot(aes(x = year, y = hexID, fill = year), data = ongi) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+ongi <- presmat[,c(1:2,24)]
+ongi$count <- ongi$`Oncorhynchus gilae`
+ongi$presabs <- as.factor(ifelse(ongi$count >= 1, 1, 0))
+ongiplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = ongi) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Oncorhynchus gilae")
@@ -621,9 +657,13 @@ print(ongiplot)
 
 # Culaea inconstans
 cuin <- longfish %>% filter(species == "Culaea inconstans")
-cuinplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cuin) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+cuin <- presmat[,c(1:2,25)]
+cuin$count <- cuin$`Culaea inconstans`
+cuin$presabs <- as.factor(ifelse(cuin$count >= 1, 1, 0))
+cuinplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cuin) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Culaea inconstans")
@@ -631,9 +671,13 @@ print(cuinplot)
 
 # Salvelinus fontinalis
 safo <- longfish %>% filter(species == "Salvelinus fontinalis")
-safoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = safo) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+safo <- presmat[,c(1:2,26)]
+safo$count <- safo$`Salvelinus fontinalis`
+safo$presabs <- as.factor(ifelse(safo$count >= 1, 1, 0))
+safoplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = safo) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Salvelinus fontinalis")
@@ -641,9 +685,13 @@ print(safoplot)
 
 # Oncorhynchus nerka
 onne <- longfish %>% filter(species == "Oncorhynchus nerka")
-onneplot <- ggplot(aes(x = year, y = hexID, fill = year), data = onne) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+onne <- presmat[,c(1:2,30)]
+onne$count <- onne$`Oncorhynchus nerka`
+onne$presabs <- as.factor(ifelse(onne$count >= 1, 1, 0))
+onneplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = onne) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Oncorhynchus nerka")
@@ -651,9 +699,13 @@ print(onneplot)
 
 # Catostomus platyrhynchus
 capl <- longfish %>% filter(species == "Catostomus platyrhynchus")
-caplplot <- ggplot(aes(x = year, y = hexID, fill = year), data = capl) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+capl <- presmat[,c(1:2,31)]
+capl$count <- capl$`Catostomus platyrhynchus`
+capl$presabs <- as.factor(ifelse(capl$count >= 1, 1, 0))
+caplplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = capl) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Catostomus platyrhynchus")
@@ -661,9 +713,13 @@ print(caplplot)
 
 # Prosopium williamsoni
 prwi <- longfish %>% filter(species == "Prosopium williamsoni")
-prwiplot <- ggplot(aes(x = year, y = hexID, fill = year), data = prwi) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+prwi <- presmat[,c(1:2,33)]
+prwi$count <- prwi$`Prosopium williamsoni`
+prwi$presabs <- as.factor(ifelse(prwi$count >= 1, 1, 0))
+prwiplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = prwi) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Prosopium williamsoni")
@@ -671,9 +727,13 @@ print(prwiplot)
 
 # Salvelinus namaycush
 sana <- longfish %>% filter(species == "Salvelinus namaycush")
-sanaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = sana) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+sana <- presmat[,c(1:2,29)]
+sana$count <- sana$`Salvelinus namaycush`
+sana$presabs <- as.factor(ifelse(sana$count >= 1, 1, 0))
+sanaplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = sana) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Salvelinus namaycush")
@@ -681,9 +741,13 @@ print(sanaplot)
 
 # Richardsonius balteatus
 riba <- longfish %>% filter(species == "Richardsonius balteatus")
+riba <- presmat[,c(1:2,29)]
+riba$count <- riba$`Richardsonius balteatus`
+riba$presabs <- as.factor(ifelse(riba$count >= 1, 1, 0))
 ribaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = riba) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Richardsonius balteatus")
@@ -691,9 +755,13 @@ print(ribaplot)
 
 # Cottus bairdii
 coba <- longfish %>% filter(species == "Cottus bairdii")
-cobaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = coba) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+coba <- presmat[,c(1:2,32)]
+coba$count <- coba$`Cottus bairdii`
+coba$presabs <- as.factor(ifelse(coba$count >= 1, 1, 0))
+cobaplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = coba) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Cottus bairdii")
@@ -701,9 +769,13 @@ print(cobaplot)
 
 # Couesius plumbeus
 copl <- longfish %>% filter(species == "Couesius plumbeus")
-coplplot <- ggplot(aes(x = year, y = hexID, fill = year), data = copl) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+copl <- presmat[,c(1:2,35)]
+copl$count <- copl$`Couesius plumbeus`
+copl$presabs <- as.factor(ifelse(copl$count >= 1, 1, 0))
+coplplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = copl) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Couesius plumbeus")
@@ -711,9 +783,13 @@ print(coplplot)
 
 # Oncorhynchus clarkii
 oncl <- longfish %>% filter(species == "Oncorhynchus clarkii")
-onclplot <- ggplot(aes(x = year, y = hexID, fill = year), data = oncl) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+oncl <- presmat[,c(1:2,28)]
+oncl$count <- oncl$`Oncorhynchus clarkii`
+oncl$presabs <- as.factor(ifelse(oncl$count >= 1, 1, 0))
+onclplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = oncl) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Oncorhynchus clarkii")
@@ -721,9 +797,13 @@ print(onclplot)
 
 # Thymallus arcticus
 thar <- longfish %>% filter(species == "Thymallus arcticus")
-tharplot <- ggplot(aes(x = year, y = hexID, fill = year), data = thar) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+thar <- presmat[,c(1:2,27)]
+thar$count <- thar$`Thymallus arcticus`
+thar$presabs <- as.factor(ifelse(thar$count >= 1, 1, 0))
+tharplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = thar) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Thymallus arcticus")
