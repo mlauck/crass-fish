@@ -1,6 +1,6 @@
 # 30 year data
 # script by FER
-# December 2022
+# Last update February 2023
 
 # load data
 longfish <- read.csv("Data/fish_data_30yr_site_subset.csv", header = TRUE, fileEncoding="UTF-8-BOM")
@@ -12,22 +12,22 @@ longfish$species <- as.factor(longfish$species)
 
 
 # libraries
-library(dplyr)
+# library(dplyr)
 library(tidyr)
 library(stringr)
 library(ggplot2)
 library(ggpubr)
 library(viridis)
-library(ggridges)
+#library(ggridges)
 library(lme4)
-library(brms)
-library(magrittr)
-library(rstan)
-library(tidybayes)
-library(emmeans)
-library(broom)
-library(modelr)
-library(forcats)
+#library(brms)
+#library(magrittr)
+#library(rstan)
+#library(tidybayes)
+#library(emmeans)
+#library(broom)
+#library(modelr)
+#library(forcats)
 library(RColorBrewer)
 library(lattice)
 
@@ -55,6 +55,18 @@ rich <- longfish %>%
     group_by(hexID, year) %>% 
     # distinct() %>%
     summarize(richness = length(unique(species)))
+
+
+
+pres <- longfish %>%
+  group_by(hexID, year, species) %>%
+  summarize(count = n())
+
+# species matrix
+presmat <- pivot_wider(pres,
+                       names_from = species,
+                       values_from = count,
+                       values_fill = 0)
 
 # plot up richness
 richplot <- ggplot(aes(x = year, y = richness, fill = hexID), data = rich) +
@@ -316,6 +328,7 @@ summary(perwine2)
 
 ## species changes over time ----
 unique(longfish$species)
+View(presmat)
 
 # [1] Catostomus clarkii       Gambusia affinis         Agosia chrysogaster     
 # [4] Catostomus insignis      Cyprinella lutrensis     Rhinichthys cobitis     
@@ -331,58 +344,88 @@ unique(longfish$species)
 
 # Catostomus clarkii
 cacl <- longfish %>% filter(species == "Catostomus clarkii")
-caclplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cacl) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+cacl <- presmat[,c(1:2,4)]
+cacl$count <- cacl$`Catostomus clarkii`
+cacl$presabs <- as.factor(ifelse(cacl$count >= 1, 1, 0))
+caclplot2 <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cacl) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   ggtitle("Catostomus clarkii")
-print(caclplot)
+print(caclplot2)
+
+
 
 # Gambusia affinis
-gaaf <- longfish %>% filter(species == "Gambusia affinis")
-gaafplot <- ggplot(aes(x = year, y = hexID, fill = year), data = gaaf) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# gaaf <- longfish %>% filter(species == "Gambusia affinis")
+gaaf <- presmat[,c(1:2,6)]
+gaaf$count <- gaaf$`Gambusia affinis`
+gaaf$presabs <- as.factor(ifelse(gaaf$count >= 1, 1, 0))
+gaafplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = gaaf) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Gambusia affinis")
 print(gaafplot)
 
 # Agosia chrysogaster
-agch <- longfish %>% filter(species == "Agosia chrysogaster")
-agchplot <- ggplot(aes(x = year, y = hexID, fill = year), data = agch) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# agch <- longfish %>% filter(species == "Agosia chrysogaster")
+agch <- presmat[,c(1:2,3)]
+agch$count <- agch$`Agosia chrysogaster`
+agch$presabs <- as.factor(ifelse(agch$count >= 1, 1, 0))
+agchplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = agch) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Agosia chrysogaster")
 print(agchplot)
 
 # Catostomus insignis
-cain <- longfish %>% filter(species == "Catostomus insignis")
-cainplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cain) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# cain <- longfish %>% filter(species == "Catostomus insignis")
+cain <- presmat[,c(1:2,5)]
+cain$count <- cain$`Catostomus insignis`
+cain$presabs <- as.factor(ifelse(cain$count >= 1, 1, 0))
+
+cainplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cain) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) + 
+  # scale_fill_viridis_d(begin = 0.3, end = 0.6) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Catostomus insignis")
 print(cainplot)
+ggsave(cainplot, filename = "figures/CaInPresAbs.png", dpi = 300, width = 6, height = 3)
 
 #  Cyprinella lutrensis
-cylu <- longfish %>% filter(species == "Cyprinella lutrensis")
-cyluplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cylu) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# cylu <- longfish %>% filter(species == "Cyprinella lutrensis")
+cylu <- presmat[,c(1:2,13)]
+cylu$count <- cylu$`Cyprinella lutrensis`
+cylu$presabs <- as.factor(ifelse(cylu$count >= 1, 1, 0))
+
+cyluplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cylu) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) + 
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Cyprinella lutrensis")
 print(cyluplot)
 
 #  Rhinichthys cobitis
+rhco <- presmat[,c(1:2,13)]
+rhco$count <- rhco$`Rhinichthys cobitis`
+rhco$presabs <- as.factor(ifelse(rhco$count >= 1, 1, 0))
 rhco <- longfish %>% filter(species == "Rhinichthys cobitis")
-rhcoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = rhco) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+rhcoplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = rhco) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) + 
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Rhinichthys cobitis")
@@ -390,59 +433,83 @@ print(rhcoplot)
 
 #  Micropterus dolomieu
 mido <- longfish %>% filter(species == "Micropterus dolomieu")
-midoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = mido) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+mido <- presmat[,c(1:2,8)]
+mido$count <- mido$`Micropterus dolomieu`
+mido$presabs <- as.factor(ifelse(mido$count >= 1, 1, 0))
+midoplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = mido) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Micropterus dolomieu")
 print(midoplot)
 
 # Micropterus salmoides
-misa <- longfish %>% filter(species == "Micropterus salmoides")
-misaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = misa) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# misa <- longfish %>% filter(species == "Micropterus salmoides")
+misa <- presmat[,c(1:2,14)]
+misa$count <- misa$`Micropterus salmoides`
+misa$presabs <- as.factor(ifelse(misa$count >= 1, 1, 0))
+misaplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = misa) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Micropterus salmoides")
 print(misaplot)
 
 # Ameiurus natalis
-amna <- longfish %>% filter(species == "Ameiurus natalis")
-amnaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = amna) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# amna <- longfish %>% filter(species == "Ameiurus natalis")
+amna <- presmat[,c(1:2,16)]
+amna$count <- amna$`Ameiurus natalis`
+amna$presabs <- as.factor(ifelse(amna$count >= 1, 1, 0))
+amnaplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = amna) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Ameiurus natalis")
 print(amnaplot)
 
 # Pimephales promelas
-pipo <- longfish %>% filter(species == "Pimephales promelas")
-pipoplot <- ggplot(aes(x = year, y = hexID, fill = year), data = pipo) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# pipo <- longfish %>% filter(species == "Pimephales promelas")
+pipo <- presmat[,c(1:2,19)]
+pipo$count <- pipo$`Pimephales promelas`
+pipo$presabs <- as.factor(ifelse(pipo$count >= 1, 1, 0))
+pipoplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = pipo) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Pimephales promelas")
 print(pipoplot)
 
 # Pylodictis olivaris
-pyol <- longfish %>% filter(species == "Pylodictis olivaris")
-pyolplot <- ggplot(aes(x = year, y = hexID, fill = year), data = pyol) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# pyol <- longfish %>% filter(species == "Pylodictis olivaris")
+pyol <- presmat[,c(1:2,12)]
+pyol$count <- pyol$`Pylodictis olivaris`
+pyol$presabs <- as.factor(ifelse(pyol$count >= 1, 1, 0))
+pyolplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = pyol) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   xlim(1968, 2020) +
   theme_bw(base_size = 14) +
   ggtitle("Pylodictis olivaris")
 print(pyolplot)
 
 # Ameiurus melas
-amme <- longfish %>% filter(species == "Ameiurus melas")
-ammeplot <- ggplot(aes(x = year, y = hexID, fill = year), data = amme) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+# amme <- longfish %>% filter(species == "Ameiurus melas")
+amme <- presmat[,c(1:2,15)]
+amme$count <- amme$`Ameiurus melas`
+amme$presabs <- as.factor(ifelse(amme$count >= 1, 1, 0))
+ammeplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = amme) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Ameiurus melas")
@@ -450,9 +517,13 @@ print(ammeplot)
 
 # Cyprinus carpio
 cyca <- longfish %>% filter(species == "Cyprinus carpio")
-cycaplot <- ggplot(aes(x = year, y = hexID, fill = year), data = cyca) +
-  geom_point(pch = 21, size = 3) + 
-  scale_fill_viridis_c() +
+cyca <- presmat[,c(1:2,17)]
+cyca$count <- cyca$`Cyprinus carpio`
+cyca$presabs <- as.factor(ifelse(cyca$count >= 1, 1, 0))
+cycaplot <- ggplot(aes(x = year, y = hexID, fill = presabs), data = cyca) +
+  geom_point(pch = 21, size = 3, alpha = 0.9) +
+  scale_fill_manual(name = "Present?",
+                    values = c("white", "darkblue")) +
   theme_bw(base_size = 14) +
   xlim(1968, 2020) +
   ggtitle("Cyprinus carpio")
