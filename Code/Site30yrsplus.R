@@ -55,7 +55,9 @@ rich <- longfish %>%
     group_by(hexID, year) %>% 
     # distinct() %>%
     summarize(richness = length(unique(species)))
-
+rich2 <- rich %>% pivot_wider(
+  names_from = year,
+  values_from = richness)
 
 
 pres <- longfish %>%
@@ -84,6 +86,18 @@ print(richmod)
 summary(richmod)
 
 
+## Make NMDS of richness
+library(vegan)
+summary(rich2)
+
+# filter to remove NA
+rich3 <- rich2[,c(2:4,6:7,9,11:20)]
+summary(rich3)
+NMDS <- metaMDS(rich3, distance="bray")
+plot(NMDS)
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores = as.data.frame(scores(NMDS)$sites)
 
 # trellis plot
 # a nice way to look at likely estimates but in frequentist frameworks
@@ -824,7 +838,7 @@ declines <- ggpubr::ggarrange(
           common.legend = TRUE,
           legend = "right")
 print(declines)
-ggsave(declines, filename = "figures/LongfishSpeciesDeclines.png", dpi = 300, height = 10, width = 9)
+ggsave(declines, filename = "figures/PresAbsent1.png", dpi = 300, height = 12, width = 12)
 
 declines2 <- ggpubr::ggarrange(
   ammeplot,
@@ -841,7 +855,7 @@ declines2 <- ggpubr::ggarrange(
   common.legend = TRUE,
   legend = "right")
 print(declines2)
-ggsave(declines2, filename = "figures/LongfishSpeciesDeclines2.png", dpi = 300, height = 10, width = 9)
+ggsave(declines2, filename = "figures/PresAbsent2.png", dpi = 300, height = 12, width = 12)
 
 
 declines3 <- ggpubr::ggarrange(
@@ -856,7 +870,7 @@ declines3 <- ggpubr::ggarrange(
   common.legend = TRUE,
   legend = "right")
 print(declines3)
-ggsave(declines3, filename = "figures/LongfishSpeciesDeclines3.png", dpi = 300, height = 10*3/4, width = 9)
+ggsave(declines3, filename = "figures/PresAbsent3.png", dpi = 300, height = 12*3/4, width = 12*3/4)
 
 
 
