@@ -179,13 +179,102 @@ ggsave(xx, filename = "figures/NMDS30yr.png", dpi = 300, height = 6, width = 7)
 ## exclude the 1300s
 presmat
 
+## 1988 data ---
+
+# replace > 1 with 1
+presmat2 <- presmat %>%
+  dplyr::mutate(across(.fns = ~ifelse(. %in% c(2,3,4), 1, 0)))
+
+dat88 <- presmat2 %>% filter(year == 1988)
+dat88 <- dat88[-c(9:10),]
+dat88use <- dat88[,-1]
+# eliminate columns with all zeroes
+dat98use2 <- dat98use %>%
+  select(where(~ any(. != 0)))
+
+NMDS88 <- metaMDS(dat98use2, distance="bray")
+plot(NMDS88)
+
+#extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
+data.scores <- as.data.frame(scores(NMDS88)$sites,)
+
+# add columns to dataframe
+#add columns to data frame 
+data.scores$hexID = dat88$hexID
+
+species.scores <- as.data.frame(scores(NMDS88, "species"))
+species.scores$species <- rownames(species.scores)
+
+xx <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) +
+  ggtitle("Community presence/absence 1988") +
+  geom_point(pch = 21,
+             size = 4,
+             aes(fill = hexID),
+             alpha = 0.7) +
+  scale_fill_viridis_d() +
+  scale_color_viridis_d() +
+  geom_label_repel(
+    data = data.scores,
+    aes(
+      x = NMDS1,
+      y = NMDS2,
+      label = hexID,
+      arrow = TRUE,
+      color = as.factor(hexID)
+    ),
+    vjust = 0
+  ) +  # add the site labels
+  geom_text(data = species.scores,
+            aes(x = NMDS1, y = NMDS2, label = species),
+            alpha = 1) +  # add the species labels
+  theme(
+    axis.text.y = element_text(
+      colour = "black",
+      size = 12,
+      face = "bold"
+    ),
+    axis.text.x = element_text(
+      colour = "black",
+      face = "bold",
+      size = 12
+    ),
+    legend.text = element_text(size = 12, colour = "black"),
+    legend.position = "right",
+    axis.title.y = element_text(face = "bold", size = 14),
+    axis.title.x = element_text(
+      face = "bold",
+      size = 14,
+      colour = "black"
+    ),
+    legend.title = element_text(
+      size = 14,
+      colour = "black",
+      face = "bold"
+    ),
+    panel.background = element_blank(),
+    panel.border = element_rect(
+      colour = "black",
+      fill = NA,
+      size = 1
+    ),
+    legend.key = element_blank()
+  ) +
+  labs(
+    x = "NMDS1",
+    colour = "hexID",
+    y = "NMDS2",
+    fill = "hexID"
+  )
+print(xx)
+ggsave(xx, filename = "figures/NMDS30yr_1988.png", dpi = 300, height = 6, width = 7)
+
 ## 1998 data ---
 
 # replace > 1 with 1
 presmat2 <- presmat %>%
   dplyr::mutate(across(.fns = ~ifelse(. %in% c(2,3,4), 1, 0)))
 
-dat98 <- presmat2 %>% filter(year == 1988)
+dat98 <- presmat2 %>% filter(year == 1998)
 dat98 <- dat98[-c(9:10),]
 dat98use <- dat98[,-1]
 # eliminate columns with all zeroes
