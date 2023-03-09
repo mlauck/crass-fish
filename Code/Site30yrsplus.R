@@ -91,13 +91,89 @@ library(vegan)
 summary(rich2)
 
 # filter to remove NA
-rich3 <- rich2[,c(2:4,6:7,9,11:20)]
-summary(rich3)
-NMDS <- metaMDS(rich3, distance="bray")
+rich3 <- rich2[-c(9:10),]
+rich4 <- rich3[,c(2:9,11:24,26:31)]
+summary(rich4)
+NMDS <- metaMDS(rich4, distance="bray")
 plot(NMDS)
 
 #extract NMDS scores (x and y coordinates) for sites from newer versions of vegan package
-data.scores = as.data.frame(scores(NMDS)$sites)
+data.scores <- as.data.frame(scores(NMDS)$sites,)
+
+# add columns to dataframe
+#add columns to data frame 
+data.scores$hexID = rich3$hexID
+
+species.scores <- as.data.frame(scores(NMDS, "species"))
+species.scores$species <- rownames(species.scores)
+
+
+head(data.scores)
+
+library(ggplot2)
+library(ggrepel)
+
+xx <- ggplot(data.scores, aes(x = NMDS1, y = NMDS2)) +
+  geom_point(pch = 21,
+             size = 4,
+             aes(fill = hexID),
+             alpha = 0.7) +
+  scale_fill_viridis_d() +
+  scale_color_viridis_d() +
+  geom_label_repel(
+    data = data.scores,
+    aes(
+      x = NMDS1,
+      y = NMDS2,
+      label = hexID,
+      arrow = TRUE,
+      color = as.factor(hexID)
+    ),
+    vjust = 0
+  ) +  # add the site labels
+  geom_text(data = species.scores,
+            aes(x = NMDS1, y = NMDS2, label = species),
+            alpha = 1) +  # add the species labels
+  theme(
+    axis.text.y = element_text(
+      colour = "black",
+      size = 12,
+      face = "bold"
+    ),
+    axis.text.x = element_text(
+      colour = "black",
+      face = "bold",
+      size = 12
+    ),
+    legend.text = element_text(size = 12, colour = "black"),
+    legend.position = "right",
+    axis.title.y = element_text(face = "bold", size = 14),
+    axis.title.x = element_text(
+      face = "bold",
+      size = 14,
+      colour = "black"
+    ),
+    legend.title = element_text(
+      size = 14,
+      colour = "black",
+      face = "bold"
+    ),
+    panel.background = element_blank(),
+    panel.border = element_rect(
+      colour = "black",
+      fill = NA,
+      size = 1
+    ),
+    legend.key = element_blank()
+  ) +
+  labs(
+    x = "NMDS1",
+    colour = "hexID",
+    y = "NMDS2",
+    fill = "hexID"
+  )
+print(xx)
+ggsave(xx, filename = "figures/NMDS30yr.png", dpi = 300, height = 6, width = 7)
 
 # trellis plot
 # a nice way to look at likely estimates but in frequentist frameworks
