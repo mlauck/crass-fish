@@ -53,7 +53,7 @@ print(barcodeplot)
 library(tidyverse)
 rich <- longfish %>% 
     group_by(hexID, year) %>% 
-    # distinct() %>%
+    distinct() %>%
     summarize(richness = length(unique(species)))
 rich2 <- rich %>% pivot_wider(
   names_from = year,
