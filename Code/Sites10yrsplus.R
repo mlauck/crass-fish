@@ -24,7 +24,7 @@ allfish$species <- as.factor(allfish$species)
 # group by hexID
 by_hex <- allfish %>% group_by(hexID)
 
-pres <- tenfish %>%
+pres <- tenfish_filt %>%
   group_by(hexID, species, year) %>%
   summarize(count = n())
 
@@ -147,3 +147,174 @@ ggsave(richplot, filename = "figures/lm10yr.png", dpi = 300, width = 8, height =
 richmod <- lmer(richness ~ year + (1|hexID), data = rich)
 print(richmod)
 summary(richmod)
+
+
+## calculate Jaccard index
+library(vegan)
+presmat
+
+presmat$year <- as.factor(presmat$year)
+
+
+# replace anything > 1 with 1
+presmat2 <- presmat %>%
+  mutate_if(is.numeric, ~1 * (. > 0))
+
+## 1995 data ----
+# filter to only sites with data in 1995
+presmat95 <- filter(presmat2, year == 1995)
+
+# set hexID column to rownames
+presmat95 <- presmat95 %>% remove_rownames %>% column_to_rownames(var="hexID")
+presmat95 <- presmat95[,-1]
+
+View(presmat95)
+
+vare.dist <- vegdist(method = "jaccard", presmat95)
+
+bray <- vegdist(presmat95, dmethod = "bray") %>%
+  as.matrix() %>%
+  as_tibble(rownames = "A") %>%
+  pivot_longer(-A, names_to = "B", values_to= "distances")
+
+bray %>%
+  ggplot(aes(x = A, y = B, fill = distances)) +
+  geom_tile()
+
+jaccard95 <- vegdist(presmat95, method = "jaccard", binary = TRUE) %>%
+  as.matrix() %>%
+  as_tibble(rownames = "A") %>%
+  pivot_longer(-A, names_to = "B", values_to= "distances")
+
+summary(jaccard95)
+
+jac95 <- jaccard95 %>%
+  ggplot(aes(x = A, y = B, fill = distances)) +
+  geom_tile() +
+  ggtitle("Jaccard dissimilarity 1995") +
+  scale_fill_gradient(low = "#FF0000", high = "#FFFFFF") +
+  labs(x = "hexID", y = "hexID") +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1))
+ggsave(jac95, filename = "figures/jaccard95.png", dpi = 300, height = 8, width = 10)
+
+
+
+
+## 2005 data ----
+# filter to only sites with data in 1995
+presmat05 <- filter(presmat2, year == 2005)
+
+# set hexID column to rownames
+presmat05 <- presmat05 %>% remove_rownames %>% column_to_rownames(var="hexID")
+presmat05 <- presmat05[,-1]
+
+View(presmat05)
+
+# vare.dist <- vegdist(method = "jaccard", presmat95)
+# 
+# bray <- vegdist(presmat95, dmethod = "bray") %>%
+#   as.matrix() %>%
+#   as_tibble(rownames = "A") %>%
+#   pivot_longer(-A, names_to = "B", values_to= "distances")
+# 
+# bray %>%
+#   ggplot(aes(x = A, y = B, fill = distances)) +
+#   geom_tile()
+
+jaccard05 <- vegdist(presmat05, method = "jaccard", binary = TRUE) %>%
+  as.matrix() %>%
+  as_tibble(rownames = "A") %>%
+  pivot_longer(-A, names_to = "B", values_to= "distances")
+
+summary(jaccard05)
+
+join9505 <- inner_join(jaccard95, jaccard05, by = c("A", "B"))
+
+join9505filt <- filter(join9505, A != B)
+
+#### how did the community shift from 1995 to 2005
+## plot of pairwise shifts
+shift <- join9505filt %>%
+  ggplot(aes(x = distances.x, y = distances.y)) +
+  geom_point(pch = 21, fill = "grey90", alpha = 0.5, size = 2) +
+  theme_bw(base_size = 14) +
+  xlab("Pairwise Jaccard distances 1995") +
+  ylab("Pairwise Jaccard distances 2005") +
+  geom_abline(slope = 1, intercept = 0, size = 1, linetype = "dashed", color = "black") +
+  geom_smooth(method = "lm")
+print(shift)
+ggsave(shift, filename = "figures/jacshift9505.png", dpi = 300, height = 5, width = 5)
+
+# histogram of pairwise shifts
+ggplot(join9505, aes(distances.x)) + 
+  geom_density(alpha = 0.2, fill = "pink") +
+  xlab("Jaccard dissimilarity index") +
+  geom_density(aes(distances.y), alpha = 0.2, fill = "purple") +
+  theme_bw()
+
+
+# lmer model
+shift <- lmer(distances.y ~ distances.x + (1|A), 
+               family = gaussian(link = "inverse"), 
+               data = join9505filt)
+summary(shift)
+plot(shift)
+
+
+jac05 <- jaccard05 %>%
+  ggplot(aes(x = A, y = B, fill = distances)) +
+  geom_tile() +
+  ggtitle("Jaccard dissimilarity 2005") +
+  scale_fill_gradient(low = "#FF0000", high = "#FFFFFF") +
+  labs(x = "hexID", y = "hexID") +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1))
+ggsave(jac05, filename = "figures/jaccard05.png", dpi = 300, height = 8, width = 10)
+
+
+## 2015 data ----
+# filter to only sites with data in 2015
+presmat15 <- filter(presmat2, year == 2015)
+
+# set hexID column to rownames
+presmat15 <- presmat15 %>% remove_rownames %>% column_to_rownames(var="hexID")
+presmat15 <- presmat15[,-1]
+
+View(presmat15)
+
+vare.dist <- vegdist(method = "jaccard", presmat15)
+
+bray <- vegdist(presmat15, dmethod = "bray") %>%
+  as.matrix() %>%
+  as_tibble(rownames = "A") %>%
+  pivot_longer(-A, names_to = "B", values_to= "distances")
+
+bray %>%
+  ggplot(aes(x = A, y = B, fill = distances)) +
+  geom_tile()
+
+jaccard15 <- vegdist(presmat15, method = "jaccard", binary = TRUE) %>%
+  as.matrix() %>%
+  as_tibble(rownames = "A") %>%
+  pivot_longer(-A, names_to = "B", values_to= "distances")
+hist(jaccard15$distances)
+hist(jaccard95$distances)
+summary(jaccard15)
+
+jac15 <- jaccard15 %>%
+  ggplot(aes(x = A, y = B, fill = distances)) +
+  geom_tile() +
+  ggtitle("Jaccard dissimilarity 2015") +
+  scale_fill_gradient(low = "#FF0000", high = "#FFFFFF") +
+  labs(x = "hexID", y = "hexID") +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1))
+ggsave(jac15, filename = "figures/jaccard15.png", dpi = 300, height = 8, width = 10)
+
