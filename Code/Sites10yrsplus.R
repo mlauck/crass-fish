@@ -36,16 +36,10 @@ presmat <- pivot_wider(pres,
 
 
 
-# long10 <- rich %>% group_by(hexID) %>% summarize(count = length(unique(year)))
-# long10filt <- filter(long10, count >= 10)
+long10 <- rich %>% group_by(hexID) %>% summarize(count = length(unique(year)))
+long10filt <- filter(long10, count >= 10)
 
-# create list to filter larger dataset
-filterID <- list(long10filt$hexID)
 
-# filter only sites with 10+ years of data
-library(data.table)
-setDT(allfish)
-tenfish_filt <- allfish[filterID, on = "hexID"]
 
 # Corey's method
 hex.list <- split(allfish, f = allfish$hexID)
@@ -60,6 +54,14 @@ names.10yr <- names(hex.10yr)
 hex.20yr <-
   years.per.hex[years.per.hex > 19] #20 or more sample years 45
 names.20yr <- names(hex.20yr)
+
+# create list to filter larger dataset
+filterID <- list(names.10yr)
+
+# filter only sites with 10+ years of data
+library(data.table)
+setDT(allfish)
+tenfish_filt <- allfish[filterID, on = "hexID"]
 
 # richness by year
 # species richness matrix
@@ -132,14 +134,15 @@ ggsave(filename = "figures/10yrrandoms.png", dpi = 600, width = 8, height = 6)
 
 # plot up richness
 richplot <- ggplot(aes(x = year, y = richness, fill = hexID), data = rich) +
-  geom_point(pch = 21, size = 2) +
   scale_fill_viridis_d() +
   theme_bw(base_size = 14) +
   xlab("Year") +
   ylab("Fish species richness") +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  # geom_point(pch = 21, size = 2) +
+  theme(legend.position="none")
 print(richplot)
-ggsave(richplot, filename = "figures/lm10yr.png", dpi = 300, width = 6, height = 4)
+ggsave(richplot, filename = "figures/lm10yr.png", dpi = 300, width = 8, height = 4)
 
 richmod <- lmer(richness ~ year + (1|hexID), data = rich)
 print(richmod)
