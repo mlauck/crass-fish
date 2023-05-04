@@ -153,12 +153,56 @@ summary(richmod)
 library(vegan)
 presmat
 
+# turn year into a factor so it doesn't get mutated
 presmat$year <- as.factor(presmat$year)
-
 
 # replace anything > 1 with 1
 presmat2 <- presmat %>%
   mutate_if(is.numeric, ~1 * (. > 0))
+
+# turn year back to numeric
+presmat2$year <- as.numeric(presmat2$year)
+str(presmat2) # numeric changes year into numbers but not years, 1 -62
+
+## make a for loop to keep first and last year of data from a hexID
+# make unique ID
+uID <- unique(presmat2$hexID)
+a <- length(uID)
+for(i in 1:a){
+  temp<-subset(presmat2, uID==hexID[i])
+  if(dim(temp)[1] > 1) {
+    last.temp <- temp[dim(temp)[1],]
+  }
+  else {
+    last.temp <- temp
+  }
+  last <- rbind(last, last.temp)
+}
+
+last
+
+for(i in 1:dim(my_matrix)[1]) {
+  for(j in 1:dim(my_matrix)[2]) {
+    my_matrix[i, j] = i + j
+  }
+}
+
+for(i in 1:nrow(presmat2)) {  # Head of for-loop
+  
+  if(presmat$hexID[i, ] != presmat$hexID[i-1,]) {
+    print ("1")
+  } else{
+    if(presmat$hexID[i+1,] == presmat$hexID[i]){
+      print ("2")
+    }
+  }
+  )
+  if(grepl("Width", colnames(iris_new1)[i])) {             # Logical condition
+    
+    iris_new1[ , i] <- iris_new1[ , i] + 1000              # Code block
+  }
+}
+
 
 ## 1995 data ----
 # filter to only sites with data in 1995
