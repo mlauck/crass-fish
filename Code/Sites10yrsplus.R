@@ -230,20 +230,32 @@ jaccard2 <- jaccard %>%
 # only keep odd numbered rows
 jaccard3 <- jaccard2 %>% filter(row_number() %% 2 == 1) ## Select odd rows
 
-# extract years
+# extract years - some of these are messed up and out of order
 jaccard3$year1 <- as.numeric(as.character(str_sub(jaccard3$A,-4)))
 jaccard3$year2 <- as.numeric(as.character(str_sub(jaccard3$B,-4))) 
 jaccard3$yeardiff <- abs(jaccard3$year2 - jaccard3$year1)
 
+firstlast <- presmat %>%
+  as.data.frame()%>%
+  # rownames_to_column(var = "hexID")%>%
+  group_by(hexID)%>%
+  filter(year == min(year)|year == max(year))%>%
+  ungroup()
+
 # plot it as scatter
-jaccardtime <- ggplot(aes(x = yeardiff, y = distances, group = hexID1), data = jaccard3) +
-  geom_point(size = 3, pch = 21, aes(fill = distances)) +
+plot(jaccard3$year1, jaccard3$yeardiff)
+plot(jaccard3$year2, jaccard3$yeardiff)
+plot(jaccard3$year2, jaccard3$year1)
+jaccardtime <- ggplot(aes(x = year1, y = distances, group = hexID1), data = jaccard3) +
+  # geom_point(size = 3, pch = 21, aes(fill = distances)) +
+  geom_point(size = 3, pch = 21, aes(fill = year1)) +
   theme_bw(base_size = 14) +
   xlab("Years between first and last survey") +
   ylab("Jaccard distance") +
   scale_fill_viridis(option = "magma", name = "Jaccard") +
   geom_smooth(color = "darkgray")
 print(jaccardtime)
+ggsave(jaccardtime, filename = "figures/jaccard_v_timediff.png", dpi = 300, width = 5, height = 4.5)
 
 mod1 <- lm(distances ~ yeardiff, data = jaccard3)
 summary(mod1)
