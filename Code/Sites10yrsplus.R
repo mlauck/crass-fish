@@ -183,27 +183,21 @@ firstlast2 <- firstlast %>%
 #   mutate_if(is.numeric, ~1 * (. > 0))
 
 # turn year back to numeric
-presmat2$year <- as.numeric(presmat2$year)
-str(presmat2) # numeric changes year into numbers but not years, 1 -62
+firstlast2$year <- as.numeric(as.character(firstlast2$year))
+str(firstlast2) # numeric changes year into numbers but not years, 1 -62
 
-
-
-
-
-
-## 1995 data ----
-# filter to only sites with data in 1995
-presmat95 <- filter(presmat2, year == 1995)
+# make a new column name
+firstlast2$hexyear <- paste("hex",firstlast2$hexID, firstlast2$year,  sep= "-")
 
 # set hexID column to rownames
-presmat95 <- presmat95 %>% remove_rownames %>% column_to_rownames(var="hexID")
-presmat95 <- presmat95[,-1]
+firstlast2 <- firstlast2 %>% remove_rownames %>% column_to_rownames(var="hexyear")
+# firstlast2 <- firstlast2[,-1]
 
-View(presmat95)
+View(firstlast2)
 
-vare.dist <- vegdist(method = "jaccard", presmat95)
+vare.dist <- vegdist(method = "jaccard", firstlast2)
 
-bray <- vegdist(presmat95, dmethod = "bray") %>%
+bray <- vegdist(firstlast2, dmethod = "bray") %>%
   as.matrix() %>%
   as_tibble(rownames = "A") %>%
   pivot_longer(-A, names_to = "B", values_to= "distances")
@@ -212,24 +206,113 @@ bray %>%
   ggplot(aes(x = A, y = B, fill = distances)) +
   geom_tile()
 
-jaccard95 <- vegdist(presmat95, method = "jaccard", binary = TRUE) %>%
+jaccard <- vegdist(firstlast2, method = "jaccard", binary = TRUE) %>%
   as.matrix() %>%
   as_tibble(rownames = "A") %>%
   pivot_longer(-A, names_to = "B", values_to= "distances")
 
-summary(jaccard95)
+summary(jaccard)
 
-jac95 <- jaccard95 %>%
+## filter the data 
+
+# extract first word of the column in R
+jaccard$hexID1 <- str_sub(jaccard$A,1,8) 
+jaccard$hexID1
+
+jaccard$hexID2 <- str_sub(jaccard$B,1,8) 
+jaccard$hexID2
+
+#filter for rows where hexID matches but is not same year
+jaccard2 <- jaccard %>%
+  filter(hexID1 == hexID2) %>%
+  subset(A != B)
+
+# only keep odd numbered rows
+jaccard3 <- jaccard2 %>% filter(row_number() %% 2 == 1) ## Select odd rows
+
+# extract years
+jaccard3$year1 <- as.numeric(as.character(str_sub(jaccard3$A,-4)))
+jaccard3$year2 <- as.numeric(as.character(str_sub(jaccard3$B,-4))) 
+jaccard3$yeardiff <- abs(jaccard3$year2 - jaccard3$year1)
+
+# plot it as scatter
+jaccardtime <- ggplot(aes(x = yeardiff, y = distances, group = hexID1), data = jaccard3) +
+  geom_point(size = 3, pch = 21, aes(fill = distances)) +
+  theme_bw(base_size = 14) +
+  xlab("Years between first and last survey") +
+  ylab("Jaccard distance") +
+  scale_fill_viridis(option = "magma", name = "Jaccard") +
+  geom_smooth(color = "darkgray")
+print(jaccardtime)
+
+mod1 <- lm(distances ~ yeardiff, data = jaccard3)
+summary(mod1)
+
+# plot as connected lines
+jaccardtime2 <- ggplot(aes(x = year1, y = distances), data = jaccard3) +
+  geom_point(size = 3, pch = 21, aes(fill = distances)) +
+  geom_point(size = 3, pch = 21, aes(x = year2, fill = distances)) +
+  geom_line() +
+  theme_bw(base_size = 14) +
+  xlab("Year of survey (first or last)") +
+  ylab("Jaccard distance") +
+  scale_fill_viridis(option = "magma", name = "Jaccard") 
+print(jaccardtime2)
+
+
+# plot the data
+jac <- jaccard %>%
   ggplot(aes(x = A, y = B, fill = distances)) +
   geom_tile() +
-  ggtitle("Jaccard dissimilarity 1995") +
+  ggtitle("Jaccard dissimilarity") +
   scale_fill_gradient(low = "#FF0000", high = "#FFFFFF") +
   labs(x = "hexID", y = "hexID") +
   theme(
     axis.text.x = element_text(
       angle = 45,
       hjust = 1))
-ggsave(jac95, filename = "figures/jaccard95.png", dpi = 300, height = 8, width = 10)
+print(jac)
+# ggsave(jac, filename = "figures/jaccard95.png", dpi = 300, height = 8, width = 10)
+
+# ## 1995 data ----
+# # filter to only sites with data in 1995
+# presmat95 <- filter(presmat2, year == 1995)
+# 
+# # set hexID column to rownames
+# presmat95 <- presmat95 %>% remove_rownames %>% column_to_rownames(var="hexID")
+# presmat95 <- presmat95[,-1]
+# 
+# View(presmat95)
+# 
+# vare.dist <- vegdist(method = "jaccard", presmat95)
+# 
+# bray <- vegdist(presmat95, dmethod = "bray") %>%
+#   as.matrix() %>%
+#   as_tibble(rownames = "A") %>%
+#   pivot_longer(-A, names_to = "B", values_to= "distances")
+# 
+# bray %>%
+#   ggplot(aes(x = A, y = B, fill = distances)) +
+#   geom_tile()
+# 
+# jaccard95 <- vegdist(presmat95, method = "jaccard", binary = TRUE) %>%
+#   as.matrix() %>%
+#   as_tibble(rownames = "A") %>%
+#   pivot_longer(-A, names_to = "B", values_to= "distances")
+# 
+# summary(jaccard95)
+# 
+# jac95 <- jaccard95 %>%
+#   ggplot(aes(x = A, y = B, fill = distances)) +
+#   geom_tile() +
+#   ggtitle("Jaccard dissimilarity 1995") +
+#   scale_fill_gradient(low = "#FF0000", high = "#FFFFFF") +
+#   labs(x = "hexID", y = "hexID") +
+#   theme(
+#     axis.text.x = element_text(
+#       angle = 45,
+#       hjust = 1))
+# ggsave(jac95, filename = "figures/jaccard95.png", dpi = 300, height = 8, width = 10)
 
 
 
