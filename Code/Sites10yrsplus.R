@@ -235,27 +235,38 @@ jaccard3$year1 <- as.numeric(as.character(str_sub(jaccard3$A,-4)))
 jaccard3$year2 <- as.numeric(as.character(str_sub(jaccard3$B,-4))) 
 jaccard3$yeardiff <- abs(jaccard3$year2 - jaccard3$year1)
 
-firstlast <- presmat %>%
-  as.data.frame()%>%
-  # rownames_to_column(var = "hexID")%>%
-  group_by(hexID)%>%
-  filter(year == min(year)|year == max(year))%>%
-  ungroup()
-
-# plot it as scatter
+# correct order
 plot(jaccard3$year1, jaccard3$yeardiff)
 plot(jaccard3$year2, jaccard3$yeardiff)
 plot(jaccard3$year2, jaccard3$year1)
-jaccardtime <- ggplot(aes(x = year1, y = distances, group = hexID1), data = jaccard3) +
+jaccard3$year1new <- ifelse(jaccard3$year1>jaccard3$year2, jaccard3$year2, jaccard3$year1)
+jaccard3$year2new <- ifelse(jaccard3$year2>jaccard3$year1, jaccard3$year2, jaccard3$year1)
+
+plot(jaccard3$year1new, jaccard3$distances)
+
+# plot it as scatter
+
+jaccardtime <- ggplot(aes(x = year1new, y = distances, group = hexID1), data = jaccard3) +
   # geom_point(size = 3, pch = 21, aes(fill = distances)) +
-  geom_point(size = 3, pch = 21, aes(fill = year1)) +
+  geom_point(size = 3, pch = 21, aes(fill = year2new)) +
   theme_bw(base_size = 14) +
   xlab("Years between first and last survey") +
   ylab("Jaccard distance") +
-  scale_fill_viridis(option = "magma", name = "Jaccard") +
+  scale_fill_viridis(option = "magma", name = "Last survey year") +
   geom_smooth(color = "darkgray")
 print(jaccardtime)
 ggsave(jaccardtime, filename = "figures/jaccard_v_timediff.png", dpi = 300, width = 5, height = 4.5)
+
+# first year vs. last year with size how different they are
+jaccardtime2 <- ggplot(aes(x = year1new, y = year2new), data = jaccard3) +
+  # geom_point(size = 3, pch = 21, aes(fill = distances)) +
+  geom_point(pch = 21, aes(fill = distances, size = distances)) +
+  theme_bw(base_size = 14) +
+  xlab("First year of survey") +
+  ylab("Last year of survey") +
+  scale_fill_viridis(option = "magma", name = "Jaccard index") +
+  geom_smooth(color = "darkgray")
+print(jaccardtime2)
 
 mod1 <- lm(distances ~ yeardiff, data = jaccard3)
 summary(mod1)
