@@ -24,23 +24,7 @@ allfish$species <- as.factor(allfish$species)
 # group by hexID
 by_hex <- allfish %>% group_by(hexID)
 
-pres <- tenfish_filt %>%
-  group_by(hexID, species, year) %>%
-  summarize(count = n())
-
-# species matrix
-presmat <- pivot_wider(pres,
-                       names_from = species,
-                       values_from = count,
-                       values_fill = 0)
-
-
-
-long10 <- rich %>% group_by(hexID) %>% summarize(count = length(unique(year)))
-long10filt <- filter(long10, count >= 10)
-
-
-
+# Get names of hexIDs with long-term data
 # Corey's method
 hex.list <- split(allfish, f = allfish$hexID)
 hex.years <-
@@ -63,6 +47,18 @@ library(data.table)
 setDT(allfish)
 tenfish_filt <- allfish[filterID, on = "hexID"]
 
+pres <- tenfish_filt %>%
+  group_by(hexID, species, year) %>%
+  summarize(count = n())
+
+# species matrix
+presmat <- pivot_wider(pres,
+                       names_from = species,
+                       values_from = count,
+                       values_fill = 0)
+
+
+
 # richness by year
 # species richness matrix
 rich <- tenfish_filt %>% 
@@ -73,6 +69,14 @@ rich <- tenfish_filt %>%
 # rich2 <- rich %>% pivot_wider(
 #   names_from = year,
 #   values_from = richness)
+
+
+# long10 <- rich %>% group_by(hexID) %>% summarize(count = length(unique(year)))
+# long10filt <- filter(long10, count >= 10)
+
+
+
+
 
 # model
 
@@ -153,55 +157,38 @@ summary(richmod)
 library(vegan)
 presmat
 
+## keep only the first and last years
+library(dplyr)
+library(tibble)
+
+firstlast <- presmat %>%
+  as.data.frame()%>%
+  # rownames_to_column(var = "hexID")%>%
+  group_by(hexID)%>%
+  filter(year == min(year)|year == max(year))%>%
+  ungroup()
+
 # turn year into a factor so it doesn't get mutated
-presmat$year <- as.factor(presmat$year)
+firstlast$year <- as.factor(firstlast$year)
 
 # replace anything > 1 with 1
-presmat2 <- presmat %>%
+firstlast2 <- firstlast %>%
   mutate_if(is.numeric, ~1 * (. > 0))
+
+# # turn year into a factor so it doesn't get mutated
+# presmat$year <- as.factor(presmat$year)
+# 
+# # replace anything > 1 with 1
+# presmat2 <- presmat %>%
+#   mutate_if(is.numeric, ~1 * (. > 0))
 
 # turn year back to numeric
 presmat2$year <- as.numeric(presmat2$year)
 str(presmat2) # numeric changes year into numbers but not years, 1 -62
 
-## make a for loop to keep first and last year of data from a hexID
-# make unique ID
-uID <- unique(presmat2$hexID)
-a <- length(uID)
-for(i in 1:a){
-  temp<-subset(presmat2, uID==hexID[i])
-  if(dim(temp)[1] > 1) {
-    last.temp <- temp[dim(temp)[1],]
-  }
-  else {
-    last.temp <- temp
-  }
-  last <- rbind(last, last.temp)
-}
 
-last
 
-for(i in 1:dim(my_matrix)[1]) {
-  for(j in 1:dim(my_matrix)[2]) {
-    my_matrix[i, j] = i + j
-  }
-}
 
-for(i in 1:nrow(presmat2)) {  # Head of for-loop
-  
-  if(presmat$hexID[i, ] != presmat$hexID[i-1,]) {
-    print ("1")
-  } else{
-    if(presmat$hexID[i+1,] == presmat$hexID[i]){
-      print ("2")
-    }
-  }
-  )
-  if(grepl("Width", colnames(iris_new1)[i])) {             # Logical condition
-    
-    iris_new1[ , i] <- iris_new1[ , i] + 1000              # Code block
-  }
-}
 
 
 ## 1995 data ----
