@@ -1,6 +1,6 @@
 # Sites with 10+ years
 # Script by FER
-# Last update April 2023
+# Last update May 2023
 
 # libraries
 library(tidyr)
@@ -191,7 +191,7 @@ firstlast2$hexyear <- paste("hex",firstlast2$hexID, firstlast2$year,  sep= "-")
 
 # set hexID column to rownames
 firstlast2 <- firstlast2 %>% remove_rownames %>% column_to_rownames(var="hexyear")
-# firstlast2 <- firstlast2[,-1]
+firstlast2 <- firstlast2[,-1]
 
 View(firstlast2)
 
@@ -271,7 +271,68 @@ print(jaccardtime2)
 mod1 <- lm(distances ~ yeardiff, data = jaccard3)
 summary(mod1)
 
+mod2 <- lm(distances ~ scale(yeardiff) + scale(year1new), data = jaccard3)
+summary(mod2)
+plot(mod2)
+
 # plot as connected lines
+## duration[, 4] = dummy
+## duration[, 2] = start year
+## duration[, 3] = end year
+
+library(forcats)
+
+
+jaccard4 <- jaccard3 %>% mutate(hexID1 = fct_reorder(hexID1, as.numeric(distances)))
+jaccard5 <- jaccard3 %>% mutate(hexID1 = fct_reorder(hexID1, as.numeric(year1new)))
+# jaccard4$yaxis <- seq(1:144)
+
+# plot(
+#   1,
+#   type = 'n',
+#   xlab = "Date Range of Study",
+#   ylab = "Jaccard index",
+#   yaxt = 'n',
+#   xlim = c(1955, 2020),
+#   ylim = c(0, 1),
+#   main = "Study time frame",
+#   cex.lab = 2,
+#   cex.axis = 1.25
+# )
+# 
+# segments_gradient(
+#   x,
+#   y = NULL,
+#   col = colorRamp2(c("transparent", "black"), TRUE),
+#   lend = 1,
+#   ...
+# )
+
+# segments(duration[, 2], duration[, 4], duration[, 3], duration[, 4], lwd =
+#            2)
+
+
+
+segplot <- ggplot(data = jaccard5, aes(y = reorder(hexID1, year1new))) +
+  geom_segment(aes(
+    x = year1new,
+    y = hexID1,
+    xend = year2new,
+    yend = hexID1,
+    colour = distances
+  ), linewidth = 1.05
+  ) +
+  scale_color_viridis(option = "viridis", name = "Jaccard index") +
+  ylab("HexID (ordered by year of first survey)") +
+  xlab("Date range of survey") +
+  theme_classic(base_size = 14) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y.left = element_blank()) 
+print(segplot)
+ggsave(segplot, filename = "figures/segmentplot2.png", dpi = 300, width = 6, height = 6)
+
+
+
 jaccardtime2 <- ggplot(aes(x = year1, y = distances), data = jaccard3) +
   geom_point(size = 3, pch = 21, aes(fill = distances)) +
   geom_point(size = 3, pch = 21, aes(x = year2, fill = distances)) +
