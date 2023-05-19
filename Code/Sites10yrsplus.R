@@ -197,14 +197,14 @@ View(firstlast2)
 
 vare.dist <- vegdist(method = "jaccard", firstlast2)
 
-bray <- vegdist(firstlast2, dmethod = "bray") %>%
-  as.matrix() %>%
-  as_tibble(rownames = "A") %>%
-  pivot_longer(-A, names_to = "B", values_to= "distances")
-
-bray %>%
-  ggplot(aes(x = A, y = B, fill = distances)) +
-  geom_tile()
+# bray <- vegdist(firstlast2, dmethod = "bray") %>%
+#   as.matrix() %>%
+#   as_tibble(rownames = "A") %>%
+#   pivot_longer(-A, names_to = "B", values_to= "distances")
+# 
+# bray %>%
+#   ggplot(aes(x = A, y = B, fill = distances)) +
+#   geom_tile()
 
 jaccard <- vegdist(firstlast2, method = "jaccard", binary = TRUE) %>%
   as.matrix() %>%
@@ -244,7 +244,21 @@ jaccard3$year2new <- ifelse(jaccard3$year2>jaccard3$year1, jaccard3$year2, jacca
 
 plot(jaccard3$year1new, jaccard3$distances)
 
-# plot it as scatter
+# make it so hexIDs are numbers again
+jaccard3$hexID <- as.integer(str_extract(jaccard3$hexID1, "[0-9]+"))
+
+# join with richness data and plot jaccard vs. richness?
+rich$hexID <- as.numeric(rich$hexID)
+richmat <- rich %>%
+  as.data.frame()%>%
+  # rownames_to_column(var = "hexID")%>%
+  group_by(hexID)%>%
+  filter(year == min(year))%>%
+  ungroup()
+
+jaccard_test <- left_join(jaccard3, richmat, by = "hexID")
+
+plot(jaccard_test$distances, jaccard_test$richness)
 
 jaccardtime <- ggplot(aes(x = year1new, y = distances, group = hexID1), data = jaccard3) +
   # geom_point(size = 3, pch = 21, aes(fill = distances)) +
@@ -285,6 +299,8 @@ library(forcats)
 
 jaccard4 <- jaccard3 %>% mutate(hexID1 = fct_reorder(hexID1, as.numeric(distances)))
 jaccard5 <- jaccard3 %>% mutate(hexID1 = fct_reorder(hexID1, as.numeric(year1new)))
+jaccard6 <- jaccard3 %>% mutate(hexID1 = fct_reorder(hexID1, as.numeric(year2new)))
+jaccard7 <- jaccard_test %>% mutate(hexID1 = fct_reorder(hexID1, as.numeric(richness)))
 # jaccard4$yaxis <- seq(1:144)
 
 # plot(
@@ -313,7 +329,7 @@ jaccard5 <- jaccard3 %>% mutate(hexID1 = fct_reorder(hexID1, as.numeric(year1new
 
 
 
-segplot <- ggplot(data = jaccard5, aes(y = reorder(hexID1, year1new))) +
+segplot <- ggplot(data = jaccard7, aes(y = reorder(hexID1, richness))) +
   geom_segment(aes(
     x = year1new,
     y = hexID1,
@@ -323,13 +339,13 @@ segplot <- ggplot(data = jaccard5, aes(y = reorder(hexID1, year1new))) +
   ), linewidth = 1.05
   ) +
   scale_color_viridis(option = "viridis", name = "Jaccard index") +
-  ylab("HexID (ordered by year of first survey)") +
+  ylab("HexID (ordered by richness in first year of survey)") +
   xlab("Date range of survey") +
   theme_classic(base_size = 14) +
   theme(axis.text.y=element_blank(),
         axis.ticks.y.left = element_blank()) 
 print(segplot)
-ggsave(segplot, filename = "figures/segmentplot2.png", dpi = 300, width = 6, height = 6)
+ggsave(segplot, filename = "figures/segmentplot4.png", dpi = 300, width = 6, height = 6)
 
 
 
@@ -343,6 +359,20 @@ jaccardtime2 <- ggplot(aes(x = year1, y = distances), data = jaccard3) +
   scale_fill_viridis(option = "magma", name = "Jaccard") 
 print(jaccardtime2)
 
+
+### bin the time periods
+jaccard4$bin <- ifelse(year1new<1970, "<1970",
+                       ifelse(1970 < year1new <= 1980), "1971-1980",
+                       ifelse(year1new > 1980 & year1new <= 1990), "1981-1990",
+                       ifelse(year1new > 1990 & year1new < 2000), "1991-2000", "2001 or later")
+
+jaccard4$bin <- cut(jaccard4$year1new, breaks = c(-Inf, 1970, 1980, 1990, 2000, Inf), 
+                    labels = c("<1970", "1971-1980", "1981-1990", 
+                              "1991-2000", "2001 or later"))
+
+ggplot(aes(x = bin, y = distances), data = jaccard4) +
+  geom_violin() + 
+  geom_point(pch = 21, aes(fill = distances))
 
 # plot the data
 jac <- jaccard %>%
