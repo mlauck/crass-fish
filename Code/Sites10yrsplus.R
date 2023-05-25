@@ -31,7 +31,12 @@ hex.years <-
   allfish[!duplicated(allfish[, c("year", "hexID")]), ] #1379 hexes
 years.per.hex <-
   table(hex.years$hexID) #mean of 4.38 years per hex, 3 is median
+hex.3yr <- years.per.hex[years.per.hex > 2] #3 or more sample years 701
+names.3yr <- names(hex.3yr)
+
 hex.5yr <- years.per.hex[years.per.hex > 4] #5 or more sample years 399
+names.5yr <- names(hex.5yr)
+
 hex.10yr <-
   years.per.hex[years.per.hex > 9] #10 or more sample years 147
 names.10yr <- names(hex.10yr)
@@ -41,11 +46,15 @@ names.20yr <- names(hex.20yr)
 
 # create list to filter larger dataset
 filterID <- list(names.10yr)
+filterID5 <- list(names.5yr)
+filterID3 <- list(names.3yr)
 
 # filter only sites with 10+ years of data
 library(data.table)
 setDT(allfish)
 tenfish_filt <- allfish[filterID, on = "hexID"]
+fivefish_filt <- allfish[filterID5, on = "hexID"]
+threefish_filt <- allfish[filterID3, on = "hexID"]
 
 pres <- tenfish_filt %>%
   group_by(hexID, species, year) %>%
@@ -461,29 +470,29 @@ jaccard05 <- vegdist(presmat05, method = "jaccard", binary = TRUE) %>%
 
 summary(jaccard05)
 
-join9505 <- inner_join(jaccard95, jaccard05, by = c("A", "B"))
-
-join9505filt <- filter(join9505, A != B)
-
-#### how did the community shift from 1995 to 2005
-## plot of pairwise shifts
-shift <- join9505filt %>%
-  ggplot(aes(x = distances.x, y = distances.y)) +
-  geom_point(pch = 21, fill = "grey90", alpha = 0.5, size = 2) +
-  theme_bw(base_size = 14) +
-  xlab("Pairwise Jaccard distances 1995") +
-  ylab("Pairwise Jaccard distances 2005") +
-  geom_abline(slope = 1, intercept = 0, size = 1, linetype = "dashed", color = "black") +
-  geom_smooth(method = "lm")
-print(shift)
-ggsave(shift, filename = "figures/jacshift9505.png", dpi = 300, height = 5, width = 5)
-
-# histogram of pairwise shifts
-ggplot(join9505, aes(distances.x)) + 
-  geom_density(alpha = 0.2, fill = "pink") +
-  xlab("Jaccard dissimilarity index") +
-  geom_density(aes(distances.y), alpha = 0.2, fill = "purple") +
-  theme_bw()
+# join9505 <- inner_join(jaccard95, jaccard05, by = c("A", "B"))
+# 
+# join9505filt <- filter(join9505, A != B)
+# 
+# #### how did the community shift from 1995 to 2005
+# ## plot of pairwise shifts
+# shift <- join9505filt %>%
+#   ggplot(aes(x = distances.x, y = distances.y)) +
+#   geom_point(pch = 21, fill = "grey90", alpha = 0.5, size = 2) +
+#   theme_bw(base_size = 14) +
+#   xlab("Pairwise Jaccard distances 1995") +
+#   ylab("Pairwise Jaccard distances 2005") +
+#   geom_abline(slope = 1, intercept = 0, size = 1, linetype = "dashed", color = "black") +
+#   geom_smooth(method = "lm")
+# print(shift)
+# ggsave(shift, filename = "figures/jacshift9505.png", dpi = 300, height = 5, width = 5)
+# 
+# # histogram of pairwise shifts
+# ggplot(join9505, aes(distances.x)) + 
+#   geom_density(alpha = 0.2, fill = "pink") +
+#   xlab("Jaccard dissimilarity index") +
+#   geom_density(aes(distances.y), alpha = 0.2, fill = "purple") +
+#   theme_bw()
 
 
 # lmer model
