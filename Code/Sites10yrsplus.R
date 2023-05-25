@@ -258,6 +258,8 @@ richmat <- rich %>%
 
 jaccard_test <- left_join(jaccard3, richmat, by = "hexID")
 
+write.csv(jaccard_test, "data/jaccardmatrix10yr.csv")
+
 plot(jaccard_test$distances, jaccard_test$richness)
 
 jaccardtime <- ggplot(aes(x = year1new, y = distances, group = hexID1), data = jaccard3) +
