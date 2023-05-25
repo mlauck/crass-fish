@@ -31,8 +31,8 @@ allarid <- merge(allarid, food, by.x = "GenusSpecies", by.y = "Species")
 # make location a factor
 allarid$location2 <- as.factor(allarid$location2)
 
-# save these data
-write.csv(allarid, "data/allaridtraits.csv")
+# # save these data
+# write.csv(allarid, "data/allaridtraits.csv")
 
 # summarize the arid fish data
 summary <- allarid %>%
