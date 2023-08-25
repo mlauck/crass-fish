@@ -6,7 +6,7 @@
 - Freya Rowland
 
 # Metadata
-- 8/25/2023 FER completed biological name verification in ISIS. Notes are stored in [Data/ITIS_name_review.xlsx](Data/ITIS_name_review.xlsx). Replaced 35 species names with updates.
+- 8/25/2023 FER completed biological name verification in ISIS. Notes are stored in [Data/ITIS_name_review.xlsx](Data/ITIS_name_review.xlsx). Replaced 35 species names with updates. 19 fishes couldn't be found. So we assume they're correct I guess?
 - 8/25/2023 FER fixed capitalization in fish_traits.csv. All lower case except proper nouns.
 
 Check back later for more info as project develops
