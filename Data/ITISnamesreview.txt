@@ -12,7 +12,7 @@ Ambassis dussumieri
 Amniataba caudavittata
 Amniataba percoides
 Anguilla bicolor
-Arius graeffei
+Ariopsis graeffei
 Atherinosoma microstoma
 Bidyanus bidyanus
 Bidyanus welchi
@@ -24,7 +24,7 @@ Craterocephalus cuneiceps
 Craterocephalus dalhousiensis
 Craterocephalus eyresii
 Craterocephalus marjoriae
-Edelia vittata
+Nannoperca vittata
 Galaxias fontanus
 Galaxias maculatus
 Galaxias occidentalis
@@ -52,7 +52,7 @@ Ophisternon gutturale
 Percalates novemaculeatus
 Porochilus argenteus
 Pseudogobius olorum
-Squalomugil nasutus
+Rhinomugil nasutus
 Terapon jarbua
 Tetractenos glaber
 Gasterosteus aculeatus
@@ -86,10 +86,10 @@ Amblyeleotris gymnocephala
 Bathygobius krefftii
 Batrachomoeus trispinosus
 Pomadasys hasta
-Secutor ruconius (now Leiognathus ruconius)
+Leiognathus ruconius
 Selenotoca multifasciata
 Acipenser transmontanus
-Acrocheilus alutaceus
+Gila alutacea
 Agonostomus monticola
 Agosia chrysogaster
 Alosa chrysochloris
@@ -113,19 +113,19 @@ Catostomus ardens
 Catostomus bernardini
 Catostomus cahita
 Catostomus catostomus
-Catostomus clarkii
+Pantosteus clarkii
 Catostomus columbianus
 Catostomus commersonii
 Catostomus conchos
-Catostomus discobolus
+Pantosteus discobolus
 Catostomus fumeiventris
 Catostomus insignis
 Catostomus latipinnis
 Catostomus leopoldi
 Catostomus occidentalis
-Catostomus platyrhynchus
-Catostomus plebeius
-Catostomus santaanae
+Pantosteus platyrhynchus
+Pantosteus plebeius
+Pantosteus santaanae
 Catostomus tahoensis
 Catostomus warnerensis
 Catostomus wigginsi
@@ -140,7 +140,7 @@ Chirostoma compressum
 Chirostoma grandocule
 Chirostoma jordani
 Chrosomus neogaeus
-Cichlasoma cyanoguttatum
+Herichthys cyanoguttatum
 Cichlasoma minckleyi
 Cottus aleuticus
 Cottus asper
@@ -180,10 +180,10 @@ Cyprinodon salvadori
 Cyprinodon variegatus
 Dasyatis sabina
 Dionda argentosa
-Dionda couchi
+Dionda melanops
 Dionda diaboli
 Dionda episcopa
-Dionda rasconis
+Tampichthys rasconis
 Dorosoma smithi
 Eleotris picta
 Empetrichthys latos
@@ -201,7 +201,7 @@ Etheostoma nigrum
 Evarra bustamantei
 Evarra eigenmanni
 Evarra tlahuacensis
-Extrarius aestivalis
+Macrhybopsis aestivalis
 Fundulus grandis
 Fundulus kansae
 Fundulus sciadicus
@@ -212,7 +212,7 @@ Gambusia amistadensis
 Gambusia clarkhubbsi
 Gambusia gaigei
 Gambusia geiseri
-Gambusia holbrooki
+Gambusia affinis
 Gambusia hurtadoi
 Gambusia longispinis
 Gambusia marshi
@@ -221,18 +221,18 @@ Gambusia senilis
 Gambusia speciosa
 Gambusia zarskei
 Gila atraria
-Gila bicolor
-Gila bicolor mohavensis
+Siphateles bicolor
+Siphateles bicolor mohavensis
 Gila brevicauda
 Gila cypha
 Gila ditaenia
 Gila elegans
 Gila eremica
-Gila intermedia
+Gila robusta
 Gila minacae
 Gila modesta
-Gila nigra
-Gila nigra (merged with robusta)
+Gila robusta
+Gila robusta
 Gila nigrescens
 Gila orcuttii
 Gila pandora
@@ -245,7 +245,7 @@ Herichthys carpintis
 Herichthys cyanoguttatus
 Herichthys minckleyi
 Hesperoleucus symmetricus
-Hubbsina turneri
+Girardinichthys turneri
 Hybognathus amarus
 Hybognathus hankinsoni
 Hybognathus placitus
@@ -258,11 +258,11 @@ Ictiobus bubalus
 Ictiobus cyprinellus
 Ictiobus niger
 Iotichthys phlegethontis
-Lampetra geminis
+Tetrapleurodon geminis
 Lampetra pacifica
 Lampetra richardsoni
 Lavinia exilicauda
-Lavinia symmetricus
+Hesperoleucus symmetricus
 Lebiasina bimaculata
 Lepidomeda albivallis
 Lepidomeda aliciae
@@ -287,14 +287,14 @@ Lucania parva
 Luxilus cornutus
 Macrhybopsis aestivalis
 Meda fulgida
-Menidia audens
+Menidia beryllina
 Micropterus coosae
 Micropterus dolomieu
 Micropterus punctulatus
-Micropterus punctulatus henshalli
+Micropterus henshalli
 Micropterus salmoides
 Micropterus salmoides floridanus
-Moapa coriacea
+Gila coriacea
 Morone americana
 Morone chrysops
 Morone mississippiensis
@@ -311,22 +311,22 @@ Notropis buchanani
 Notropis calientis
 Notropis chihuahua
 Notropis dorsalis
-Notropis formosus
+Cyprinella formosa
 Notropis girardi
 Notropis hudsonius
 Notropis jemezanus
-Notropis ludibundus
+Notropis stramineus
 Notropis orca
 Notropis rutilus
 Notropis saladonis
 Notropis simus
 Notropis stramineus
-Notropis xanthicara
+Cyprinella xanthicara
 Noturus gyrinus
 Oncorhynchus aguabonita
 Oncorhynchus apache
 Oncorhynchus gilae
-Oncorhynchus gilae apache
+Oncorhynchus apache
 Orthodon microlepidotus
 Osmerus mordax
 Pantosteus plebeius
@@ -361,8 +361,8 @@ Ptychocheilus oregonensis
 Pylodictis olivaris
 Relictus solitarius
 Rhinichthys cataractae
-Rhinichthys chrysogaster
-Rhinichthys cobitis
+Agosia chrysogaster
+Tiaroga cobitis
 Rhinichthys deaconi
 Rhinichthys osculus
 Richardsonius balteatus
@@ -378,7 +378,7 @@ Semotilus atromaculatus
 Siphateles bicolor
 Siphateles boraxobius
 Skiffia bilineata
-Snyderichthys copei
+Lepidomeda copei
 Tetrapleurodon geminis
 Thymallus arcticus
 Xiphophorus couchianus
@@ -391,7 +391,7 @@ Xiphophorus maculatus
 Gobiomorus maculatus
 Salmo salar
 Dorosoma cepedianum
-Lampetra tridentata
+Entosphenus tridentatus
 Dormitator maculatus
 Craterocephalus randi
 Leiopotherapon aheneus
@@ -402,7 +402,7 @@ Oncorhynchus nerka
 Hyporhamphus rosae
 Prochilodus lineatus
 Salminus brasiliensis
-Seriola dorsalis
+Seriola lalandi
 Gerres cinereus
 Acanthogobius flavimanus
 Acanthopagrus butcheri
