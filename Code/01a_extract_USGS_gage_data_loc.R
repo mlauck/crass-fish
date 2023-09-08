@@ -17,10 +17,13 @@ library(CircStats)
 
 ## Load discharge package
 library(discharge)
+#citation("discharge")
+
 
 # If you do not have the package you can download it 
 # from here: https://sourceforge.net/projects/discharge/ (see documentation)
 library(dataRetrieval)
+#citation("dataRetrieval")
 ### NOTE: cannot have dplyr library loaded, because also has a filter function
 
 ##USGS code to get water year
