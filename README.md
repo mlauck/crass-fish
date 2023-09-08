@@ -5,6 +5,10 @@
 - Jane Rogosch
 - Freya Rowland
 
+# Metadata
+- 8/25/2023 FER completed biological name verification in ISIS. Notes are stored in [Data/ITIS_name_review.xlsx](Data/ITIS_name_review.xlsx). Replaced 35 species names with updates. 19 fishes couldn't be found. So we assume they're correct I guess?
+- 8/25/2023 FER fixed capitalization in fish_traits.csv. All lower case except proper nouns.
+- 9/1/2023 FER cross-referenced the 19 not found with fishbase.de. Do we delete the entry for unknown fish Phoxinus belimiauensis? Do we not collapse G. nigra and others into G. robusta?
 
 Check back later for more info as project develops
 

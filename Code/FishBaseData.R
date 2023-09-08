@@ -41,3 +41,5 @@ trophtemp <- estimate(fish,
 ## get status (introduced, native, endemic, etc.)
 ecosfish <- ecosystem(fish,
                       fields = c("Status"))
+
+newdata <- left_join(fish, trophtemp, by = "SpecCode")
