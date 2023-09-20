@@ -13,6 +13,17 @@ allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
 # make a vector of fish names
 fish <- allarid[,1]
 
+unique(fish)
+
+# validate names
+validate_names(
+  species_list = fish,
+  server = getOption("FISHBASE_API", "fishbase")
+)
+
+# get orders
+order <- which_fish("family", "Order", ~fish)
+
 ## figure out column names within fishabse
 fish.data <- getData(1:5)
 
