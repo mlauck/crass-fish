@@ -1,5 +1,6 @@
 ### Jane S. Rogosch
 ### Created 18 Feb 2022
+### Remade 22 Sep 2023 with gages properly connected to HexIDs.
 ### This code is to extract USGS discharge data from subset of gages that are in HUCs where
 ### we have fish sampling data. The subset of gages was found using ArcGIS 10.2 select by location functions
 
@@ -11,8 +12,8 @@ library(lmom)
 library(CircStats)
 
 ## Load discharge package
+.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library\\4.0")
 library(discharge)
-
 
 # If you do not have the package you can download it 
 # from here: https://sourceforge.net/projects/discharge/ (see documentation)
@@ -53,23 +54,15 @@ dim(SANPEDRO$data)[1]
 summary(SANPEDRO)
 
 ### Load the file with the subset of gages------------------------------------------------------
-# USA_subset <- read.csv("Data/from_GIS/USA_fish_nearest_gage_within5km.csv", row.names = 1, 
-#                        colClasses = c(rep(NA, 12), "character", rep(NA, 24)))
-#                         #import to excel and change the gage_ID to 00000000, 
-# # then save as text file, then import and switch column format from general to "text" nOPE
-?read.delim
-USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.names = 1,
-                       colClasses = c(rep(NA, 12), "character", rep(NA, 22)))
-#import to excel and change the gage_ID to 00000000, 
+#import to excel and change the gage_ID to 00000000 in the custom option 
 # then save as .csv file, then run this. 
-unique(USA_subset$site_no)
+USA_subset <- read.csv("Data/fish_flow/gauges_with_hexIDs_Sep2023.csv", row.names = 1,
+                       colClasses = c(rep(NA, 4), "character", rep(NA, 4)))
 head(USA_subset)
-str(USA_subset)
-
-site_IDs <- unique(USA_subset$site_no)
+site_IDs <- unique(USA_subset$site_no[USA_subset$source == "USGS"])
 compDailyData <- list()
 
-site_IDs <- site_IDs[-98]
+#site_IDs <- site_IDs[-98]
 # IDs that don't make it: 18, 60, 74
 # i <- 60 #18, 60, 74
 for (i in 1:length(site_IDs)) { 
@@ -77,20 +70,20 @@ for (i in 1:length(site_IDs)) {
   compDailyData[[i]] <- rawDailyData[,2:4] # stopped at 98 site_IDs[98] "09285000"
   #charge <- print(rawDailyData)
 }
-?readNWISdv
+
 head(compDailyData)
 length(compDailyData)
 ### GET NAAs----------------------------------------------------------------------------------
-?asStreamflow
-CompSignal <- list() #IDs that don't make it 24, 115, 117, 158,239,245
-for (i in 246:length(site_IDs)) { 
+
+CompSignal <- list() #IDs that don't make it #233,234, 235, 254, 261, 359, 451, 463
+for (i in 464:length(site_IDs)) { 
   rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
-  streamflow <- asStreamflow(rawDailyData[ ,3:4], river.name = rawDailyData$site_no[1], max.na = 1815) # Convert raw data to 'asStreamflow' object
+  streamflow <- asStreamflow(rawDailyData[ ,3:4], river.name = rawDailyData$site_no[1], max.na = 5000) # Convert raw data to 'asStreamflow' object
   summary(streamflow)
   USA_stream <- fourierAnalysis(streamflow) # Run Fourier on the 'asStreamflow' object
   CompSignal[[i]] <- cbind(USA_stream$signal, site_no = streamflow$name)
   # Make a file of the main data
-  write.csv(cbind(USA_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/USGS', '_', rawDailyData$site_no[1],'.csv'))
+      # write.csv(cbind(USA_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/USGS', '_', rawDailyData$site_no[1],'.csv'))
   # plot characteristic hydrograph
   #   # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
   #plot(USA_stream)
@@ -99,14 +92,14 @@ for (i in 246:length(site_IDs)) {
 # Make things not a list
 library(dplyr)
 signal_daily <- bind_rows(CompSignal)
-# write.csv(signal_daily, file = "Output/NAA/USA_signal_daily.csv")
+ # write.csv(signal_daily, file = "Output/NAA/USA_signal_daily_Sep23.csv")
 
 df_daily <- bind_rows(compDailyData)
 str(df_daily)
 head(df_daily)
 unique(df_daily$site_no)
 df_daily[df_daily$site_no == "08427500",]
-#write.csv(df_daily, file = "Output/Discharge_win5kmfish_USA.csv")
+  # write.csv(df_daily, file = "Output/Daily_Discharge_USA_by_HEXID_Sep23.csv")
 
 
 #################################################################################################################
@@ -120,27 +113,14 @@ library(Kendall)
 ??Kendall
 ??trend
 
-fish_dates <- read.csv("Data/points_daterange_location.csv")
-USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.names = 1,
-                       colClasses = c(rep(NA, 12), "character", rep(NA, 22)))
-df_daily <- read.csv("Output/Discharge_win5kmfish_USA.csv", colClasses = c(NA, "character", rep(NA,3)))
-signal_daily <- read.csv("Output/NAA/USA_signal_daily.csv", row.names = 1, colClasses = c(rep(NA,12), "character") )
+fish_dates <- read.csv("Data/points_daterange_location.csv") #Hopefully this didn't change since Mar 2022. What do I use it for?
+USA_subset <- read.csv("Data/fish_flow/gauges_with_hexIDs_Sep2023.csv", row.names = 1,
+                       colClasses = c(rep(NA, 4), "character", rep(NA, 4)))
+df_daily <- read.csv("Output/Daily_Discharge_USA_by_HEXID_Sep23.csv", colClasses = c(NA, "character", rep(NA,3)))
+signal_daily <- read.csv("Output/NAA/USA_signal_daily_Sep23.csv", row.names = 1, colClasses = c(rep(NA,12), "character") )
 str(signal_daily)
 
 
-USA_subset
-USA_subset[USA_subset$Dataset == "NEON", ]
-fish_dates[fish_dates$Dataset == "NEON", ] # hmmm. maybe they are not near a gage well REDB is near 10172200
-USA_subset[USA_subset$site_no == "10172200",] # ok now that's there after the update, good.
-str(df_daily)
-
-USA_subset[USA_subset$site_no == "10163000",] # huc_cd = 0, why? don't know but the HUC8 it's in is	"16020203"
-min(USA_subset$Year_First)
-sort(unique(USA_subset$Year_First))
-
-nrow(USA_subset[USA_subset$Total_Samp > 1,])
-nrow(USA_subset[USA_subset$Total_Samp >= 10,]) #update 31 # old 13
-nrow(USA_subset[USA_subset$Total_Samp >= 30,]) #update 6# old 4
 
 
 df_daily2 <- df_daily[ ,1:3]  %>% mutate(year = year(Date))
