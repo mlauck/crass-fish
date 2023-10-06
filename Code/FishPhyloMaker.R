@@ -11,11 +11,17 @@ data_comm <- neotropical_comm[, -c(1, 2)] # removing latitude and longitude
 # load traits data
 allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
 
+# make a danger fish vector
+allarid$danger <-
+  ifelse(allarid$IUCNstatus2 == "LC" |
+           allarid$IUCNstatus2 == "NE", 0, 1)
+
 # # make a vector of fish names
 fish <- allarid[,1]
 
 # # replace space with underscore
 fish2 <- gsub(" ", "_", fish)
+allarid$s <- gsub(" ", "_", allarid$GenusSpecies)
 
 # # what sort of data are they?
 # str(fish)
@@ -28,8 +34,22 @@ fish3 <- unique(fish2)
 # example
 taxon_data <- FishTaxaMaker(data_comm, allow.manual.insert = TRUE)
 
-# our data
+# our data - use in another 
 taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = TRUE)
+taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = FALSE)
+
+# write data
+taxondata <- as.data.frame(taxon_data2$Taxon_data_FishPhyloMaker)
+
+taxondata2 <- left_join(allarid, taxondata, by = "s")
+
+orderdanger <- taxondata2 |>
+  group_by(o) |>
+  summarise(prop.dang = mean(danger), na.omit = TRUE)
+
+  
+write.csv(taxondata2, "Data/taxondata.csv")
+write.csv(orderdanger, "Data/orderdanger.csv")
 
 ## Families and orders
 # > taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = TRUE)
@@ -154,8 +174,10 @@ res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
                             return.insertions = TRUE, 
                             progress.bar = TRUE)
 
+
+
 # The output has two objects, a phylogenetic tree that can be directly plot with the following code:
-plot(res_phylo2$Phylogeny, cex = 0.7)
+plot(res_phylo$Phylogeny, cex = 0.7)
 
 # And a data frame indicating at which level the species was inserted (one of the six categories detailed above).
 res_phylo2$Insertions_data
@@ -192,6 +214,7 @@ xlab("Millions of years")
 abline(v = dd, lty = "dotted", col = "grey")
 
 # trim a phylogeny
+## Orders
 # drop.tip
 no_data <- c("Acanthuriformes", "Alepocephaliformes",
              "Argentiniformes", "Ateleopodiformes",
@@ -247,7 +270,9 @@ remove_taxa <- setdiff(my.tree$tip.label, keep_taxa3)
 pruned_tree <- drop.tip(my.tree, remove_taxa)
 pruned_tree$tip.label
 
-as.data.frame(pruned_tree$tip.label)
+plot(pruned_tree)
+
+as.data.frame(pruned_tree$tip.lab)
 
 # get tree statistics ----
 summary(pruned_tree)
@@ -255,7 +280,10 @@ summary(pruned_tree)
 # how to plot with thiaminase presence/absence ----
 fish.tree<-read.tree("data/fishorder_skeletal.tre")
 fish.data<-read.csv("data/OrderPresAbsNA.csv",row.names=1)
+fish.data <- read.csv("Data/orderdanger.csv")
+
 fmode<-as.factor(setNames(fish.data[,1],rownames(fish.data)))
+fmode<-setNames(orderdanger$prop.dang,nm = as.factor(orderdanger$o))
 dotTree(drop.tip(fish.tree, no_data),
         fmode,
         colors=setNames(c("white","red"),
@@ -285,7 +313,7 @@ smap.trees <- make.simmap(pruned_tree, fmode,
 summary(smap.trees)
 
 pdf('figures/order_phylogeny.pdf', height = 8, width = 6)
-cols <- setNames(c("black", "white"), c("present", "absent"))
+cols <- setNames(c("black", "white"), c("threatened", "not a concern"))
 plot(summary(smap.trees), colors = cols)
 legend("topleft", c("present", "absent"),
        pch = 21, pt.bg = cols, pt.cex = 2)
