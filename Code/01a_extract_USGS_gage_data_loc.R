@@ -1,7 +1,7 @@
 ### Jane S. Rogosch
 ### Created 19 March 2021
 ### This code is to extract list of USGS gages in xeric ecoregion and get locations
-
+citation("base")
 ### relevant links:
 # Freshwater ecoregions: https://feow.org/
 

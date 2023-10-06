@@ -69,33 +69,32 @@ head(test2)
 # ?grep
 # data[, grep("_va", names(data))] <- sapply(data[, grep("_va", 
 #                                                        names(data))], as.numeric)
-test[c(13:14),]
-test2[c(12:13),]
-t.string <- test3[c(12:13),]
-t.string2 <- test2[c(12:13),]
 
-substr(t.string,24,33)
-substr(t.string2,24,33) # Ok this works, so can make a loopty loo
+t.string <- test3[c(12:13),]
+
+
+substr(t.string,24,33) # Ok this works, so can make a loopty loo
 
 # Read in all Australia gage files from the GRDC_data folder
 # Example code: Adjust so that it takes the ones from "Data/GRDC_data" NOT entire working directory
 
-test3b <- read.delim("Data/GRDC_data/5110010_Q_Day.Cmd.txt")
+test3b <- read.delim("Data/GRDC_data/Australia/5101020_Q_Day.Cmd.txt")
 head(test3b); head(test3) #looks the same, hopefully behaves the same
 substr(test3b[c(12:13),], 24,33)
 test3
 # starting to edit code
-temp <- list.files(path="Data/GRDC_data/", pattern="_Q_Day.Cmd.txt")
-AUS_gage_files <- lapply(paste0("Data/GRDC_data/",temp), read.delim)
+temp <- list.files(path="Data/GRDC_data/Australia/", pattern="_Q_Day.Cmd.txt")
+AUS_gage_files <- lapply(paste0("Data/GRDC_data/Australia/",temp), read.delim)
 str(AUS_gage_files)
 
 # Loop or try lapply
 test_list <- lapply(AUS_gage_files, function(x) substr(x[c(8,12:13), ], 24,33))
 test_list
+length(test_list)
 # read.csv("Data/GRDC_data/5405030_Q_Day.Cmd.txt") making sure is same values, even though short
 
 # Get from list to dataframe
-test.df <- data.frame(matrix(unlist(test_list), nrow=58, byrow=TRUE),
+test.df <- data.frame(matrix(unlist(test_list), nrow=length(test_list), byrow=TRUE),
                       stringsAsFactors=FALSE)
 colnames(test.df) <- c("site_no", "dec_lat_va", "dec_long_va")
 test.df
