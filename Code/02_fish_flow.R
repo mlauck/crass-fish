@@ -13,4 +13,7 @@ head(fish)
 # Code "Site30yrsplus.R" and "Site10yrsplus.R"
 flow <- read.csv("Data/fish_flow/gauges_with_hexIDs_Sep2023.csv")
 head(flow)
-
+names.10yr # the Hex IDs for hexes with 10 or more years of fish data from "PresAbsCodeforCorey.R"
+names.20yr # the Hex IDs for hexes with 20 or more years of fish data from "PresAbsCodeforCorey.R"
+presmat # "community" data for Hex's with at least 10 years of data from "PresAbsCodeforCorey.R"
+rich # richness data for Hex's with at least 10 years of data "PresAbsCodeforCorey.R"
