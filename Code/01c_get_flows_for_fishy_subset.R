@@ -110,10 +110,11 @@ df_daily[df_daily$site_no == "08427500",]
 library(dplyr)
 library(tidyr)
 library(Kendall)
-??Kendall
-??trend
+library(lubridate)
+.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library\\4.0")
 
-fish_dates <- read.csv("Data/points_daterange_location.csv") #Hopefully this didn't change since Mar 2022. What do I use it for?
+
+# fish_dates <- read.csv("Data/points_daterange_location.csv") #Hopefully this didn't change since Mar 2022. What do I use it for?
 USA_subset <- read.csv("Data/fish_flow/gauges_with_hexIDs_Sep2023.csv", row.names = 1,
                        colClasses = c(rep(NA, 4), "character", rep(NA, 4)))
 df_daily <- read.csv("Output/Daily_Discharge_USA_by_HEXID_Sep23.csv", colClasses = c(NA, "character", rep(NA,3)))
@@ -129,28 +130,31 @@ unique(df_daily2$site_no)
 
 yr_count <- df_daily2 %>% group_by(site_no) %>% summarise(yrs_record = n_distinct(year))
 yr_count
-yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # more than half (229 of 380) have long records yay!
+yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # more than half (294 of 504) have long records yay!
 
 # Next time: Where are they?
 # if good geographic spread, calculate trends
 # for all other one-offs calculate zero-flow metrics for that year.
 
 
-# What dates do I need for each gage?
-# Result is gages corresponding to fish data points that have 10 or more fish samples and 10 or more years of discharge data.
-dates_summary <- USA_subset %>% group_by(site_no) %>% summarise(first_yr = min(Year_First),
-                                                                last_yr = max(Year_Last_),
-                                                                total_samps = sum(Total_Samp))
-min(dates_summary$first_yr)
-date_summary <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] # 37 -Zipper et al. use gages with more than 10 years (for future citation justification)
-                                                                     # we can use gages with more than 10 years that have fish
-dates_summary[dates_summary$last_yr - dates_summary$first_yr >=30 & dates_summary$total_samps >=10, ] # 10 for 30 years, -for 20 yrs there are 21, for 15 yrs there are 24
+# # What dates do I need for each gage?
+# # Result is gages corresponding to fish data points that have 10 or more fish samples and 10 or more years of discharge data.
+# dates_summary <- USA_subset %>% group_by(site_no) %>% summarise(first_yr = min(Year_First),
+#                                                                 last_yr = max(Year_Last_),
+#                                                                 total_samps = sum(Total_Samp))
+# min(dates_summary$first_yr)
+# date_summary <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] # 37 -Zipper et al. use gages with more than 10 years (for future citation justification)
+#                                                                      # we can use gages with more than 10 years that have fish
+# dates_summary[dates_summary$last_yr - dates_summary$first_yr >=30 & dates_summary$total_samps >=10, ] # 10 for 30 years, -for 20 yrs there are 21, for 15 yrs there are 24
+# 
+# hist(date_summary$first_yr)
 
-hist(date_summary$first_yr)
 # ANNUAL METRICS for all gages
 ###################################################################################################################
 head(df_daily)
-df_daily_info <- df_daily[ ,1:4] %>% mutate(month = month(Date),
+df_tot<- apply(df_daily[ ,3:5], 1, mean, na.rm = TRUE)
+df_daily2[ ,3] <- df_tot
+df_daily_info <- df_daily2[ ,1:3] %>% mutate(month = month(Date),
                                             year = year(Date),
                                             yday = yday(Date),
                                             wday = ifelse(yday > 274, yday - 273, yday+92),
@@ -218,159 +222,18 @@ df_daily_info %>% group_by(site_no) %>% summarise(first_yr = min(year),
 # Exploring trends with Mann-Kendall and Sen's slope
 ###################################################################################################################
 library(trend)
+library(ggplot2)
 str(daily_data_metrics)
 ?sens.slope
 ###### NO FLOW DAYS #######
+
 noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
 tail(noflowmets)
 # df.noflowmets <- as.data.frame(noflowmets[noflowmets$wyear >= 1954, ]) #why did I pick 1954?
 # Because first year of fish data is 1954.
 df.noflowmets <- as.data.frame(noflowmets)
 
-# str(df.noflowmets)
-# df.simple.noflowmets <- df.noflowmets %>% replace(is.na(.), 0)
-# 
-# test.res <- apply(df.simple.noflowmets[,-1], 2, function(x) mk.test(x)$p.value)
-# 
-# test.res.sen <- apply(df.simple.noflowmets[,-1], 2, function(x) sens.slope(x)$estimates)
-# test.res.senp <- apply(df.simple.noflowmets[,-1], 2, function(x) sens.slope(x)$p.value)
 
-# next time need to figure out how to do this right so that including just a set of consecutive years and not
-# missing chunks in time series. Probably in a loop. Remove all NA rows for a gage (but still need to monitor for gaps between years)
-# alternatively make some rules, like only include gages with metrics for last consecutive 30 years
-# might have some gages that go through last 100 years which could be useful, then when plot they'ds
-# just have to start when the consecutive record starts.
-# Let's see (this is not elegant or streamlined, but it will get the job done in the slow pace I like to think at!)
-str(df.noflowmets)
-
-# # By decade
-# # Oldest could possibly be 1902, but it's not. Start with 1912 then
-# df.noflowmets_1912 <- as.data.frame(noflowmets[noflowmets$wyear >= 1912, ])
-#   # get rid of columns with NAs
-# df.noflowmets_1912b <- df.noflowmets_1912 %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1912 <- apply(df.noflowmets_1912b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1912 <- apply(df.noflowmets_1912b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# # 1922
-# df.noflowmets_1922 <- as.data.frame(noflowmets[noflowmets$wyear >= 1922, ])
-# df.noflowmets_1922c <- df.noflowmets_1922 %>% select(-names(df.noflowmets_1912b[-1]))
-# # get rid of columns with NAs
-# df.noflowmets_1922b <- df.noflowmets_1922c %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1922 <- apply(df.noflowmets_1922b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1922 <- apply(df.noflowmets_1922b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# # 1932
-# df.noflowmets_1932 <- as.data.frame(noflowmets[noflowmets$wyear >= 1932, ])
-# df.noflowmets_1932c <- df.noflowmets_1932 %>% select(-names(c(df.noflowmets_1912b[-1], df.noflowmets_1922b[-1])))
-# # get rid of columns with NAs
-# df.noflowmets_1932b <- df.noflowmets_1932c %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1932 <- apply(df.noflowmets_1932b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1932 <- apply(df.noflowmets_1932b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# # 1942
-# df.noflowmets_1942 <- as.data.frame(noflowmets[noflowmets$wyear >= 1942, ])
-# df.noflowmets_1942c <- df.noflowmets_1942 %>% select(-names(c(df.noflowmets_1912b[-1], df.noflowmets_1922b[-1], df.noflowmets_1932b[-1])))
-# # get rid of columns with NAs
-# df.noflowmets_1942b <- df.noflowmets_1942c %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1942 <- apply(df.noflowmets_1942b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1942 <- apply(df.noflowmets_1942b[,-1], 2, function(x) sens.slope(x)$p.value)
-
-# # 1952
-# df.noflowmets_1954 <- as.data.frame(noflowmets[noflowmets$wyear >= 1954, ])
-# #df.noflowmets_1954c <- df.noflowmets_1952 #%>%
-#   # select(-names(c(df.noflowmets_1912b[-1], df.noflowmets_1922b[-1],
-#   #                 df.noflowmets_1932b[-1], df.noflowmets_1942b[-1])))
-# # get rid of columns with NAs
-# df.noflowmets_1954b <- df.noflowmets_1954 %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1954 <- apply(df.noflowmets_1954b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1954 <- apply(df.noflowmets_1954b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# # 1962
-# df.noflowmets_1962 <- as.data.frame(noflowmets[noflowmets$wyear >= 1962, ])
-# df.noflowmets_1962c <- df.noflowmets_1962 %>% 
-#   select(-names(c(#df.noflowmets_1912b[-1], df.noflowmets_1922b[-1],
-#                   #df.noflowmets_1932b[-1], df.noflowmets_1942b[-1],
-#                   df.noflowmets_1954b[-1])))
-# # get rid of columns with NAs
-# df.noflowmets_1962b <- df.noflowmets_1962c %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1962 <- apply(df.noflowmets_1962b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1962 <- apply(df.noflowmets_1962b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# # 1972
-# df.noflowmets_1972 <- as.data.frame(noflowmets[noflowmets$wyear >= 1972, ])
-# df.noflowmets_1972c <- df.noflowmets_1972 %>% 
-#   select(-names(c(#df.noflowmets_1912b[-1], df.noflowmets_1922b[-1], 
-#                   #df.noflowmets_1932b[-1], df.noflowmets_1942b[-1],
-#                   df.noflowmets_1954b[-1], df.noflowmets_1962b[-1])))
-# # get rid of columns with NAs
-# df.noflowmets_1972b <- df.noflowmets_1972c %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1972 <- apply(df.noflowmets_1972b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1972 <- apply(df.noflowmets_1972b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# # 1982
-# df.noflowmets_1982 <- as.data.frame(noflowmets[noflowmets$wyear >= 1982, ])
-# df.noflowmets_1982c <- df.noflowmets_1982 %>% 
-#   select(-names(c(#df.noflowmets_1912b[-1], df.noflowmets_1922b[-1], 
-#                   #df.noflowmets_1932b[-1], df.noflowmets_1942b[-1],
-#                   df.noflowmets_1954b[-1], df.noflowmets_1962b[-1],
-#                   df.noflowmets_1972b[-1])))
-# # get rid of columns with NAs
-# df.noflowmets_1982b <- df.noflowmets_1982c %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1982 <- apply(df.noflowmets_1982b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1982 <- apply(df.noflowmets_1982b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# # 1992
-# df.noflowmets_1992 <- as.data.frame(noflowmets[noflowmets$wyear >= 1992, ])
-# df.noflowmets_1992c <- df.noflowmets_1992 %>% 
-#   select(-names(c(#df.noflowmets_1912b[-1], df.noflowmets_1922b[-1], 
-#                   #df.noflowmets_1932b[-1], df.noflowmets_1942b[-1],
-#                   df.noflowmets_1954b[-1], df.noflowmets_1962b[-1],
-#                   df.noflowmets_1972b[-1], df.noflowmets_1982b[-1])))
-# # get rid of columns with NAs
-# df.noflowmets_1992b <- df.noflowmets_1992c %>% select_if(~ !any(is.na(.)))
-# 
-# sen_1992 <- apply(df.noflowmets_1992b[,-1], 2, function(x) sens.slope(x)$estimates)
-# senp_1992 <- apply(df.noflowmets_1992b[,-1], 2, function(x) sens.slope(x)$p.value)
-# 
-# sen_by_decade <- c(sen_1954, sen_1962, sen_1972, sen_1982, sen_1992) # sen_1912, sen_1922, sen_1932, sen_1942,
-# senp_by_decade <- c(senp_1954, senp_1962, senp_1972, senp_1982, senp_1992) #senp_1912, senp_1922, senp_1932, senp_1942,
-#   # so in total 146 of 360 gages with at least 30 years of data for trends
-# plot(sen_by_decade)
-# ?as.data.frame
-# ?names
-# df.decadal.sen <- as.data.frame(sen_by_decade, stringsAsFactors = TRUE)
-# rownames(df.decadal.sen)
-# df.decadal.sen$gageID <- rownames(df.decadal.sen)
-# df.decadal.sen
-# df.decadal.sen <- arrange(df.decadal.sen, sen_by_decade)
-# 
-# 
-# a <- ggplot(df.decadal.sen, aes(as.numeric(sen_by_decade), reorder(gageID, -sen_by_decade, mean)))
-# a+geom_point() + 
-#   theme_classic() +
-#   labs(x = "Sen slope", y = "GageID")
-# 
-# gage_more_noflow <- df.decadal.sen$gageID[df.decadal.sen$sen_by_decade > 0 ]
-# gage_less_noflow <- df.decadal.sen$gageID[df.decadal.sen$sen_by_decade < 0 ]
-# 
-# which.watershed_more <- USA_subset[USA_subset$site_no %in% gage_more_noflow, ]
-# unique(which.watershed_more$huc_cd)
-# unique(which.watershed_more$station_nm)
-# 
-# which.watershed_less <- USA_subset[USA_subset$site_no %in% gage_less_noflow, ]
-# unique(which.watershed_less$huc_cd)
-# unique(which.watershed_less$station_nm)
-# 
-# unique(which.watershed_more$huc_cd[which.watershed_more$huc_cd %in% which.watershed_less$huc_cd])
-# unique(which.watershed_more$station_nm[which.watershed_more$huc_cd %in% which.watershed_less$huc_cd])
 
 # Since 1980 Only ##################################################################
 # 1982
@@ -379,8 +242,8 @@ noflow_periods_metrics
 
 
 # start with apprpriate metric
-noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "zeroflowfirst_wy") ], wyear) %>% pivot_wider(names_from = site_no, values_from = zeroflowfirst_wy)
-# noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
+#noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "zeroflowfirst_wy") ], wyear) %>% pivot_wider(names_from = site_no, values_from = zeroflowfirst_wy)
+ #noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
 noflowmets <- arrange(noflow_periods_metrics[ , c("site_no", "wyear", "max_length_noflow") ], wyear) %>% pivot_wider(names_from = site_no, values_from = max_length_noflow)
 
 tail(noflowmets)
@@ -395,7 +258,7 @@ df.noflowmets_1980[is.na(df.noflowmets_1980)] <- 0
 df.noflowmets_1980b <- df.noflowmets_1980 %>% select_if(~ !any(is.na(.)))
 
 
-sen_1980 <- data.frame(matrix(nrow = 187, ncol = 5)) #359,108
+sen_1980 <- data.frame(matrix(nrow = 245, ncol = 5)) #245
 colnames(sen_1980) <- c('gageID', 'slope', 'p', 'lci', 'uci')
 sen_1980$gageID <- colnames(df.noflowmets_1980b[-1])
 # slope = double(),
@@ -412,24 +275,6 @@ mean(sen_1980$p, na.rm = TRUE)
 mean(sen_1980$lci)
 mean(sen_1980$uci)
 
-  # # 1991 # catch any others that came on in last 30 years # for zeroflowdays and NAA
-  # df.noflowmets_1991 <- as.data.frame(noflowmets[noflowmets$wyear >= 1991, ])
-  # df.noflowmets_1991c <- df.noflowmets_1991 %>%
-  #   select(-names( df.noflowmets_1980b[-1]))
-  # # get rid of columns with NAs
-  # df.noflowmets_1991b <- df.noflowmets_1991c %>% select_if(~ !any(is.na(.)))
-  # 
-  # sen_1991 <- data.frame(matrix(nrow = 36, ncol = 5)) #359
-  # colnames(sen_1991) <- c('gageID', 'slope', 'p', 'lci', 'uci')
-  # sen_1991$gageID <- colnames(df.noflowmets_1991b[-1])
-  # 
-  # sen_1991$slope <- apply(df.noflowmets_1991b[,-1], 2, function(x) sens.slope(x)$estimates)
-  # sen_1991$p <- apply(df.noflowmets_1991b[,-1], 2, function(x) sens.slope(x)$p.value)
-  # sen_1991$lci <- apply(df.noflowmets_1991b[-1], 2, function(x) sens.slope(x)$conf.int[1])
-  # sen_1991$uci <- apply(df.noflowmets_1991b[-1], 2, function(x) sens.slope(x)$conf.int[2])
-  
-  #sens_1980 <- rbind(sen_1980, sen_1991)
-
 
 # Hand calculate 95%CI
 SE <- (sd(sen_1980$slope)/sqrt(length(sen_1980$slope)))
@@ -437,6 +282,7 @@ mean(sen_1980$slope) + (1.96*(sd(sen_1980$slope)/sqrt(length(sen_1980$slope))))
 mean(sen_1980$slope) - (1.96*(sd(sen_1980$slope)/sqrt(length(sen_1980$slope))))
 Z <- mean(sen_1980$slope)/SE
 P <- pnorm(Z, mean = mean(sen_1980$slope), sd = sd(sen_1980$slope), lower.tail = FALSE)
+
 ?pnorm
 
 
@@ -445,10 +291,10 @@ df.1980.sen <- as.data.frame(sen_1980, stringsAsFactors = TRUE)
 rownames(df.1980.sen)
 df.1980.sen$gageID <- rownames(df.1980.sen)
 
-b <- ggplot(df.1980.sen, aes(as.numeric(sen_1980), reorder(gageID, -sen_1980, mean)))
-b+geom_point() + 
-  theme_classic() +
-  labs(x = "Sen slope", y = "GageID")
+# b <- ggplot(df.1980.sen, aes(df.1980.sen, reorder(gageID, slope, mean)))
+# b+geom_point() + 
+#   theme_classic() +
+#   labs(x = "Sen slope", y = "GageID")
 
 gage_more_noflow80 <- df.1980.sen$gageID[df.1980.sen$sen_1980 > 0 ]
 gage_less_noflow80 <- df.1980.sen$gageID[df.1980.sen$sen_1980 < 0 ]
@@ -477,13 +323,13 @@ unique(which.watershed_more80$station_nm[which.watershed_more80$huc_cd %in% whic
 # $ zeroflowcentroid_wy
 noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
 tail(noflowmets)
-# df.noflowmets <- as.data.frame(noflowmets[noflowmets$wyear >= 1954, ]) #why did I pick 1954?
+
 df.noflowmets <- as.data.frame(noflowmets)
 
 ###################################################################################################################
 ### EXPLORING TRENDS USING NET ANNUAL ANNOMALIES - following similar approach to Temp and Precip data we have 20 Oct 2022
 ####################################################################################################################
-length(unique(signal_daily$site_no)) #==376
+length(unique(signal_daily$site_no)) #==500
 head(signal_daily)
 ?Date
 ??Year
@@ -510,7 +356,7 @@ NAA_plot <- signal_daily[signal_daily$year >= 1980, ] %>%
   ggtitle("USA") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1) 
 print(NAA_plot)
-ggsave(NAA_plot, filename = "figures/Discharge_NAA_box_USA.jpg", dpi = 300, height = 5, width = 7)
+ggsave(NAA_plot, filename = "figures/Discharge_NAA_box_USA_Sep23.jpg", dpi = 300, height = 5, width = 7)
 
 # No, this is not right.
 # NAA_summ <- NAA %>%
@@ -548,7 +394,8 @@ SE <- (sd(sens_NAA$slope)/sqrt(length(sens_NAA$slope)))
 mean(sens_NAA$slope) + (1.96*(sd(sens_NAA$slope)/sqrt(length(sens_NAA$slope))))
 mean(sens_NAA$slope) - (1.96*(sd(sens_NAA$slope)/sqrt(length(sens_NAA$slope))))
 Z <- mean(sens_NAA$slope)/SE
-P <- pnorm(Z, mean = mean(sens_NAA$slope), sd = sd(sens_NAA$slope))
+P <- pnorm(Z, mean = mean(sens_NAA$slope), sd = sd(sens_NAA$slope), lower.tail = FALSE)
+P <- pnorm(Z, mean = mean(sen_1980$slope), sd = sd(sen_1980$slope), lower.tail = FALSE)
 # Next time look at plots for larger catchment regions - see if some regional differences are being masked by the whole.
 # Also want to do this for Australia, and still look at Kendall stat or Mann-Kendall
 
