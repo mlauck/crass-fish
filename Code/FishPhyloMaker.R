@@ -3,13 +3,14 @@
 # devtools::install_github("GabrielNakamura/FishPhyloMaker", ref = "main")
 library(FishPhyloMaker)
 library(rfishbase)
+library(curl)
 
 # example
 data(neotropical_comm)
 data_comm <- neotropical_comm[, -c(1, 2)] # removing latitude and longitude
 
 # load traits data
-allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
+allarid <- read.csv("Data/fishstatus.csv", header = TRUE)
 
 # make a danger fish vector
 allarid$danger <-
@@ -28,15 +29,15 @@ allarid$s <- gsub(" ", "_", allarid$GenusSpecies)
 # fish2 <- as.factor(fish)
 
 # # keep only unique
-fish3 <- unique(fish2)
+fish3 <- unique(fish)
 
 # finds family and order of species in Fishbase
 # example
 taxon_data <- FishTaxaMaker(data_comm, allow.manual.insert = TRUE)
 
 # our data - use in another 
-taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = TRUE)
-taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = FALSE)
+taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = TRUE)
+taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = FALSE)
 
 # write data
 taxondata <- as.data.frame(taxon_data2$Taxon_data_FishPhyloMaker)
@@ -177,7 +178,7 @@ res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
 
 
 # The output has two objects, a phylogenetic tree that can be directly plot with the following code:
-plot(res_phylo$Phylogeny, cex = 0.7)
+plot(res_phylo2$Phylogeny, cex = 0.7)
 
 # And a data frame indicating at which level the species was inserted (one of the six categories detailed above).
 res_phylo2$Insertions_data
