@@ -20,13 +20,13 @@ allarid$danger <-
 # # make a vector of fish names
 fish <- allarid[,1]
 
-# # replace space with underscore
-fish2 <- gsub(" ", "_", fish)
-allarid$s <- gsub(" ", "_", allarid$GenusSpecies)
-
-# # what sort of data are they?
-# str(fish)
-# fish2 <- as.factor(fish)
+# # # replace space with underscore
+# fish2 <- gsub(" ", "_", fish)
+# allarid$s <- gsub(" ", "_", allarid$GenusSpecies)
+# 
+# # # what sort of data are they?
+# # str(fish)
+# # fish2 <- as.factor(fish)
 
 # # keep only unique
 fish3 <- unique(fish)
@@ -165,10 +165,10 @@ write.csv(orderdanger, "Data/orderdanger.csv")
 
 # Cyprinidon macularis
 ## 
-res_phylo <- FishPhyloMaker(data = taxon_data$Taxon_data_FishPhyloMaker,
-                            insert.base.node = TRUE, 
-                            return.insertions = TRUE, 
-                            progress.bar = TRUE)
+# res_phylo <- FishPhyloMaker(data = taxon_data$Taxon_data_FishPhyloMaker,
+#                             insert.base.node = TRUE, 
+#                             return.insertions = TRUE, 
+#                             progress.bar = TRUE)
 
 res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
                             insert.base.node = TRUE, 
@@ -178,10 +178,142 @@ res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
 
 
 # The output has two objects, a phylogenetic tree that can be directly plot with the following code:
-plot(res_phylo2$Phylogeny, cex = 0.7)
+plot(res_phylo2$Phylogeny, cex = 0.6, type = "fan")
+
 
 # And a data frame indicating at which level the species was inserted (one of the six categories detailed above).
 res_phylo2$Insertions_data
+
+## library
+library(ggtree)
+
+# phylogenty to use
+tree.arid <- res_phylo2$Phylogeny
+
+tree.arid <- ape::makeNodeLabel(tree.arid)
+phylo <- tree.arid
+
+# trait data
+danger<-read.csv("Data/fishstatus.csv",header=TRUE)
+nrow(danger)
+nrow(dplyr::distinct(danger))
+danger2 <- distinct(danger, X, .keep_all = TRUE)
+row.names(danger2) <- danger2[,1]
+danger3 <- danger2[,-1]
+
+# set trait example
+# svl<-read.csv("svl.csv",header=TRUE,row.names=1)
+# svl<-setNames(svl[,1],rownames(svl))
+# obj<-contMap(anole.tree,svl,plot=FALSE)
+# obj<-setMap(obj,invert=TRUE)
+# plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
+
+IUCN<-setNames(danger3[,2],rownames(danger3))
+obj<-contMap(phylo,IUCN,plot=FALSE)
+obj<-setMap(obj,invert=TRUE)
+plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
+
+# didn't work. Hmm. Another way
+
+x <- new("IUCN", 
+         trees = phylo)
+plot.base <-
+  ggtree(phylo, layout = "circular") + geom_tiplab2(size = 2)
+  
+print(plot.base)
+
+library(ggplot2)
+library(ggtree)
+
+info <- read.csv("Data/fishstatus.csv")
+p <- ggtree(phylo, layout = "circular") %<+% info + xlim(-.1, 5)
+p2 <- p + geom_tiplab(offset = 0.2) +
+  geom_tiplab(aes(color = IUCNstatus)) + 
+  scale_colorbrewer2() +
+  theme(legend.position = "right")
+print(p2)
+
+
+
+## another attempt
+## Load needed packages for this blogpost
+library(phytools)
+library(ggtree)
+library(tidyverse)
+library(scico)
+library(viridisLite)
+
+## Load anole tree
+anole.tree <- read.tree("http://www.phytools.org/eqg2015/data/anole.tre")
+
+## Load anole trait data, extract snout-vent-length (svl) as named vector
+# svl <- read_csv("http://www.phytools.org/eqg2015/data/svl.csv") %>%
+#   mutate(svl = set_names(svl, species)) %>%
+#   pull(svl)
+
+library(magrittr)
+
+stat <- danger2 %>%
+  mutate(IUCN = set_names(IUCNstatus, X)) %>%
+  pull(IUCN)
+
+library(ggimage)
+library(ggtree)
+library(TDbook)
+
+# load `tree_boots`, `df_tip_data`, and `df_inode_data` from 'TDbook'
+p <- ggtree(phylo, layout = "circular") %<+% danger2 + xlim(-.1, 4)
+p2 <- p + geom_tiplab(offset = .6, hjust = .5) +
+  geom_tippoint(aes(color = endemic)) + 
+  theme(legend.position = "right") + 
+  geom_tiplab2(size = 2)
+
+p <- ggtree(phylo, layout = "circular") + geom_tiplab2()
+
+p2 %<+% df_inode_data + 
+  geom_label(aes(label = vernacularName.y, fill = posterior)) + 
+  scale_fill_gradientn(colors = RColorBrewer::brewer.pal(3, "YlGnBu"))
+
+p %<+% danger2 +
+  geom_tiplab2()
+
+# Plot with default color scheme
+# contmap_obj <- contMap(anole.tree, svl, plot = FALSE)
+contmap_obj <- contMap(phylo, stat, plot = FALSE)
+
+plot(
+  contmap_obj, 
+  type="fan", 
+  legend = 0.7*max(nodeHeights(anole.tree)),
+  fsize = c(0.5, 0.7))
+
+## merge data
+# get danger fish
+head(allarid)
+
+library(phyloseq)
+library(ggjoy)
+library(dplyr)
+library(ggtree)
+
+mergedGP <- merge_samples(phylo, allarid)
+mergedGP <- rarefy_even_depth(mergedGP,rngseed=394582)
+mergedGP <- tax_glom(mergedGP,"Order") 
+
+
+PR.PG <- plot1 + geom_hilight(data = df.phylo, aes(node = node.number, fill = Fam.names), 
+                              alpha = .6) +
+  scale_fill_viridis(discrete = T, name = "Family names")
+
+
+
+
+
+
+
+
+
+
 
 ## plot tree
 library(ape)
