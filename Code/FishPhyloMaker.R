@@ -5,17 +5,22 @@ library(FishPhyloMaker)
 library(rfishbase)
 library(curl)
 
-# example
-data(neotropical_comm)
-data_comm <- neotropical_comm[, -c(1, 2)] # removing latitude and longitude
+# # example
+# data(neotropical_comm)
+# data_comm <- neotropical_comm[, -c(1, 2)] # removing latitude and longitude
 
 # load traits data
 allarid <- read.csv("Data/fishstatus.csv", header = TRUE)
 
 # make a danger fish vector
+allarid$danger <- NA
 allarid$danger <-
-  ifelse(allarid$IUCNstatus2 == "LC" |
-           allarid$IUCNstatus2 == "NE", 0, 1)
+  ifelse(allarid$IUCNstatus == "LC" |
+           allarid$IUCNstatus == "NE"|
+           allarid$IUCNstatus == "DD", 0, 1)
+head(allarid)
+
+mod <- lm(danger ~ endemic, data = allarid)
 
 # # make a vector of fish names
 fish <- allarid[,1]
@@ -62,14 +67,7 @@ write.csv(orderdanger, "Data/orderdanger.csv")
 # Joining with `by = join_by(FamCode)`
 # Joining with `by = join_by(Order, Ordnum, Class, ClassNum)`
 # Joining with `by = join_by(Class, ClassNum)`
-# tell the Family of  Oncorhynchus clarkii henshawi
-# Salmonidae
-# tell the Order of  Oncorhynchus clarkii henshawi
-# Salmoniformes
-# tell the Family of  Oncorhynchus clarkii utah
-# Salmonidae
-# tell the Order of  Oncorhynchus clarkii utah
-# Salmoniformes
+
 # tell the Family of  Phoxinus grumi belimiauensis
 # Leuciscidae
 # tell the Order of  Phoxinus grumi belimiauensis
@@ -102,65 +100,17 @@ write.csv(orderdanger, "Data/orderdanger.csv")
 # Leuciscidae
 # tell the Order of  Siphateles bicolor mohavensis
 # Cypriniformes
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
 # 
 # tell the Family of  Gila coriacea
 # Cyprinidae
 # tell the Order of  Gila coriacea
 # Cypriniformes
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
+#
 # tell the Family of  Pantosteus plebeius
 # Catostomidae
 # tell the Order of  Pantosteus plebeius
 # Cypriniformes
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
+
 
 
 # Cyprinidon macularis
@@ -180,7 +130,7 @@ res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
 # The output has two objects, a phylogenetic tree that can be directly plot with the following code:
 plot(res_phylo2$Phylogeny, cex = 0.4, type = "fan")
 
-plot(res_phylo2$Phylogeny, cex = 0.4, type = "fan")
+plot(res_phylo2$Phylogeny, cex = 0.5, type = "fan")
 
 
 
@@ -189,18 +139,19 @@ res_phylo2$Insertions_data
 
 ## library
 library(ggtree)
+library(phytools)
 
-# phylogenty to use
+# phylogeny to use
 tree.arid <- res_phylo2$Phylogeny
 
 tree.arid <- ape::makeNodeLabel(tree.arid)
 phylo <- tree.arid
 
 # trait data
-danger<-read.csv("Data/fishstatus.csv",header=TRUE)
+danger<-read.csv("Data/fishstatus2.csv",header=TRUE)
 nrow(danger)
 nrow(dplyr::distinct(danger))
-danger2 <- distinct(danger, X, .keep_all = TRUE)
+danger2 <- dplyr::distinct(danger, X, .keep_all = TRUE)
 row.names(danger2) <- danger2[,1]
 danger3 <- danger2[,-1]
 
@@ -216,9 +167,18 @@ obj<-contMap(phylo,IUCN,plot=FALSE)
 obj<-setMap(obj,invert=TRUE)
 plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
 
-# didn't work. Hmm. Another way
+# different lengths, remove the taxa not in tree
+remove_taxa <- setdiff(phylo$tip.label, danger[,1])
+# > remove_taxa 
+# [1] "Hubbsina_turneri"         "Squalomugil_nasutus"      "Awaous_banana"            "Rhonciscus_crocro"       
+# [5] "Pomadasys_argenteus"      "Phoxinus_grumi"           "Rhinichthys_cobitis"      "Catostomus_discobolus"   
+# [9] "Catostomus_clarkii"       "Catostomus_santaanae"     "Catostomus_platyrhynchus" "Neoarius_graeffei"       
+# [13] "Bagre_panamensis" 
 
-danger <- read.csv("Data/fishstatus2.csv")
+# pruned tree
+pruned_tree <- drop.tip(phylo, remove_taxa)
+pruned_tree$tip.label
+
 
 # eel.tree<-read.tree("elopomorph.tre")
 # eel.data<-read.csv("elopomorph.csv",row.names=1)
@@ -227,13 +187,42 @@ danger <- read.csv("Data/fishstatus2.csv")
 # #                                        c("suction","bite")),
 # ftype="i",fsize=0.7)
 
-mode <- as.factor(setNames(danger[, 1], rownames(danger[,1])))
-dotTree(phylo, layout = "fan", mode, colors = setNames(c("blue", "red"),
+# how to plot with thiaminase presence/absence ----
+# fish.tree<-read.tree("data/fishorder_skeletal.tre")
+# fish.data<-read.csv("data/OrderPresAbsNA.csv",row.names=1)
+# fmode<-as.factor(setNames(fish.data[,1],rownames(fish.data)))
+# dotTree(drop.tip(fish.tree, no_data),
+#         fmode,
+#         colors=setNames(c("white","red"),
+#                         c("absent","present")),
+#         legend = FALSE,
+#         edge.width = 1,
+#         ftype="i",
+#         fsize=0.55,
+#         mar = c(5.1, 4.1, 1.1, 1.1), cex = 0.55)
+# axis(1)
+
+fish.data<-read.csv("Data/fishstatus2.csv", row.names = 1)
+
+mode <- as.factor(setNames(fish.data[,2], rownames(fish.data)))
+dotTree(pruned_tree, x = mode, colors = setNames(c("blue", "red"),
                                          c("none", "danger")), 
-                                       ftype = "i", fsize = 0.2)
+                                       ftype = "i", fsize = 0.1)
 
 # eel.trees<-make.simmap(eel.tree,fmode,nsim=100)
-danger.trees <- make.simmap(phylo, mode, nsim = 100)
+danger.trees <- make.simmap(pruned_tree, mode, nsim = 100)
+
+# stochastic mapping ----
+smap.trees <- make.simmap(pruned_tree, mode, 
+                          model = "ER", nsim = 500)
+summary(smap.trees)
+
+pdf('figures/order_phylogeny.pdf', height = 8, width = 6)
+cols <- setNames(c("black", "white"), c("present", "absent"))
+plot(summary(smap.trees), colors = cols)
+legend("topleft", c("present", "absent"),
+       pch = 21, pt.bg = cols, pt.cex = 2)
+dev.off()
 
 x <- new("IUCN", 
          trees = phylo)
