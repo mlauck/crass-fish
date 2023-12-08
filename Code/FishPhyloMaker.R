@@ -33,11 +33,11 @@ fish3 <- unique(fish)
 
 # finds family and order of species in Fishbase
 # example
-taxon_data <- FishTaxaMaker(data_comm, allow.manual.insert = TRUE)
+# taxon_data <- FishTaxaMaker(data_comm, allow.manual.insert = TRUE)
 
 # our data - use in another 
 taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = TRUE)
-taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = FALSE)
+# taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = FALSE)
 
 # write data
 taxondata <- as.data.frame(taxon_data2$Taxon_data_FishPhyloMaker)
@@ -178,7 +178,10 @@ res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
 
 
 # The output has two objects, a phylogenetic tree that can be directly plot with the following code:
-plot(res_phylo2$Phylogeny, cex = 0.6, type = "fan")
+plot(res_phylo2$Phylogeny, cex = 0.4, type = "fan")
+
+plot(res_phylo2$Phylogeny, cex = 0.4, type = "fan")
+
 
 
 # And a data frame indicating at which level the species was inserted (one of the six categories detailed above).
@@ -215,21 +218,42 @@ plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
 
 # didn't work. Hmm. Another way
 
+danger <- read.csv("Data/fishstatus2.csv")
+
+# eel.tree<-read.tree("elopomorph.tre")
+# eel.data<-read.csv("elopomorph.csv",row.names=1)
+# fmode<-as.factor(setNames(eel.data[,1],rownames(eel.data)))
+# dotTree(eel.tree,fmode,colors=setNames(c("blue","red"),
+# #                                        c("suction","bite")),
+# ftype="i",fsize=0.7)
+
+mode <- as.factor(setNames(danger[, 1], rownames(danger[,1])))
+dotTree(phylo, layout = "fan", mode, colors = setNames(c("blue", "red"),
+                                         c("none", "danger")), 
+                                       ftype = "i", fsize = 0.2)
+
+# eel.trees<-make.simmap(eel.tree,fmode,nsim=100)
+danger.trees <- make.simmap(phylo, mode, nsim = 100)
+
 x <- new("IUCN", 
          trees = phylo)
 plot.base <-
-  ggtree(phylo, layout = "circular") + geom_tiplab2(size = 2)
-  
+  ggtree(phylo, layout = "circular") + geom_tiplab2(size = 2, aes(colors = mode))
 print(plot.base)
 
 library(ggplot2)
 library(ggtree)
 
 info <- read.csv("Data/fishstatus.csv")
-p <- ggtree(phylo, layout = "circular") %<+% info + xlim(-.1, 5)
+
+allarid$danger <-
+  ifelse(allarid$IUCNstatus2 == "LC" |
+           allarid$IUCNstatus2 == "NE", 0, 1)
+
+p <- ggtree(phylo, layout = "circular") %<+% allarid + xlim(-.1, 5)
 p2 <- p + geom_tiplab(offset = 0.2) +
-  geom_tiplab(aes(color = IUCNstatus)) + 
-  scale_colorbrewer2() +
+  geom_tiplab(aes(color = danger)) + 
+  # scale_colorbrewer() +
   theme(legend.position = "right")
 print(p2)
 
@@ -253,7 +277,7 @@ anole.tree <- read.tree("http://www.phytools.org/eqg2015/data/anole.tre")
 
 library(magrittr)
 
-stat <- danger2 %>%
+stat <- allarid %>%
   mutate(IUCN = set_names(IUCNstatus, X)) %>%
   pull(IUCN)
 
@@ -262,13 +286,14 @@ library(ggtree)
 library(TDbook)
 
 # load `tree_boots`, `df_tip_data`, and `df_inode_data` from 'TDbook'
-p <- ggtree(phylo, layout = "circular") %<+% danger2 + xlim(-.1, 4)
+p <- ggtree(phylo, layout = "circular") %<+% allarid + xlim(-.1, 4)
 p2 <- p + geom_tiplab(offset = .6, hjust = .5) +
   geom_tippoint(aes(color = endemic)) + 
   theme(legend.position = "right") + 
   geom_tiplab2(size = 2)
 
-p <- ggtree(phylo, layout = "circular") + geom_tiplab2()
+p <- ggtree(phylo, layout = "circular") + geom_tiplab2(size = 3)
+p
 
 p2 %<+% df_inode_data + 
   geom_label(aes(label = vernacularName.y, fill = posterior)) + 
