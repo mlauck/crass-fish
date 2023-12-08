@@ -217,17 +217,38 @@ smap.trees <- make.simmap(pruned_tree, mode,
                           model = "ER", nsim = 500)
 summary(smap.trees)
 
-pdf('figures/order_phylogeny.pdf', height = 8, width = 6)
-cols <- setNames(c("black", "white"), c("present", "absent"))
-plot(summary(smap.trees), colors = cols)
-legend("topleft", c("present", "absent"),
+obj <-
+  densityMap(smap.trees,
+             states = c("none", "danger"),
+             plot = FALSE)
+plot(
+  obj,
+  type = "fan",
+  lwd = 1,
+  outline = TRUE,
+  fsize = c(0.5, 0.9),
+  legend = 50,
+  invert = TRUE
+)
+pdf('figures/PhylogenyDanger.pdf', height = 11, width = 11)
+cols <- setNames(c("red", "blue"), c("danger", "none"))
+plot(
+  obj,
+  type = "fan",
+  lwd = 1,
+  outline = TRUE,
+  fsize = c(0.5, 0.9),
+  legend = 50,
+  invert = TRUE
+)
+legend("bottomright", c("danger", "none"),
        pch = 21, pt.bg = cols, pt.cex = 2)
 dev.off()
 
 x <- new("IUCN", 
          trees = phylo)
 plot.base <-
-  ggtree(phylo, layout = "circular") + geom_tiplab2(size = 2, aes(colors = mode))
+  ggtree(smap.trees, layout = "circular") + geom_tiplab2(size = 2, aes(colors = mode))
 print(plot.base)
 
 library(ggplot2)
