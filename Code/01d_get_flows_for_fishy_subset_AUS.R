@@ -1,5 +1,6 @@
 ### Jane S. Rogosch
 ### Created 15 Dec 2022
+### Updated with all xeric gages 20 Dec 2023 (but not necessarily any having sampled fish, using all because sample size is so low)
 ### This code is to extract AUS gage discharge data from subset of gages that are in watershed where
 ### we have fish sampling data. The subset of gages was found using ArcGIS 10.2 select by location functions
 
@@ -34,8 +35,9 @@ library(dataRetrieval)
 library(smwrBase)
 #########################################################################################################################
 ### Load the file with the subset of gages that are in watersheds with fish data ------------------------------------------------------
-AUS_GRDC_subset <- read.csv("Data/from_GIS/AUS_gage_wfish_table.csv", row.names = 1)
-                       # colClasses = c(rep(NA, 12), "character", rep(NA, 24)))
+# AUS_GRDC_subset <- read.csv("Data/from_GIS/AUS_gage_wfish_table.csv", row.names = 1)
+#                        # colClasses = c(rep(NA, 12), "character", rep(NA, 24)))
+AUS_xeric <- read.csv("Output/Gage_location_AUS_xeric.csv")
 AUS_CAMEL_subset <- read.csv("Data/from_GIS/AUS_CAMEL_gage_wfish_table.csv", row.names = 1)
 
 ### Load discharge files
@@ -44,41 +46,44 @@ CAMELS_streamflow <- read.csv("Data/AUS_data/03_streamflow/streamflow_MLd.csv")
 # Get the files we want
 # column name is "site_no" for GRDC
 # for CAMEL us "station_id" and lat_outlet and long_outle for the dec_lat_va and dec_long_v
+?
 
-temp <- paste0(AUS_GRDC_subset$site_no, "_Q_Day.Cmd.txt")
+temp <- list.files(path="Data/GRDC_data/Australia/", pattern="_Q_Day.Cmd.txt")
+temp_xer <-temp[str_sub(temp, start = 1, end = 7) %in% AUS_xeric$site_no]
+AUS_gage_xer <- lapply(paste0("Data/GRDC_data/Australia/",temp_xer), read.delim)
+str(AUS_gage_xer)
+AUS_gage_xer
 
-AUS_gage_files <- lapply(paste0("Data/GRDC_data/",temp), read.delim)
-str(AUS_gage_files)
 library(dplyr)
 library(tidyr)
 library(stringr)
 library(lubridate)
-
-AUS_gage_files[[17]]
-
-unlist(strsplit(substr(AUS_gage_files[[1]][c(37:nrow(AUS_gage_files[[1]])), ], 1, 31), "   "))
-
-AUS_split <- strsplit(substr(AUS_gage_files[[1]][c(37:nrow(AUS_gage_files[[1]])), ], 1, 31), "    ")
-AUS_gage_sub <- data.frame(matrix(unlist(AUS_split), nrow=length(AUS_split), byrow=TRUE),
-           stringsAsFactors=FALSE)
-colnames(AUS_gage_sub) <- c("Date", "discharge")
-
-
-AUS_split <- cbind(str_sub(AUS_gage_files[[2]][c(37:nrow(AUS_gage_files[[2]])), ], start = 1, end = 10),
-                       str_sub(AUS_gage_files[[2]][c(37:nrow(AUS_gage_files[[2]])), ], start = -7 ))
-AUS_gage_sub <- as.data.frame(AUS_split)
-colnames(AUS_gage_sub) <- c("Date", "discharge")
-
-
-test_list <- lapply(AUS_gage_files, function(x) data.frame(site_no = str_sub(x[8, ], start = -7),
-                                                       Date = as.Date(str_sub(x[c(37:nrow(x)), ], start = 1, end = 10)),
+# 
+# AUS_gage_files[[254]]
+# 
+# unlist(strsplit(substr(AUS_gage_files[[254]][c(37:nrow(AUS_gage_files[[254]])), ], 1, 31), "   "))
+# 
+# AUS_split <- strsplit(substr(AUS_gage_files[[254]][c(37:nrow(AUS_gage_files[[254]])), ], 1, 31), "    ")
+# AUS_gage_sub <- data.frame(matrix(unlist(AUS_split), nrow=length(AUS_split), byrow=TRUE),
+#            stringsAsFactors=FALSE)
+# colnames(AUS_gage_sub) <- c("Date", "discharge")
+# 
+# ??str_sub
+# # AUS_split <- cbind(str_sub(AUS_gage_files[[254]][c(37:nrow(AUS_gage_files[[254]])), ], start = 1, end = 10),
+# #                        str_sub(AUS_gage_files[[254]][c(37:nrow(AUS_gage_files[[254]])), ], start = -7 ))
+# # AUS_gage_sub <- as.data.frame(AUS_split)
+# # colnames(AUS_gage_sub) <- c("Date", "discharge")
+# ?as_date
+# x <- AUS_gage_files[[252]]
+test_list <- lapply(AUS_gage_xer, function(x) data.frame(site_no = str_sub(x[8, ], start = -7),
+                                                       Date = lubridate::as_date(str_sub(x[c(37:nrow(x)), ], start = 1, end = 10)),
                                                        X_00060_00003 = as.numeric(str_sub(x[c(37:nrow(x)), ], start = -7)),
                                                        dec_lat_va = as.numeric(str_sub(x[12, ], start = -10)),
                                                        dec_long_v = as.numeric(str_sub(x[13, ], start = -9))) )
 str(test_list)
 
 
-test_list$site_no
+
 #?as.data.frame
 # AUS_gage_sub <- lapply(test_list, function(x) as.data.frame(x)) #units are cms cubic meters per second
 AUS_gage_sub <- test_list
@@ -141,11 +146,11 @@ str(AUS_gage_sub)
 head(AUS_gage_sub)
 length(AUS_gage_sub)
 AUS_gage_sub[[6]]$X_00060_00003[AUS_gage_sub[[6]]$X_00060_00003 == 999] #<- NA
-AUS_gage_sub[6]$X_00060_00003[AUS_gage_sub[6]$X_00060_00003 == 999]
+#AUS_gage_sub[6]$X_00060_00003[AUS_gage_sub[6]$X_00060_00003 == 999]
 
 i = 6
 str(data.frame(AUS_gage_sub[[i]][ ,2:3]))
-str(AUS_gage_df[ ,2:3])
+
 
 AUS_gage_sub[[i]][ ,2:3]
 ### GET NAAs----------------------------------------------------------------------------------
@@ -157,13 +162,13 @@ for (i in 1:length(AUS_gage_sub)) {
   # for next time https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/NA
   #is.na(AUS_gage_sub[[i]]$X_00060_00003[AUS_gage_sub[[i]]$X_00060_00003 == 999])
   is.na(AUS_gage_sub[[i]]$X_00060_00003) <- AUS_gage_sub[[i]]$X_00060_00003 == 999
-  AUS_gage_df <- data.frame(AUS_gage_sub[[i]])
-  streamflow <- asStreamflow(AUS_gage_df[ ,2:3], river.name = AUS_gage_df[1,1], max.na = 4500) # Convert raw data to 'asStreamflow' object
+  AUS_gage_df_update <- data.frame(AUS_gage_sub[[i]])
+  streamflow <- asStreamflow(AUS_gage_df_update[ ,2:3], river.name = AUS_gage_df_update[1,1], max.na = 6403) # Convert raw data to 'asStreamflow' object
   summary(streamflow)
   AUS_stream <- fourierAnalysis(streamflow) # Run Fourier on the 'asStreamflow' object
   CompSignal[[i]] <- cbind(AUS_stream$signal, site_no = streamflow$name)
   # Make a file of the main data
-  write.csv(cbind(AUS_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/Individual_AUS_gage_NAA_data/', 'AUS', '_', AUS_gage_df$site_no[1],'.csv'))
+  write.csv(cbind(AUS_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/Individual_AUS_gage_NAA_data/', 'AUS', '_', AUS_gage_df_update$site_no[1],'.csv'))
   # plot characteristic hydrograph
   #   # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
   plot(AUS_stream)
@@ -174,14 +179,14 @@ for (i in 1:length(AUS_gage_sub)) {
 # Make things not a list
 
 signal_daily <- bind_rows(CompSignal)
-# write.csv(signal_daily, file = "Output/NAA/AUS_signal_daily.csv")
+# write.csv(signal_daily, file = "Output/NAA/AUS_signal_daily_update.csv")
 head(AUS_gage_sub)
 df_daily <- bind_rows(AUS_gage_sub)
 str(df_daily)
 head(df_daily)
 unique(df_daily$site_no)
 
-#write.csv(df_daily[,1:3], file = "Output/Discharge_winwatershedfish_AUS.csv")
+#write.csv(df_daily[,1:3], file = "Output/Discharge_winwatershedfish_AUS_update.csv")
 
 CAM_A0020101
 CAM_A0030501 
@@ -192,19 +197,19 @@ CAM_G0060005
 CompSignal_CAM <- list()
 
 # This is not how you're supposed to code....copy paste for every CAM gage
-streamflow <- asStreamflow(CAM_G0060005[ ,c(1,3)], river.name = "G0060005", max.na = 4500) # Convert raw data to 'asStreamflow' object
+streamflow <- asStreamflow(CAM_G0050115[ ,c(1,3)], river.name = "G0050115", max.na = 4500) # Convert raw data to 'asStreamflow' object
 summary(streamflow)
 AUS_stream <- fourierAnalysis(streamflow) # Run Fourier on the 'asStreamflow' object
-CompSignal_CAM[[5]] <- cbind(AUS_stream$signal, site_no = streamflow$name)
+CompSignal_CAM[[4]] <- cbind(AUS_stream$signal, site_no = streamflow$name)
 # Make a file of the main data
-write.csv(cbind(AUS_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/Individual_AUS_gage_NAA_data/', 'AUS', '_', AUS_gage_df$site_no[1],'.csv'))
+  # write.csv(cbind(AUS_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/Individual_AUS_gage_NAA_data/', 'AUS', '_', CompSignal_CAM[[4]]$site_no[1],'.csv'))
 # plot characteristic hydrograph
 #   # dots are daily values, the red line is the long-term seasonal profile (integrates the 3 significant signals)
 plot(AUS_stream)
 
 
 signal_daily2 <- bind_rows(CompSignal, CompSignal_CAM)
-# write.csv(signal_daily2, file = "Output/NAA/AUS_signal_daily_subandCAM.csv")
+# write.csv(signal_daily2, file = "Output/NAA/AUS_signal_daily_subandCAM_update.csv")
 
 ?pivot_longer
 head(df_daily) # the bound AUS_gage_sub
@@ -215,11 +220,11 @@ df_daily[is.na(df_daily$X_00060_00003),]
 CAM2 <- CAM %>% pivot_longer(cols = A0020101:G0060005, names_to = "site_no", values_to = "X_00060_00003")
 CAM3 <- CAM2 %>% dplyr::select(site_no, Date, X_00060_00003)
 is.na(CAM3$X_00060_00003) <- CAM3$X_00060_00003 < 0
-CAM4$X_00060_00003 <- CAM3$X_00060_00003*0.01157
-CAM5 <- CAM4 %>% arrange(site_no, Date)
+CAM3$X_00060_00003 <- CAM3$X_00060_00003*0.01157
+CAM5 <- CAM3 %>% arrange(site_no, Date)
 
 df_daily2 <- bind_rows(df_daily[,1:3], CAM5)
-#write.csv(df_daily2, file = "Output/Discharge_winwatershedfish_AUS_subandCAM.csv")
+#write.csv(df_daily2, file = "Output/Discharge_winwatershedfish_AUS_subandCAM_update.csv")
 
 #################################################################################################################
 ### START HERE IF SKIPPED AHEAD --------------------------------------------------------------------------------
@@ -233,10 +238,9 @@ library(Kendall)
 ??trend
 
 fish_dates <- read.csv("Data/points_daterange_location.csv")
-# USA_subset <- read.csv("Data/from_GIS/Join_fish_gage_5km_USA_update.csv",  row.names = 1,
-#                        colClasses = c(rep(NA, 12), "character", rep(NA, 22)))
-df_daily <- read.csv("Output/Discharge_winwatershedfish_AUS_subandCAM.csv", colClasses = c(NA, "character", rep(NA,3)))
-signal_daily <- read.csv("Output/NAA/AUS_signal_daily_subandCAM.csv", row.names = 1, colClasses = c(rep(NA,12), "character") )
+
+df_daily <- read.csv("Output/Discharge_winwatershedfish_AUS_subandCAM_update.csv", colClasses = c(NA, "character", rep(NA,3)))
+signal_daily <- read.csv("Output/NAA/AUS_signal_daily_subandCAM_update.csv", row.names = 1, colClasses = c(rep(NA,12), "character") )
 str(signal_daily)
 
 
@@ -246,7 +250,7 @@ unique(df_daily2$site_no)
 
 yr_count <- df_daily2 %>% group_by(site_no) %>% summarise(yrs_record = n_distinct(year))
 yr_count
-yr_count[which(yr_count$yrs_record < 30),] # 21 of 22 have long records yay!
+yr_count[which(yr_count$yrs_record < 30),] # 33 of 34 have long records yay!
 
 
 # # What dates do I need for each gage?
@@ -317,7 +321,7 @@ dailydatacount <- df_daily_info %>% group_by(site_no, wyear) %>% summarise(count
                                                                
 dailydatacount[dailydatacount$noflowdays >0, ]
 
-dailydata_10permissing <- subset(dailydatacount, dailydatacount$count < 330) #138 rows
+dailydata_10permissing <- subset(dailydatacount, dailydatacount$count < 330) #75 rows
 
 
 
@@ -340,7 +344,7 @@ str(daily_data_metrics)
 noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
 tail(noflowmets)
 # df.noflowmets <- as.data.frame(noflowmets[noflowmets$wyear >= 1954, ]) #why did I pick 1954?
-# Because first year of fish data is 1954.
+# Because first year of fish data is 1954. But we want 1980
 df.noflowmets <- as.data.frame(noflowmets)
 
 
@@ -354,9 +358,9 @@ noflow_periods_metrics
 
 
 # start with apprpriate metric
-noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "zeroflowfirst_wy") ], wyear) %>% pivot_wider(names_from = site_no, values_from = zeroflowfirst_wy)
+#noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "zeroflowfirst_wy") ], wyear) %>% pivot_wider(names_from = site_no, values_from = zeroflowfirst_wy)
 #noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
-#noflowmets <- arrange(noflow_periods_metrics[ , c("site_no", "wyear", "max_length_noflow") ], wyear) %>% pivot_wider(names_from = site_no, values_from = max_length_noflow)
+noflowmets <- arrange(noflow_periods_metrics[ , c("site_no", "wyear", "max_length_noflow") ], wyear) %>% pivot_wider(names_from = site_no, values_from = max_length_noflow)
 
 tail(noflowmets)
 
@@ -459,7 +463,7 @@ df.noflowmets <- as.data.frame(noflowmets)
 ###################################################################################################################
 ### EXPLORING TRENDS USING NET ANNUAL ANNOMALIES - following similar approach to Temp and Precip data we have 20 Oct 2022
 ####################################################################################################################
-length(unique(signal_daily$site_no)) #==should be 22
+length(unique(signal_daily$site_no)) #==should be 34
 head(signal_daily)
 ?Date
 ??Year

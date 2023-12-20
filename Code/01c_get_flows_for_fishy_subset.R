@@ -12,7 +12,7 @@ library(lmom)
 library(CircStats)
 
 ## Load discharge package
-.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library\\4.0")
+#.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library\\4.0")
 library(discharge)
 
 # If you do not have the package you can download it 
@@ -111,18 +111,18 @@ library(dplyr)
 library(tidyr)
 library(Kendall)
 library(lubridate)
-.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library\\4.0")
-
+#.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library")
+.libPaths()
 
 # fish_dates <- read.csv("Data/points_daterange_location.csv") #Hopefully this didn't change since Mar 2022. What do I use it for?
 USA_subset <- read.csv("Data/fish_flow/gauges_with_hexIDs_Sep2023.csv", row.names = 1,
                        colClasses = c(rep(NA, 4), "character", rep(NA, 4)))
-df_daily <- read.csv("Output/Daily_Discharge_USA_by_HEXID_Sep23.csv", colClasses = c(NA, "character", rep(NA,3)))
+df_daily <- read.csv("Output/Daily_Discharge_USA_by_HEXID_Sep23.csv", row.names = 1, colClasses = c(NA, "character", rep(NA,3)))
 signal_daily <- read.csv("Output/NAA/USA_signal_daily_Sep23.csv", row.names = 1, colClasses = c(rep(NA,12), "character") )
 str(signal_daily)
 
 
-
+head(df_daily)
 
 df_daily2 <- df_daily[ ,1:3]  %>% mutate(year = year(Date))
 str(df_daily2)
@@ -224,6 +224,9 @@ df_daily_info %>% group_by(site_no) %>% summarise(first_yr = min(year),
 library(trend)
 library(ggplot2)
 str(daily_data_metrics)
+write.csv(daily_data_metrics, file = 'Output/daily_data_metrics_USA.csv')
+write.csv(noflow_periods_metrics, file = 'Output/noflow_periods_metrics_USA.csv')
+
 ?sens.slope
 ###### NO FLOW DAYS #######
 

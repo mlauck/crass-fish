@@ -47,6 +47,7 @@ library(dataRetrieval)
 ## Functions like getting water year
 library(smwrBase)
 
+
 ### Other libraries--------------------------------------------------------------
 # Note: some of these libraries may not be necessary
 # code copied from script to calculate Discrete Fast Fourier Transform 
@@ -98,4 +99,86 @@ test.df <- data.frame(matrix(unlist(test_list), nrow=length(test_list), byrow=TR
                       stringsAsFactors=FALSE)
 colnames(test.df) <- c("site_no", "dec_lat_va", "dec_long_va")
 test.df
-write.csv(test.df, file = "Output/Gage_location_AUS.csv")
+# write.csv(test.df, file = "Output/Gage_location_AUS.csv")
+
+
+##### for plotting daily stats hydrograph for BIOME proposal
+library(fasstr)
+library(stringr)
+library(tidyhydat)
+library(lubridate)
+# 254 is 5204251 Darling River gage so is 253. 252 is Paroo river Willara Crossing
+# On AUS site it's 424002 http://www.bom.gov.au/water/hrs/#panel=data-download&id=105105A&pill=daily
+AUS_gage_files
+AUS_split <- cbind(str_sub(AUS_gage_files[[252]][c(37:nrow(AUS_gage_files[[252]])), ], start = 1, end = 10),
+                   str_sub(AUS_gage_files[[252]][c(37:nrow(AUS_gage_files[[252]])), ], start = -7 ))
+AUS_gage_Darling <- as.data.frame(AUS_split)
+colnames(AUS_gage_Darling) <- c("Date", "discharge")
+head(AUS_gage_Darling)
+str(AUS_gage_Darling)
+AUS_gage_Darling$discharge <- as.numeric(AUS_gage_Darling$discharge)
+
+
+plot_daily_stats(AUS_gage_Darling, values = discharge, ignore_missing = TRUE)
+
+# Now for forest/woodlands example in USA
+rawDailyData <-readNWISdv("07249985", parameterCd = "00060")
+head(rawDailyData)
+plot_daily_stats(rawDailyData, dates = Date, values = X_00060_00003, ignore_missing = TRUE)
+
+
+
+rawDailyData <-readNWISdv("07335700", parameterCd = "00060")
+head(rawDailyData)
+plot_daily_stats(rawDailyData, dates = Date, values = X_00060_00003, ignore_missing = TRUE)
+
+# rawDailyData <-readNWISdv("07105945", parameterCd = "00060") #Not looking seasonal
+# head(rawDailyData)
+# plot_daily_stats(rawDailyData, dates = Date, values = X_00060_00003, ignore_missing = TRUE)
+
+# Arctic
+?read.csv
+arctic <- read.csv("Data/ot_gages/daily_20231218T1544.csv", header = FALSE)
+head(arctic) 
+colnames(arctic) <- arctic[2,]
+arctic2 <- arctic[-c(1,2), ]
+
+?plot_daily_stats
+?download_hydat
+?as.Date
+??tidyr::Date
+??lubridate::Date
+download_hydat()
+
+arctic2$date <- as_date(arctic2$Date)
+arctic2$value <- as.numeric(arctic2$Value)
+length(arctic2$value)
+arctic2$value[is.na(arctic2$value) == TRUE] <- 0.00
+plot_daily_stats(arctic2, dates = date, values = value, ignore_missing = TRUE)
+plot_daily_stats(station_number = "10MD002", ignore_missing = TRUE)
+
+# Tropics
+trop <- read.csv("Data/ot_gages/1726100.txt", header = FALSE)
+head(trop)
+tropica <- cbind(str_sub(trop[c(44:nrow(trop)), ], start = 1, end = 10),
+      str_sub(trop[c(44:nrow(trop)), ], start = -15, end = -7 ))
+head(tropica)
+tropica_Be <- as.data.frame(tropica)
+colnames(tropica_Be) <- c("Date", "discharge")
+head(tropica_Be)
+tropica_Be$discharge <- as.numeric(tropica_Be$discharge)
+tropica_Be$discharge[tropica_Be$discharge == "-999"] <- NA
+
+plot_daily_stats(tropica_Be, dates = Date, values = discharge, ignore_missing = TRUE)
+
+# Sub tropical
+# 5101075 subtropical Australia in GRDC is 105105A in AUS gov website
+
+AUS_split2 <- cbind(str_sub(AUS_gage_files[[7]][c(37:nrow(AUS_gage_files[[7]])), ], start = 1, end = 10),
+                   str_sub(AUS_gage_files[[7]][c(37:nrow(AUS_gage_files[[7]])), ], start = -7 ))
+AUS_gage_2 <- as.data.frame(AUS_split2)
+colnames(AUS_gage_2) <- c("Date", "discharge")
+head(AUS_gage_2)
+str(AUS_gage_2)
+AUS_gage_2$discharge <- as.numeric(AUS_gage_2$discharge)
+plot_daily_stats(AUS_gage_2, values = discharge, ignore_missing = TRUE)

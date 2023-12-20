@@ -3,18 +3,20 @@
 # Last update Oct 2023
 
 # libraries
-library(tidyr)
-library(stringr)
-library(ggplot2)
-library(ggpubr)
-library(viridis)
-library(lme4)
-library(lattice)
+
+# library(tidyr)
+# library(stringr)
+# library(ggplot2)
+# library(ggpubr)
+# library(viridis)
+# library(lme4)
+# library(lattice)
 # library(tidyverse)
-library(dplyr)
+# library(dplyr)
 
 # Jane has version machine issues, so this next line is for her
-#.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library\\4.0")
+#?.libPaths
+#.libPaths(new = c("C:/Users/jrogosch/AppData/Local/R/win-library/4.2", "C:/Program Files/R/R-4.2.1/library", "C:/Users/jrogosch/Documents/R/win-library/4.0"))
 
 # load data
 allfish <- read.csv("Data/fish_flow/fish_occurrences_hexIDs_Sep2023.csv", row.names = 1, header = TRUE, fileEncoding="UTF-8-BOM")
@@ -47,6 +49,7 @@ filterID <- list(names.10yr)
 
 # filter only sites with 10+ years of data
 library(data.table)
+library(tidyverse)
 setDT(allfish)
 tenfish_filt <- allfish[filterID, on = "hex_id"]
 
