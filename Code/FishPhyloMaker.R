@@ -3,40 +3,46 @@
 # devtools::install_github("GabrielNakamura/FishPhyloMaker", ref = "main")
 library(FishPhyloMaker)
 library(rfishbase)
+library(curl)
 
-# example
-data(neotropical_comm)
-data_comm <- neotropical_comm[, -c(1, 2)] # removing latitude and longitude
+# # example
+# data(neotropical_comm)
+# data_comm <- neotropical_comm[, -c(1, 2)] # removing latitude and longitude
 
 # load traits data
-allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
+allarid <- read.csv("Data/fishstatus.csv", header = TRUE)
 
 # make a danger fish vector
+allarid$danger <- NA
 allarid$danger <-
-  ifelse(allarid$IUCNstatus2 == "LC" |
-           allarid$IUCNstatus2 == "NE", 0, 1)
+  ifelse(allarid$IUCNstatus == "LC" |
+           allarid$IUCNstatus == "NE"|
+           allarid$IUCNstatus == "DD", 0, 1)
+head(allarid)
+
+mod <- lm(danger ~ endemic, data = allarid)
 
 # # make a vector of fish names
 fish <- allarid[,1]
 
-# # replace space with underscore
-fish2 <- gsub(" ", "_", fish)
-allarid$s <- gsub(" ", "_", allarid$GenusSpecies)
-
-# # what sort of data are they?
-# str(fish)
-# fish2 <- as.factor(fish)
+# # # replace space with underscore
+# fish2 <- gsub(" ", "_", fish)
+# allarid$s <- gsub(" ", "_", allarid$GenusSpecies)
+# 
+# # # what sort of data are they?
+# # str(fish)
+# # fish2 <- as.factor(fish)
 
 # # keep only unique
-fish3 <- unique(fish2)
+fish3 <- unique(fish)
 
 # finds family and order of species in Fishbase
 # example
-taxon_data <- FishTaxaMaker(data_comm, allow.manual.insert = TRUE)
+# taxon_data <- FishTaxaMaker(data_comm, allow.manual.insert = TRUE)
 
 # our data - use in another 
-taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = TRUE)
-taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = FALSE)
+taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = TRUE)
+# taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = FALSE)
 
 # write data
 taxondata <- as.data.frame(taxon_data2$Taxon_data_FishPhyloMaker)
@@ -61,14 +67,7 @@ write.csv(orderdanger, "Data/orderdanger.csv")
 # Joining with `by = join_by(FamCode)`
 # Joining with `by = join_by(Order, Ordnum, Class, ClassNum)`
 # Joining with `by = join_by(Class, ClassNum)`
-# tell the Family of  Oncorhynchus clarkii henshawi
-# Salmonidae
-# tell the Order of  Oncorhynchus clarkii henshawi
-# Salmoniformes
-# tell the Family of  Oncorhynchus clarkii utah
-# Salmonidae
-# tell the Order of  Oncorhynchus clarkii utah
-# Salmoniformes
+
 # tell the Family of  Phoxinus grumi belimiauensis
 # Leuciscidae
 # tell the Order of  Phoxinus grumi belimiauensis
@@ -101,73 +100,25 @@ write.csv(orderdanger, "Data/orderdanger.csv")
 # Leuciscidae
 # tell the Order of  Siphateles bicolor mohavensis
 # Cypriniformes
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
 # 
 # tell the Family of  Gila coriacea
 # Cyprinidae
 # tell the Order of  Gila coriacea
 # Cypriniformes
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
+#
 # tell the Family of  Pantosteus plebeius
 # Catostomidae
 # tell the Order of  Pantosteus plebeius
 # Cypriniformes
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
-# 
-# tell the Family of  NA
-# 
-# tell the Order of  NA
+
 
 
 # Cyprinidon macularis
 ## 
-res_phylo <- FishPhyloMaker(data = taxon_data$Taxon_data_FishPhyloMaker,
-                            insert.base.node = TRUE, 
-                            return.insertions = TRUE, 
-                            progress.bar = TRUE)
+# res_phylo <- FishPhyloMaker(data = taxon_data$Taxon_data_FishPhyloMaker,
+#                             insert.base.node = TRUE, 
+#                             return.insertions = TRUE, 
+#                             progress.bar = TRUE)
 
 res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
                             insert.base.node = TRUE, 
@@ -177,10 +128,227 @@ res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
 
 
 # The output has two objects, a phylogenetic tree that can be directly plot with the following code:
-plot(res_phylo$Phylogeny, cex = 0.7)
+plot(res_phylo2$Phylogeny, cex = 0.4, type = "fan")
+
+plot(res_phylo2$Phylogeny, cex = 0.5, type = "fan")
+
+
 
 # And a data frame indicating at which level the species was inserted (one of the six categories detailed above).
 res_phylo2$Insertions_data
+
+## library
+library(ggtree)
+library(phytools)
+
+# phylogeny to use
+tree.arid <- res_phylo2$Phylogeny
+
+tree.arid <- ape::makeNodeLabel(tree.arid)
+phylo <- tree.arid
+
+# trait data
+danger<-read.csv("Data/fishstatus2.csv",header=TRUE)
+nrow(danger)
+nrow(dplyr::distinct(danger))
+danger2 <- dplyr::distinct(danger, X, .keep_all = TRUE)
+row.names(danger2) <- danger2[,1]
+danger3 <- danger2[,-1]
+
+# set trait example
+# svl<-read.csv("svl.csv",header=TRUE,row.names=1)
+# svl<-setNames(svl[,1],rownames(svl))
+# obj<-contMap(anole.tree,svl,plot=FALSE)
+# obj<-setMap(obj,invert=TRUE)
+# plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
+
+IUCN<-setNames(danger3[,2],rownames(danger3))
+obj<-contMap(phylo,IUCN,plot=FALSE)
+obj<-setMap(obj,invert=TRUE)
+plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
+
+# different lengths, remove the taxa not in tree
+remove_taxa <- setdiff(phylo$tip.label, danger[,1])
+# > remove_taxa 
+# [1] "Hubbsina_turneri"         "Squalomugil_nasutus"      "Awaous_banana"            "Rhonciscus_crocro"       
+# [5] "Pomadasys_argenteus"      "Phoxinus_grumi"           "Rhinichthys_cobitis"      "Catostomus_discobolus"   
+# [9] "Catostomus_clarkii"       "Catostomus_santaanae"     "Catostomus_platyrhynchus" "Neoarius_graeffei"       
+# [13] "Bagre_panamensis" 
+
+# pruned tree
+pruned_tree <- drop.tip(phylo, remove_taxa)
+pruned_tree$tip.label
+
+
+# eel.tree<-read.tree("elopomorph.tre")
+# eel.data<-read.csv("elopomorph.csv",row.names=1)
+# fmode<-as.factor(setNames(eel.data[,1],rownames(eel.data)))
+# dotTree(eel.tree,fmode,colors=setNames(c("blue","red"),
+# #                                        c("suction","bite")),
+# ftype="i",fsize=0.7)
+
+# how to plot with thiaminase presence/absence ----
+# fish.tree<-read.tree("data/fishorder_skeletal.tre")
+# fish.data<-read.csv("data/OrderPresAbsNA.csv",row.names=1)
+# fmode<-as.factor(setNames(fish.data[,1],rownames(fish.data)))
+# dotTree(drop.tip(fish.tree, no_data),
+#         fmode,
+#         colors=setNames(c("white","red"),
+#                         c("absent","present")),
+#         legend = FALSE,
+#         edge.width = 1,
+#         ftype="i",
+#         fsize=0.55,
+#         mar = c(5.1, 4.1, 1.1, 1.1), cex = 0.55)
+# axis(1)
+
+fish.data<-read.csv("Data/fishstatus2.csv", row.names = 1)
+
+mode <- as.factor(setNames(fish.data[,2], rownames(fish.data)))
+dotTree(pruned_tree, x = mode, colors = setNames(c("blue", "red"),
+                                         c("none", "danger")), 
+                                       ftype = "i", fsize = 0.1)
+
+# eel.trees<-make.simmap(eel.tree,fmode,nsim=100)
+danger.trees <- make.simmap(pruned_tree, mode, nsim = 100)
+
+# stochastic mapping ----
+smap.trees <- make.simmap(pruned_tree, mode, 
+                          model = "ER", nsim = 500)
+summary(smap.trees)
+
+obj <-
+  densityMap(smap.trees,
+             states = c("none", "danger"),
+             plot = FALSE)
+plot(
+  obj,
+  type = "fan",
+  lwd = 1,
+  outline = TRUE,
+  fsize = c(0.5, 0.9),
+  legend = 50,
+  invert = TRUE
+)
+pdf('figures/PhylogenyDanger.pdf', height = 11, width = 11)
+cols <- setNames(c("red", "blue"), c("danger", "none"))
+plot(
+  obj,
+  type = "fan",
+  lwd = 1,
+  outline = TRUE,
+  fsize = c(0.5, 0.9),
+  legend = 50,
+  invert = TRUE
+)
+legend("bottomright", c("danger", "none"),
+       pch = 21, pt.bg = cols, pt.cex = 2)
+dev.off()
+
+x <- new("IUCN", 
+         trees = phylo)
+plot.base <-
+  ggtree(smap.trees, layout = "circular") + geom_tiplab2(size = 2, aes(colors = mode))
+print(plot.base)
+
+library(ggplot2)
+library(ggtree)
+
+info <- read.csv("Data/fishstatus.csv")
+
+allarid$danger <-
+  ifelse(allarid$IUCNstatus2 == "LC" |
+           allarid$IUCNstatus2 == "NE", 0, 1)
+
+p <- ggtree(phylo, layout = "circular") %<+% allarid + xlim(-.1, 5)
+p2 <- p + geom_tiplab(offset = 0.2) +
+  geom_tiplab(aes(color = danger)) + 
+  # scale_colorbrewer() +
+  theme(legend.position = "right")
+print(p2)
+
+
+
+## another attempt
+## Load needed packages for this blogpost
+library(phytools)
+library(ggtree)
+library(tidyverse)
+library(scico)
+library(viridisLite)
+
+## Load anole tree
+anole.tree <- read.tree("http://www.phytools.org/eqg2015/data/anole.tre")
+
+## Load anole trait data, extract snout-vent-length (svl) as named vector
+# svl <- read_csv("http://www.phytools.org/eqg2015/data/svl.csv") %>%
+#   mutate(svl = set_names(svl, species)) %>%
+#   pull(svl)
+
+library(magrittr)
+
+stat <- allarid %>%
+  mutate(IUCN = set_names(IUCNstatus, X)) %>%
+  pull(IUCN)
+
+library(ggimage)
+library(ggtree)
+library(TDbook)
+
+# load `tree_boots`, `df_tip_data`, and `df_inode_data` from 'TDbook'
+p <- ggtree(phylo, layout = "circular") %<+% allarid + xlim(-.1, 4)
+p2 <- p + geom_tiplab(offset = .6, hjust = .5) +
+  geom_tippoint(aes(color = endemic)) + 
+  theme(legend.position = "right") + 
+  geom_tiplab2(size = 2)
+
+p <- ggtree(phylo, layout = "circular") + geom_tiplab2(size = 3)
+p
+
+p2 %<+% df_inode_data + 
+  geom_label(aes(label = vernacularName.y, fill = posterior)) + 
+  scale_fill_gradientn(colors = RColorBrewer::brewer.pal(3, "YlGnBu"))
+
+p %<+% danger2 +
+  geom_tiplab2()
+
+# Plot with default color scheme
+# contmap_obj <- contMap(anole.tree, svl, plot = FALSE)
+contmap_obj <- contMap(phylo, stat, plot = FALSE)
+
+plot(
+  contmap_obj, 
+  type="fan", 
+  legend = 0.7*max(nodeHeights(anole.tree)),
+  fsize = c(0.5, 0.7))
+
+## merge data
+# get danger fish
+head(allarid)
+
+library(phyloseq)
+library(ggjoy)
+library(dplyr)
+library(ggtree)
+
+mergedGP <- merge_samples(phylo, allarid)
+mergedGP <- rarefy_even_depth(mergedGP,rngseed=394582)
+mergedGP <- tax_glom(mergedGP,"Order") 
+
+
+PR.PG <- plot1 + geom_hilight(data = df.phylo, aes(node = node.number, fill = Fam.names), 
+                              alpha = .6) +
+  scale_fill_viridis(discrete = T, name = "Family names")
+
+
+
+
+
+
+
+
+
+
 
 ## plot tree
 library(ape)

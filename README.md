@@ -9,6 +9,8 @@
 - 8/25/2023 FER completed biological name verification in ISIS. Notes are stored in [Data/ITIS_name_review.xlsx](Data/ITIS_name_review.xlsx). Replaced 35 species names with updates. 19 fishes couldn't be found. So we assume they're correct I guess?
 - 8/25/2023 FER fixed capitalization in fish_traits.csv. All lower case except proper nouns.
 - 9/1/2023 FER cross-referenced the 19 not found with fishbase.de. Do we delete the entry for unknown fish Phoxinus belimiauensis? Do we not collapse G. nigra and others into G. robusta?
+- 11/3/2023 Gila complex is split again: Katherine E. Bemis, Thomas E. Dowling, Héctor S. Espinosa-Pérez, Lloyd T. Findley, Carter R. Gilbert, Karsten E. Hartel, Robert N. Lea, Nicholas E. Mandrak, Margaret A. Neighbors, Juan J. Schmitter-Soto, and H. J. Walker, Jr. 2023. Common and Scientific Names of Fishes from the United States, Canada, and Mexico, 8th edition. https://doi.org/10.47886/9781934874691. ISBN 978-1-934874-69-1 AFS Stock 51037C, Special Publication 37
+--> Reverted to original names. 
 
 Check back later for more info as project develops
 
