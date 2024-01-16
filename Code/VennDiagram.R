@@ -142,7 +142,11 @@ IUCN <-
   subset(dangerfish,
          select = c (GenusSpecies, list1, list2, list3, list4, list5))
 
-
+# figure out how many have multiple reasons
+reasons <- IUCN %>%
+  mutate(reason_sum = rowSums(across(c(list1, list2, list3, list4, list5))))
+  # group_by(GenusSpecies) %>%
+  # mutate(sum = rowSums(.[,2:6]))
 
 # ggvenn
 str(IUCN)
