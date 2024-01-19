@@ -3,7 +3,9 @@
 # libraries
 library(ggplot2)
 library(ggvenn)
-
+library(coin)
+library(rcompanion)
+library(FSA)
 
 # load traits data
 traits <- read.csv("Data/allaridtraits.csv", header = TRUE)
@@ -48,31 +50,20 @@ ggplot(aes(y = maxtl_cm, x = danger, group = danger), data = traits) +
   theme_bw(base_size = 14)
 summary(lm(maxtl_cm ~ danger, traits))
 
-# try a ggridge plot for kicks
-traits %>%
-  mutate(IUCNstatus = reorder(c("LC", "NE", "VU", "EN", "CR", "EX"))) %>%
-  ggplot(aes(y = IUCNstatus)) +
-  geom_density_ridges(
-    aes(x = maxtl_cm, fill = paste(YearFct, Option)), 
-    alpha = .8, color = "white", from = 0, to = 100
-  ) +
-  labs(
-    x = "Vote (%)",
-    y = "Election Year",
-    title = "Indy vs Unionist vote in Catalan elections",
-    subtitle = "Analysis unit: municipalities (n = 949)",
-    caption = "Marc Belzunces (@marcbeldata) | Source: Idescat"
-  ) +
-  scale_y_discrete(expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_fill_cyclical(
-    breaks = c("1980 Indy", "1980 Unionist"),
-    labels = c(`1980 Indy` = "Indy", `1980 Unionist` = "Unionist"),
-    values = c("#ff0000", "#0000ff", "#ff8080", "#8080ff"),
-    name = "Option", guide = "legend"
-  ) +
-  coord_cartesian(clip = "off") +
-  theme_ridges(grid = FALSE)
+# permutation test
+permtest <- oneway_test(maxtl_cm ~ as.factor(danger), data = traits, nresample = 10000)
+permtest
+
+
+PT <- pairwisePermutationTest(maxtl_cm ~ as.factor(danger),
+                              data = traits,
+                              method="fdr")
+
+PT
+
+cldList(p.adjust ~ Comparison,
+        data = PT,
+        threshold  = 0.05)
 
 # trophic level ----
 TLplot <- ggplot(rest, aes(x = FoodTroph), fill = "darkblue") +
@@ -92,6 +83,9 @@ ggplot(aes(y = FoodTroph, x = danger, group = danger), data = traits) +
   geom_boxplot() +
   theme_bw(base_size = 14)
 summary(lm(FoodTroph ~ danger, traits))
+
+permtest <- oneway_test(FoodTroph ~ as.factor(danger), data = traits, nresample = 10000)
+permtest
 
 # longevity ----
 ageplot <- ggplot(rest, aes(x = longevity), fill = "darkblue") +
@@ -113,10 +107,13 @@ ggplot(aes(y = longevity, x = danger, group = danger), data = traits) +
   theme_bw(base_size = 14)
 summary(lm(log(longevity) ~ danger, traits))
 
+permtest <- oneway_test(longevity ~ as.factor(danger), data = traits, nresample = 10000)
+permtest
+
 # combined traits
 arid_v_danger_hist <- ggpubr::ggarrange(
-  ageplot,
   length,
+  ageplot,
   TLplot,
   nrow = 3,
   ncol = 1,
@@ -130,7 +127,7 @@ arid_v_danger_hist
 ggsave(
   arid_v_danger_hist,
   filename = "figures/traithistograms_onlyarid.png",
-  dpi = 300,
+  dpi = 600,
   height = 12,
   width = 5
 )
