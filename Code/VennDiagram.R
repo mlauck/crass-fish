@@ -8,7 +8,12 @@ library(rcompanion)
 library(FSA)
 
 # load traits data
-traits <- read.csv("Data/allaridtraits.csv", header = TRUE)
+# traits <- read.csv("Data/allaridtraits.csv", header = TRUE)
+
+traits <- read.csv("FinalData/Traits_MatchedWithOccurrence.csv", header = TRUE)
+
+# IUCN status as factor
+traits$IUCNstatus <- as.factor(traits$IUCNstatus)
 
 # make a danger fish vector
 traits$danger <- NA
@@ -41,6 +46,8 @@ length <- ggplot(rest, aes(x = maxtl_cm), fill = "darkblue") +
     binwidth = 5
   ) +
   theme_bw(base_size = 14) +
+  theme (panel.grid.major = element_blank (),
+         panel.grid.minor = element_blank()) +
   scale_x_continuous(limits = c(0, 200))
 length
 
@@ -75,7 +82,8 @@ TLplot <- ggplot(rest, aes(x = FoodTroph), fill = "darkblue") +
     fill = "gold",
     binwidth = 0.2
   ) +
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 14) +
+  theme (panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 TLplot
 
 # danger fish do not differ in diet
@@ -98,7 +106,8 @@ ageplot <- ggplot(rest, aes(x = longevity), fill = "darkblue") +
     binwidth = 5
   ) +
   scale_x_continuous(limits = c(0, 110)) +
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 14) +
+  theme (panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 ageplot
 
 # danger fish do not differ in longevity
@@ -150,7 +159,7 @@ str(IUCN)
 # IUCN$list1 <- IUCN$Habitat
 
 IUCN$GenusSpecies <- as.factor(IUCN$GenusSpecies)
-ggplot(IUCN, aes(
+venn <- ggplot(IUCN, aes(
   A = list1,
   B = list5,
   C = list3,
@@ -164,3 +173,4 @@ ggplot(IUCN, aes(
     set_names = c("Habitat", "Small range", "Disease", "Other factors")
   ) +
   theme_void()
+ggsave(venn, filename = "figures/VennDiagram.png", dpi = 400, width = 9, height = 6)
