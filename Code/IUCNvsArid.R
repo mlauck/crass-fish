@@ -18,7 +18,7 @@ library(data.table)
 
 # load data
 allIUCN <- read.csv("Data/IUCNassessments.csv", header = TRUE)
-allarid <- read.csv("Data/fish_traits.csv", header = TRUE)
+allarid <- read.csv("FinalData/Traits_MatchedWithOccurrence.csv", header = TRUE)
 
 # get trophic level
 fish <- allarid[,1]
@@ -32,7 +32,7 @@ allarid <- merge(allarid, food, by.x = "GenusSpecies", by.y = "Species")
 allarid$location2 <- as.factor(allarid$location2)
 
 # # save these data
-# write.csv(allarid, "data/allaridtraits.csv")
+write.csv(allarid, "FinalData/Traits_MatchedWithOccurrence.csv")
 
 # summarize the arid fish data
 summary <- allarid %>%
