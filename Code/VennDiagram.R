@@ -10,7 +10,7 @@ library(FSA)
 # load traits data
 # traits <- read.csv("Data/allaridtraits.csv", header = TRUE)
 
-traits <- read.csv("FinalData/Traits_MatchedWithOccurrence.csv", header = TRUE)
+traits <- read.csv("FinalData/Traits_MatchedWithOccurancePlusTrophic.csv", header = TRUE)
 
 # IUCN status as factor
 traits$IUCNstatus <- as.factor(traits$IUCNstatus)
@@ -122,8 +122,8 @@ permtest
 # combined traits
 arid_v_danger_hist <- ggpubr::ggarrange(
   length,
-  ageplot,
   TLplot,
+  ageplot,
   nrow = 3,
   ncol = 1,
   align = "hv",
