@@ -10,7 +10,7 @@ library(curl)
 # data_comm <- neotropical_comm[, -c(1, 2)] # removing latitude and longitude
 
 # load traits data
-allarid <- read.csv("Data/fishstatus.csv", header = TRUE)
+allarid <- read.csv("FinalData/Traits_MatchedWithOccurancePlusTrophic.csv", header = TRUE)
 
 # make a danger fish vector
 allarid$danger <- NA
@@ -34,91 +34,29 @@ fish <- allarid[,1]
 # # fish2 <- as.factor(fish)
 
 # # keep only unique
-fish3 <- unique(fish)
+# fish3 <- unique(fish)
 
 # finds family and order of species in Fishbase
 # example
 # taxon_data <- FishTaxaMaker(data_comm, allow.manual.insert = TRUE)
 
-# our data - use in another 
-taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = TRUE)
-# taxon_data2 <- FishTaxaMaker(fish3, allow.manual.insert = FALSE)
+# our data - allowing manual insert. None needed here.
+taxon_data2 <- FishTaxaMaker(fish, allow.manual.insert = TRUE)
 
-# write data
-taxondata <- as.data.frame(taxon_data2$Taxon_data_FishPhyloMaker)
-
-taxondata2 <- left_join(allarid, taxondata, by = "s")
-
-orderdanger <- taxondata2 |>
-  group_by(o) |>
-  summarise(prop.dang = mean(danger), na.omit = TRUE)
-
-  
-write.csv(taxondata2, "Data/taxondata.csv")
-write.csv(orderdanger, "Data/orderdanger.csv")
-
-## Families and orders
-# > taxon_data2 <- FishTaxaMaker(fish2, allow.manual.insert = TRUE)
-# Joining with `by = join_by(Subfamily, GenCode, FamCode)`
-# Joining with `by = join_by(FamCode)`
-# Joining with `by = join_by(Order, Ordnum, Class, ClassNum)`
-# Joining with `by = join_by(Class, ClassNum)`
-# Joining with `by = join_by(Subfamily, GenCode, FamCode)`
-# Joining with `by = join_by(FamCode)`
-# Joining with `by = join_by(Order, Ordnum, Class, ClassNum)`
-# Joining with `by = join_by(Class, ClassNum)`
-
-# tell the Family of  Phoxinus grumi belimiauensis
-# Leuciscidae
-# tell the Order of  Phoxinus grumi belimiauensis
-# Cypriniformes
-# tell the Family of  Phoxinus czekanowskiifresh
-# Leuciscidae
-# tell the Order of  Phoxinus czekanowskiifresh
-# Cypriniformes
-# tell the Family of  Gila alutacea
-# Cyprinidae
-# tell the Order of  Gila alutacea
-# Cypriniformes
-# tell the Family of  Pantosteus plebeius
-# Catostomidae
-# tell the Order of  Pantosteus plebeius
-# Cypriniformes
-# tell the Family of  Cyprinodon macularis
-# Cyprinodontidae
-# tell the Order of  Cyprinodon macularis
-# Cyprinodontiformes
-# tell the Family of  Cyprinodon pisterti
-# Cyprinodontidae
-# tell the Order of  Cyprinodon pisterti
-# Cyprinodontiformes
-# tell the Family of  NA
+# # write data
+# taxondata <- as.data.frame(taxon_data2$Taxon_data_FishPhyloMaker)
 # 
-# tell the Order of  NA
+# taxondata2 <- dplyr::left_join(allarid, taxondata, by = "s")
 # 
-# tell the Family of  Siphateles bicolor mohavensis
-# Leuciscidae
-# tell the Order of  Siphateles bicolor mohavensis
-# Cypriniformes
-# 
-# tell the Family of  Gila coriacea
-# Cyprinidae
-# tell the Order of  Gila coriacea
-# Cypriniformes
-#
-# tell the Family of  Pantosteus plebeius
-# Catostomidae
-# tell the Order of  Pantosteus plebeius
-# Cypriniformes
+# orderdanger <- taxondata2 |>
+#   group_by(o) |>
+#   summarise(prop.dang = mean(danger), na.omit = TRUE)
+
+#   
+# write.csv(taxondata2, "Data/taxondata.csv")
+# write.csv(orderdanger, "Data/orderdanger.csv")
 
 
-
-# Cyprinidon macularis
-## 
-# res_phylo <- FishPhyloMaker(data = taxon_data$Taxon_data_FishPhyloMaker,
-#                             insert.base.node = TRUE, 
-#                             return.insertions = TRUE, 
-#                             progress.bar = TRUE)
 
 res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
                             insert.base.node = TRUE, 
@@ -126,15 +64,15 @@ res_phylo2 <- FishPhyloMaker(data = taxon_data2$Taxon_data_FishPhyloMaker,
                             progress.bar = TRUE)
 
 
-
-# The output has two objects, a phylogenetic tree that can be directly plot with the following code:
+# The output has two objects, a phylogenetic tree 
+# that can be directly plotted with the following code:
 plot(res_phylo2$Phylogeny, cex = 0.4, type = "fan")
 
 plot(res_phylo2$Phylogeny, cex = 0.5, type = "fan")
 
 
-
-# And a data frame indicating at which level the species was inserted (one of the six categories detailed above).
+# And a data frame indicating at which level the species was 
+# inserted (one of the six categories detailed above).
 res_phylo2$Insertions_data
 
 ## library
@@ -147,33 +85,31 @@ tree.arid <- res_phylo2$Phylogeny
 tree.arid <- ape::makeNodeLabel(tree.arid)
 phylo <- tree.arid
 
-# trait data
-danger<-read.csv("Data/fishstatus2.csv",header=TRUE)
-nrow(danger)
-nrow(dplyr::distinct(danger))
-danger2 <- dplyr::distinct(danger, X, .keep_all = TRUE)
-row.names(danger2) <- danger2[,1]
-danger3 <- danger2[,-1]
+# # trait data
+danger<-read.csv("FinalData/fishstatus3.csv",header=TRUE)
+# nrow(danger)
+# nrow(dplyr::distinct(danger))
+# # danger2 <- dplyr::distinct(danger, X, .keep_all = TRUE)
+# row.names(danger) <- danger[,1]
+# danger2 <- danger[,-1]
 
+## old code I'm not using
 # set trait example
 # svl<-read.csv("svl.csv",header=TRUE,row.names=1)
 # svl<-setNames(svl[,1],rownames(svl))
 # obj<-contMap(anole.tree,svl,plot=FALSE)
 # obj<-setMap(obj,invert=TRUE)
 # plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
-
-IUCN<-setNames(danger3[,2],rownames(danger3))
-obj<-contMap(phylo,IUCN,plot=FALSE)
-obj<-setMap(obj,invert=TRUE)
-plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
+# 
+# IUCN<-setNames(danger2[,3],rownames(danger2))
+# obj<-contMap(phylo,IUCN,plot=FALSE)
+# obj<-setMap(obj,invert=TRUE)
+# plot(obj,fsize=c(0.4,1),outline=FALSE,lwd=c(3,7),leg.txt="log(SVL)")
 
 # different lengths, remove the taxa not in tree
 remove_taxa <- setdiff(phylo$tip.label, danger[,1])
-# > remove_taxa 
-# [1] "Hubbsina_turneri"         "Squalomugil_nasutus"      "Awaous_banana"            "Rhonciscus_crocro"       
-# [5] "Pomadasys_argenteus"      "Phoxinus_grumi"           "Rhinichthys_cobitis"      "Catostomus_discobolus"   
-# [9] "Catostomus_clarkii"       "Catostomus_santaanae"     "Catostomus_platyrhynchus" "Neoarius_graeffei"       
-# [13] "Bagre_panamensis" 
+# 
+# [1] "Percalates_novemaculeatus" "Chelonodontops_patoca" 
 
 # pruned tree
 pruned_tree <- drop.tip(phylo, remove_taxa)
@@ -202,25 +138,54 @@ pruned_tree$tip.label
 #         mar = c(5.1, 4.1, 1.1, 1.1), cex = 0.55)
 # axis(1)
 
-fish.data<-read.csv("Data/fishstatus2.csv", row.names = 1)
+fish.data<-read.csv("FinalData/fishstatus3.csv", row.names = 1)
 
-mode <- as.factor(setNames(fish.data[,2], rownames(fish.data)))
+mode <- as.factor(setNames(fish.data[,3], rownames(fish.data)))
 dotTree(pruned_tree, x = mode, colors = setNames(c("blue", "red"),
                                          c("none", "danger")), 
-                                       ftype = "i", fsize = 0.1)
+                                       ftype = "i", fsize = 0.4)
 
-# eel.trees<-make.simmap(eel.tree,fmode,nsim=100)
-danger.trees <- make.simmap(pruned_tree, mode, nsim = 100)
+# # eel.trees<-make.simmap(eel.tree,fmode,nsim=100)
+# danger.trees <- make.simmap(pruned_tree, mode, nsim = 100)
+# 
 
 # stochastic mapping ----
 smap.trees <- make.simmap(pruned_tree, mode, 
                           model = "ER", nsim = 500)
 summary(smap.trees)
 
-obj <-
-  densityMap(smap.trees,
-             states = c("none", "danger"),
-             plot = FALSE)
+# obj <-
+#   densityMap(smap.trees,
+#              states = c("none", "danger"),
+#              plot = FALSE)
+
+obj<-describe.simmap(smap.trees,plot=FALSE)
+obj
+
+plot(obj,type="fan")
+cols <- c("red","white")
+add.simmap.legend(colors=cols,x=0.9*par()$usr[1],
+                  y=0.9*par()$usr[4],prompt=FALSE)
+
+cols<-setNames(c("#fee6ce","#de2d26"),
+               c("none","concern"))
+
+plotSimmap(
+  smap.trees[[1]],
+  cols,
+  fsize = 0.5,
+  type = "fan"
+)
+
+obj <- densityMap(
+  smap.trees,
+  type = "fan",
+  fsize = 0.6,
+  cols,
+  lwd = 2,
+  outline = TRUE
+)
+
 plot(
   obj,
   type = "fan",
@@ -248,7 +213,10 @@ dev.off()
 x <- new("IUCN", 
          trees = phylo)
 plot.base <-
-  ggtree(smap.trees, layout = "circular") + geom_tiplab2(size = 2, aes(colors = mode))
+  ggtree(smap.trees, 
+         layout = "circular") +
+  geom_tree(color = mode) + 
+  geom_tiplab2(size = 2)
 print(plot.base)
 
 library(ggplot2)

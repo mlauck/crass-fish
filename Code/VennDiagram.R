@@ -25,6 +25,8 @@ traits$danger <-
          1)
 head(traits)
 
+# write.csv(traits, "Data/fishstatus3.csv")
+
 # only danger
 dangerfish <- traits %>%
   filter(danger == 1)
