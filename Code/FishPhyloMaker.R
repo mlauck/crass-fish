@@ -188,23 +188,24 @@ obj <- densityMap(
 
 plot(
   obj,
+  cols,
   type = "fan",
   lwd = 1,
   outline = TRUE,
   fsize = c(0.5, 0.9),
-  legend = 50,
+  # legend = 50,
   invert = TRUE
 )
 pdf('figures/PhylogenyDanger.pdf', height = 11, width = 11)
 cols <- setNames(c("red", "blue"), c("danger", "none"))
 plot(
   obj,
+  cols,
   type = "fan",
   lwd = 1,
   outline = TRUE,
   fsize = c(0.5, 0.9),
-  legend = 50,
-  invert = TRUE
+
 )
 legend("bottomright", c("danger", "none"),
        pch = 21, pt.bg = cols, pt.cex = 2)
@@ -215,7 +216,7 @@ x <- new("IUCN",
 plot.base <-
   ggtree(smap.trees, 
          layout = "circular") +
-  geom_tree(color = mode) + 
+  geom_tree(aes(cols)) + 
   geom_tiplab2(size = 2)
 print(plot.base)
 
