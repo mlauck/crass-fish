@@ -173,10 +173,12 @@ barplot <- ggplot(alldata, aes(x = IUCNstatus, y = prop, group = source)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 6)) +
   ylab("Proportion of all fishes") +
   xlab("IUCN status") +
-  scale_fill_viridis_d(name = "Source",
-                       begin = 0.7,
-                       end = 0.4,
-                       option = "inferno") +
+  scale_fill_manual(name = "Source",
+                    values = c("#f7d13d","#1b0c41")) +
+  # scale_fill_viridis_d(name = "Source",
+  #                      begin = .9,
+  #                      end = 0.35,
+  #                      option = "inferno") +
   theme_bw(base_size = 14) +
   theme(
     panel.grid.major.y = element_blank(),

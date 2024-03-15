@@ -38,18 +38,24 @@ rest <- traits %>%
 
 # make histograms comparing
 # length ----
-length <- ggplot(rest, aes(x = maxtl_cm), fill = "darkblue") +
-  geom_histogram(binwidth = 5) +
+length <- ggplot(rest, aes(x = maxtl_cm)) +
+  geom_histogram(binwidth = 5,
+                 fill = "#f7d13d") +
   xlab("Maximum total length (cm)") +
   geom_histogram(
     data = dangerfish,
     aes(x = maxtl_cm),
-    fill = "gold",
+    fill = "#a52c60",
     binwidth = 5
   ) +
+  ylab("Count") +
   theme_bw(base_size = 14) +
-  theme (panel.grid.major = element_blank (),
-         panel.grid.minor = element_blank()) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  ) +
   scale_x_continuous(limits = c(0, 200))
 length
 
@@ -75,17 +81,24 @@ cldList(p.adjust ~ Comparison,
         threshold  = 0.05)
 
 # trophic level ----
-TLplot <- ggplot(rest, aes(x = FoodTroph), fill = "darkblue") +
-  geom_histogram(binwidth = 0.2) +
+TLplot <- ggplot(rest, aes(x = FoodTroph)) +
+  geom_histogram(binwidth = 0.2,
+                 fill = "#f7d13d") +
   xlab("Trophic level estimate") +
   geom_histogram(
     data = dangerfish,
     aes(x = FoodTroph),
-    fill = "gold",
+    fill = "#a52c60",
     binwidth = 0.2
   ) +
+  ylab("Count") +
   theme_bw(base_size = 14) +
-  theme (panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
 TLplot
 
 # danger fish do not differ in diet
@@ -98,18 +111,24 @@ permtest <- oneway_test(FoodTroph ~ as.factor(danger), data = traits, nresample 
 permtest
 
 # longevity ----
-ageplot <- ggplot(rest, aes(x = longevity), fill = "darkblue") +
-  geom_histogram(binwidth = 5) +
+ageplot <- ggplot(rest, aes(x = longevity)) +
+  geom_histogram(binwidth = 5,
+                 fill = "#f7d13d") +
   xlab("Maximum longevity (yrs)") +
   geom_histogram(
     data = dangerfish,
     aes(x = longevity),
-    fill = "gold",
+    fill = "#a52c60",
     binwidth = 5
   ) +
   scale_x_continuous(limits = c(0, 110)) +
   theme_bw(base_size = 14) +
-  theme (panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
 ageplot
 
 # danger fish do not differ in longevity
