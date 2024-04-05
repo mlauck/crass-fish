@@ -292,6 +292,7 @@ print(anolprecipmulti)
 
 
 ### multi of multi
+# work on cowplot https://genchanghsu.github.io/ggGallery/posts/2021-12-20-post-9-arrange-multiple-ggplots/
 ## make multipanel
 anolmulti <- ggarrange(anoltempmulti + labs(x = ""),
                        anolprecipmulti,
