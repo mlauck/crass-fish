@@ -1,9 +1,9 @@
 ##### Precipitation data
 ## Code by FER
-## last edit 10/27/2022
+## last edit April 2024
 
 # load data
-dailyprecip <- read.csv("~/Repositories/LargeData/Total_daily_precip_hex_centroids_1979-2022_0.1dd.csv", header = TRUE)
+dailyprecip <- read.csv("~/Repositories/LargeData/Total_daily_precip_Feb2024.csv", header = TRUE)
 
 # load libraries
 library(dplyr)
@@ -21,10 +21,11 @@ dailyprecip2 <- dailyprecip %>%
 
 # separate US and AUS gages
 AUSprecip <- dailyprecip2 %>%
-  filter(latitude < 0)
+  filter(longitude > 0)
 
 USprecip <- dailyprecip2 %>%
-  filter(latitude > 0)
+  filter(longitude < 0)
+
 
 # convert from wide to long format using dplyr
 preciplongAUS <- AUSprecip %>%
@@ -46,8 +47,8 @@ USprecipUSE <- preciplongUS
 
 
 # make habitat and site factors
-AUSprecipUSE$hex.id <- as.factor(AUSprecipUSE$hex.id)
-USprecipUSE$hex.id <- as.factor(USprecipUSE$hex.id)
+AUSprecipUSE$hex.id <- as.factor(AUSprecipUSE$X)
+USprecipUSE$hex.id <- as.factor(USprecipUSE$X)
 
 # extract month from date 
 # format = X1979.01.01
@@ -64,7 +65,7 @@ USprecipUSE2 <- na.omit(USprecipUSE)
 
 ### calculate precipitation variables of interest ----
 AUSprecipUSE3 <- AUSprecipUSE2 %>%
-  group_by(hex.id, latitude, year) %>%
+  group_by(hex.id, longitude, year) %>%
   summarise(total = sum(Precip, na.rm = TRUE),
             intensity = sum(Precip/n(), na.rm = TRUE),
             zeroDays = sum(Precip == 0, na.rm = TRUE))
@@ -72,7 +73,7 @@ AUS2007 <- AUSprecipUSE3 %>%
   filter(year > 2006)
 
 USprecipUSE3 <- USprecipUSE2 %>%
-  group_by(hex.id, latitude, year) %>%
+  group_by(hex.id, longitude, year) %>%
   summarise(total = sum(Precip, na.rm = TRUE),
             intensity = sum(Precip/n(), na.rm = TRUE),
             zeroDays = sum(Precip == 0, na.rm = TRUE))
@@ -108,6 +109,7 @@ AUSprecip <- AUSprecipUSE4 %>%
   scale_fill_viridis_c(name = "Total precipitation (mm)", direction = -1) +
   geom_boxplot(aes(fill = mean.precip)) +
   theme_classic(base_size = 14) +
+  ylim(0,2400) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   #ylab("Total annual precip (mm)") +
@@ -123,11 +125,12 @@ USprecip <- USprecipUSE3 %>%
   ggplot( aes(x = year, y = total, group = year)) +
   scale_fill_viridis_c(name = "Total precipitation (mm)", direction = -1) +
   geom_boxplot(aes(fill = mean.precip)) +
+  ylim(0,2400) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   ylab("Total annual precip (mm)") +
-  ggtitle("United States annual precitation")
+  ggtitle("United States annual precipitation")
 print(USprecip)
 # ggsave(USprecip, filename = "figures/USannualprecip_box.png", dpi = 300, height = 6, width = 8)
 
@@ -148,9 +151,10 @@ AUSanol <- AUSprecipUSE4 %>%
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
   ggplot( aes(x = year, y = anol, group = year)) +
-  scale_fill_viridis_c(name = "Precip anomaly", direction = -1, option = "plasma") +
+  scale_fill_viridis_c(name = "Precip anomaly", direction = -1) +
   geom_boxplot(aes(fill = mean.anol)) +
   theme_classic(base_size = 14) +
+  ylim(-800, 1250) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   #ylab("Total precip anomaly (mm)") +
@@ -165,12 +169,13 @@ USanol <- USprecipUSE4 %>%
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
   ggplot( aes(x = year, y = anol, group = year)) +
-  scale_fill_viridis_c(name = "Avg anomaly (mm)", direction = -1, option = "plasma") +
+  scale_fill_viridis_c(name = "Avg anomaly (mm)", direction = -1) +
   geom_boxplot(aes(fill = mean.anol)) +
+  ylim(-800, 1250) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
-  ylab("Annual anomaly (mm)") +
+  ylab("Annual precipitation anomaly (mm)") +
   ggtitle("United States anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 print(USanol)
@@ -194,6 +199,7 @@ AUSprecip2 <- AUSprecipUSE3 %>%
   scale_fill_viridis_c(name = "Avg zero days", direction = 1) +
   geom_boxplot(aes(fill = mean.zero)) +
   theme_classic(base_size = 14) +
+  ylim(0, 350) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   # ylab("Total number of zero precip days") +
@@ -208,6 +214,7 @@ USprecip2 <- USprecipUSE3 %>%
   ggplot( aes(x = year, y = zeroDays, group = year)) +
   scale_fill_viridis_c(name = "Avg zero days", direction = 1) +
   geom_boxplot(aes(fill = mean.zero)) +
+  ylim(0, 350) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
@@ -238,11 +245,12 @@ AUSprecipint <- AUSprecipUSE3 %>%
   group_by(year) %>% 
   mutate(mean.zero= mean(intensity)) %>% 
   ggplot( aes(x = year, y = intensity, group = year)) +
-  scale_fill_viridis_c(name = "Average intensity", direction = 1, option = "plasma") +
+  scale_fill_viridis_c(name = "Average intensity", direction = 1) +
   geom_boxplot(aes(fill = mean.zero)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
+  ylim(0, 18) +
   # ylab("Precipitation intensity (total/days with rain)") +
   ylab("") +
   ggtitle("Australia precipitation intensity")
@@ -254,12 +262,13 @@ USprecipint <- USprecipUSE3 %>%
   group_by(year) %>% 
   mutate(mean.zero= mean(intensity)) %>% 
   ggplot( aes(x = year, y = intensity, group = year)) +
-  scale_fill_viridis_c(name = "Avg intensity", direction = 1, option = "plasma") +
+  scale_fill_viridis_c(name = "Avg intensity", direction = 1) +
   geom_boxplot(aes(fill = mean.zero)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
-  ylab("Intensity (total/days with rain)") +
+  ylim(0, 18) +
+  ylab("Intensity (total mm/days with rain)") +
   ggtitle("United States precipitation intensity")
 print(USprecipint)
 # ggsave(USprecipint, filename = "figures/USprecipint_box.png", dpi = 300, height = 6, width = 8)
@@ -288,7 +297,7 @@ precipall <- ggarrange(
   common.legend = FALSE
 )
 precipall
-ggsave(precipall, filename = "figures/allprecip.png", dpi = 300, height = 16, width = 14)
+ggsave(precipall, filename = "figures/allprecip.png", dpi = 300, height = 17, width = 15)
 
 ## summer precip ----
 

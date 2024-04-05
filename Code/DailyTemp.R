@@ -1,5 +1,9 @@
-# climate data for AUS
-# dailytemp <- read.csv("~/Repositories/LargeData/Avg_daily_temp_fish_sites_1979-2022_NAremoved.csv", header = TRUE)
+##### Temperature data
+## Code by FER
+## last edit April 2024
+
+
+# climate data
 dailytemp <- read.csv("~/Repositories/LargeData/Avg_daily_temp_Feb2024_NAremoved.csv", header = TRUE)
 
 
