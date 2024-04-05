@@ -241,12 +241,12 @@ print(anoltempmulti)
 ## plot anomaly in annual precip
 AUSprecipanol <- AUSprecipUSE4 %>% 
   group_by(year) %>% 
-  mutate(mean.anol= mean(anol)) %>% 
-  ggplot( aes(x = year, y = anol, group = year)) +
-  scale_fill_viridis_c(name = "Precip anomaly", direction = -1) +
+  mutate(mean.anol= mean(anol)/10) %>% 
+  ggplot( aes(x = year, y = anol/10, group = year)) +
+  scale_fill_viridis_c(name = "Anomaly", direction = -1) +
   geom_boxplot(aes(fill = mean.anol)) +
   theme_classic(base_size = 14) +
-  ylim(-800, 1250) +
+  ylim(-80, 125) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   #ylab("Total precip anomaly (mm)") +
@@ -259,15 +259,15 @@ print(AUSprecipanol)
 
 USprecipanol <- USprecipUSE4 %>% 
   group_by(year) %>% 
-  mutate(mean.anol= mean(anol)) %>% 
-  ggplot( aes(x = year, y = anol, group = year)) +
+  mutate(mean.anol= mean(anol)/10) %>% 
+  ggplot( aes(x = year, y = anol/10, group = year)) +
   scale_fill_viridis_c(name = "Anomaly", direction = -1) +
   geom_boxplot(aes(fill = mean.anol)) +
-  ylim(-800, 1250) +
+  ylim(-80.0, 125.0) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
-  ylab("Annual precipitation anomaly (mm)") +
+  ylab("Annual precipitation anomaly (cm)") +
   # ggtitle("United States anomaly") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1)
 print(USprecipanol)
@@ -292,6 +292,7 @@ print(anolprecipmulti)
 
 
 ### multi of multi
+
 # work on cowplot https://genchanghsu.github.io/ggGallery/posts/2021-12-20-post-9-arrange-multiple-ggplots/
 ## make multipanel
 anolmulti <- ggarrange(anoltempmulti + labs(x = ""),
@@ -302,4 +303,4 @@ anolmulti <- ggarrange(anoltempmulti + labs(x = ""),
                        common.legend = FALSE,
                        legend = "right") 
 print(anolmulti)
-ggsave(anolmulti, filename = "figures/Fig2.png", dpi = 450, height = 9, width = 12)
+ggsave(anolmulti, filename = "figures/Fig2.png", dpi = 450, height = 9, width = 14)
