@@ -304,3 +304,67 @@ anolmulti <- ggarrange(anoltempmulti + labs(x = ""),
                        legend = "right") 
 print(anolmulti)
 ggsave(anolmulti, filename = "figures/Fig2.png", dpi = 450, height = 9, width = 14)
+
+
+
+
+### AUS flow
+AUS_NAA <-
+  read.csv("~/Repositories/crass-fish/FinalData/AUS_NAA_Jan24.csv", row.names = 1, colClasses = c("character", rep(NA, 3))) # or whatever your filepath is if you put it somewhere else
+    
+NAA_plotAUS <- AUS_NAA %>% group_by(year) %>%
+      mutate(median_NAA = median(NAA)) %>%
+      ggplot(aes(
+        x = year, y = NAA, group = year
+      )) +  
+  ylim(-500, 500) +
+  scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
+  geom_boxplot(aes(fill = median_NAA)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(
+        fill = "white",
+        colour = "grey50"
+      )) +
+  xlab("Year") +
+  ylab("Net annual discharge anomaly") +
+  ggtitle("AUS") +
+  geom_hline(
+      yintercept = 0,
+      color = "red",
+      linetype = "dotted",
+      size = 1
+    )
+print(NAA_plotAUS)
+
+#ggsave(NAA_plotAUS, filename = "figures/Discharge_NAA_box_AUS_Jan24.jpg", dpi = 300, height = 5, width = 7)
+
+
+## US flow
+USA_NAA <-
+  read.csv("~/Repositories/crass-fish/FinalData/USA_NAA_Jan24.csv",
+    row.names = 1,
+    colClasses = c("character", rep(NA, 3))) # or whatever your filepath is if you put it somewhere else
+
+USA_NAA$NAA <- as.numeric(USA_NAA$NAA)
+
+NAA_plot3 <- USA_NAA %>%
+  group_by(year) %>%
+  mutate(median_NAA = median(NAA)) %>%
+  ggplot(aes(x = year, y = NAA, group = year)) +  
+  ylim(-500, 500) +
+  scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
+  geom_boxplot(aes(fill = median_NAA)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Net annual discharge anomaly") +
+  ggtitle("USA") +
+  geom_hline(
+    yintercept = 0,
+    color = "red",
+    linetype = "dotted",
+    size = 1
+  )
+print(NAA_plot3)
+
+#ggsave(NAA_plot3, filename = "figures/Discharge_NAA_box_USA_Jan24.jpg", dpi = 300, height = 5, width = 7)
