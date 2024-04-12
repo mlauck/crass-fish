@@ -1,6 +1,8 @@
 # Figure 2 code
 # annual precip, temp, and discharge
 
+### Need to add in precip code
+
 # require
 # DailyTemp.R
 # DailyPrecip.R
@@ -128,6 +130,7 @@ UStemp <- left_join(UStemp, tempallUS, by = "hex.id")
 temp$anol <- temp$avgTemp - temp$overallavg
 UStemp$anol <- UStemp$avgTemp - UStemp$overallavg
 
+
 # make habitat and site factors
 AUSprecipUSE$hex.id <- as.factor(AUSprecipUSE$X)
 USprecipUSE$hex.id <- as.factor(USprecipUSE$X)
@@ -197,8 +200,8 @@ AUSanol<- temp %>%
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
   ggplot( aes(x = year, y = anol, group = year)) +
-  scale_fill_viridis_c(name = "Anomaly", option = "C") +
-  geom_boxplot(aes(fill = mean.anol)) +
+  scale_fill_viridis_c(name = "Temperature anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol), outlier.shape = 1) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
@@ -214,8 +217,8 @@ USanol<- UStemp %>%
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)) %>% 
   ggplot( aes(x = year, y = anol, group = year)) +
-  scale_fill_viridis_c(name = "Anomaly", option = "C") +
-  geom_boxplot(aes(fill = mean.anol)) +
+  scale_fill_viridis_c(name = "Temperature anomaly", option = "C") +
+  geom_boxplot(aes(fill = mean.anol), outlier.shape = 1) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
@@ -232,7 +235,7 @@ anoltempmulti <- ggarrange(labels = "auto",
                        AUSanol, 
                        nrow = 1, 
                        common.legend = TRUE, 
-                       legend = "right") 
+                       legend = "bottom") 
 print(anoltempmulti)
 
 
@@ -243,8 +246,8 @@ AUSprecipanol <- AUSprecipUSE4 %>%
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)/10) %>% 
   ggplot( aes(x = year, y = anol/10, group = year)) +
-  scale_fill_viridis_c(name = "Anomaly", direction = -1) +
-  geom_boxplot(aes(fill = mean.anol)) +
+  scale_fill_viridis_c(name = "Precipitation anomaly", direction = -1) +
+  geom_boxplot(aes(fill = mean.anol), outlier.shape = 1) +
   theme_classic(base_size = 14) +
   ylim(-80, 125) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
@@ -261,8 +264,8 @@ USprecipanol <- USprecipUSE4 %>%
   group_by(year) %>% 
   mutate(mean.anol= mean(anol)/10) %>% 
   ggplot( aes(x = year, y = anol/10, group = year)) +
-  scale_fill_viridis_c(name = "Anomaly", direction = -1) +
-  geom_boxplot(aes(fill = mean.anol)) +
+  scale_fill_viridis_c(name = "Precipitation anomaly", direction = -1) +
+  geom_boxplot(aes(fill = mean.anol), outlier.shape = 1) +
   ylim(-80.0, 125.0) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
@@ -284,7 +287,7 @@ anolprecipmulti <- ggarrange(labels = c("c", "d"),
                            AUSprecipanol, 
                            nrow = 1, 
                            common.legend = TRUE, 
-                           legend = "right") 
+                           legend = "bottom") 
 print(anolprecipmulti)
 
 
@@ -292,18 +295,6 @@ print(anolprecipmulti)
 
 
 ### multi of multi
-
-# work on cowplot https://genchanghsu.github.io/ggGallery/posts/2021-12-20-post-9-arrange-multiple-ggplots/
-## make multipanel
-anolmulti <- ggarrange(anoltempmulti + labs(x = ""),
-                       anolprecipmulti,
-                       align = "hv",
-                       nrow = 2, 
-                       # ncol = 2,
-                       common.legend = FALSE,
-                       legend = "right") 
-print(anolmulti)
-ggsave(anolmulti, filename = "figures/Fig2.png", dpi = 450, height = 9, width = 14)
 
 
 
@@ -319,15 +310,15 @@ NAA_plotAUS <- AUS_NAA %>% group_by(year) %>%
       )) +  
   ylim(-500, 500) +
   scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
-  geom_boxplot(aes(fill = median_NAA)) +
+  geom_boxplot(aes(fill = median_NAA), outlier.shape = 1) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(
         fill = "white",
         colour = "grey50"
       )) +
   xlab("Year") +
-  ylab("Net annual discharge anomaly") +
-  ggtitle("AUS") +
+  # ylab("Net annual discharge anomaly") +
+  # ggtitle("AUS") +
   geom_hline(
       yintercept = 0,
       color = "red",
@@ -353,12 +344,12 @@ NAA_plot3 <- USA_NAA %>%
   ggplot(aes(x = year, y = NAA, group = year)) +  
   ylim(-500, 500) +
   scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
-  geom_boxplot(aes(fill = median_NAA)) +
+  geom_boxplot(aes(fill = median_NAA), outlier.shape = 1) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   ylab("Net annual discharge anomaly") +
-  ggtitle("USA") +
+  # ggtitle("USA") +
   geom_hline(
     yintercept = 0,
     color = "red",
@@ -368,3 +359,39 @@ NAA_plot3 <- USA_NAA %>%
 print(NAA_plot3)
 
 #ggsave(NAA_plot3, filename = "figures/Discharge_NAA_box_USA_Jan24.jpg", dpi = 300, height = 5, width = 7)
+
+
+# make flow multi
+## make multipanel
+flowmulti <- ggarrange(labels = c("e", "f"),
+                             align = "hv",
+                             NAA_plot3, 
+                             NAA_plotAUS + ylab(""), 
+                             nrow = 1, 
+                             common.legend = TRUE, 
+                             legend = "bottom") 
+print(flowmulti)
+
+
+## the multi of multis
+Fig2 <- ggarrange(align = "hv",
+                  anoltempmulti,
+                  anolprecipmulti,
+                  flowmulti,
+                  nrow = 3)
+Fig2
+ggsave(Fig2, filename = "figures/Fig2.png", height = 14, width = 12, dpi = 400)
+
+
+# work on cowplot https://genchanghsu.github.io/ggGallery/posts/2021-12-20-post-9-arrange-multiple-ggplots/
+## make multipanel
+# anolmulti <- ggarrange(anoltempmulti + labs(x = ""),
+#                        anolprecipmulti,
+#                        align = "hv",
+#                        nrow = 2, 
+#                        # ncol = 2,
+#                        common.legend = FALSE,
+#                        legend = "right") 
+# print(anolmulti)
+# ggsave(anolmulti, filename = "figures/Fig2.png", dpi = 450, height = 9, width = 14)
+
