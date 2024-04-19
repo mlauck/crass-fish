@@ -163,26 +163,31 @@ obj<-describe.simmap(smap.trees,plot=FALSE)
 obj
 
 plot(obj,type="fan")
-cols <- c("red","white")
+cols<-setNames(c("#fee6ce","#de2d26"),
+               c("none","concern"))
+# cols <- c("red","white")
 add.simmap.legend(colors=cols,x=0.9*par()$usr[1],
                   y=0.9*par()$usr[4],prompt=FALSE)
 
 cols<-setNames(c("#fee6ce","#de2d26"),
-               c("none","concern"))
+               c("none","species of concern"))
+smap.trees<-make.simmap(obj,fmode,model="ER",
+                        nsim=100)
 
 plotSimmap(
-  smap.trees[[1]],
-  cols,
+  obj,
+  # smap.trees[[1]],
+  colors = cols,
   fsize = 0.5,
   type = "fan"
 )
 
-obj <- densityMap(
+obj <- densityMap(res = 100,
   smap.trees,
   type = "fan",
-  fsize = 0.6,
-  cols,
-  lwd = 2,
+  fsize = 0.5,
+  colors = c("darkred", "tan"),
+  lwd = 1,
   outline = TRUE
 )
 
@@ -194,10 +199,10 @@ plot(
   outline = TRUE,
   fsize = c(0.5, 0.9),
   # legend = 50,
-  invert = TRUE
+  invert = FALSE
 )
 pdf('figures/PhylogenyDanger.pdf', height = 11, width = 11)
-cols <- setNames(c("red", "blue"), c("danger", "none"))
+cols <- setNames(c("darkred", "tan"), c("danger", "none"))
 plot(
   obj,
   cols,
