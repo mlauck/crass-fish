@@ -141,23 +141,68 @@ pruned_tree$tip.label
 fish.data<-read.csv("FinalData/fishstatus3.csv", row.names = 1)
 
 mode <- as.factor(setNames(fish.data[,3], rownames(fish.data)))
-dotTree(pruned_tree, x = mode, colors = setNames(c("blue", "red"),
-                                         c("none", "danger")), 
-                                       ftype = "i", fsize = 0.4)
+dotTree(
+  pruned_tree,
+  x = mode,
+  colors = setNames(c("blue", "red"),
+                    c("none", "danger")),
+  type = "fan",
+  ftype = "i",
+  fsize = 0.5
+)
 
-# # eel.trees<-make.simmap(eel.tree,fmode,nsim=100)
-# danger.trees <- make.simmap(pruned_tree, mode, nsim = 100)
+# # from http://blog.phytools.org/2012/12/plotting-node-piecharts-on-top-of.html ----
+# # code to simulate a tree & data
+# # and to perform stochastic mapping
+# tree <- pbtree(n = 20)
+# Q <- matrix(c(-1, 1, 1, -1), 2, 2)
+# colnames(Q) <- rownames(Q) <- c(0, 1)
+# x <- sim.history(tree, Q, anc = "0")$states
+# mtrees <- make.simmap(tree, x, nsim = 100)
+# # end simulation code
 # 
+# # function to compute the states
+# foo<-function(x){
+#   y<-sapply(x$maps,function(x) names(x)[1])
+#   names(y)<-x$edge[,1]
+#   y<-y[as.character(length(x$tip)+1:x$Nnode)]
+#   return(y)
+# }
+# XX<-sapply(mtrees,foo)
+# pies<-t(apply(XX,1,function(x,levels,Nsim) summary(factor(x,levels))/Nsim,levels=c("0","1"),Nsim=100))
+# # done computing the states
+# 
+# # code to plot the tree
+# mtrees<-rescaleSimmap(mtrees,1)
+# cols<-c("blue","red"); names(cols)<-c(0,1)
+# par(mar=rep(0.1,4))
+# plot.phylo(mtrees[[1]],plot=FALSE,no.margin=T)
+# plotSimmap(mtrees[[1]],cols,pts=FALSE,lwd=3,ftype="off", add=TRUE)
+# text(1,1:length(mtrees[[1]]$tip),mtrees[[1]]$tip.label, pos=4,font=3)
+# nodelabels(pie=pies,cex=0.6,piecol=cols)
+# # done plotting
 
-# stochastic mapping ----
-smap.trees <- make.simmap(pruned_tree, mode, 
-                          model = "ER", nsim = 500)
-summary(smap.trees)
 
 # obj <-
 #   densityMap(smap.trees,
 #              states = c("none", "danger"),
 #              plot = FALSE)
+summary(smap.trees)
+
+pdf('figures/phylogeny.pdf', height = 8, width = 6)
+cols <- setNames(c("black", "white"), c("danger", "none"))
+plot(
+  summary(smap.trees),
+  colors = cols,
+  type = "fan",
+  ftype = "i",
+  fsize = 0.6,
+  pt.cex = .2,
+  cex = 0.25
+)
+legend("topleft", c("danger", "none"),
+       pch = 21, pt.bg = cols, pt.cex = 2)
+dev.off()
 
 obj<-describe.simmap(smap.trees,plot=FALSE)
 obj
@@ -175,46 +220,58 @@ smap.trees<-make.simmap(obj,fmode,model="ER",
                         nsim=100)
 
 plotSimmap(
-  obj,
-  # smap.trees[[1]],
+  smap.trees[[1]],
   colors = cols,
   fsize = 0.5,
   type = "fan"
 )
 
-obj <- densityMap(res = 100,
-  smap.trees,
-  type = "fan",
-  fsize = 0.5,
-  colors = c("darkred", "tan"),
-  lwd = 1,
-  outline = TRUE
-)
-
-plot(
-  obj,
-  cols,
-  type = "fan",
-  lwd = 1,
-  outline = TRUE,
-  fsize = c(0.5, 0.9),
-  # legend = 50,
-  invert = FALSE
-)
 pdf('figures/PhylogenyDanger.pdf', height = 11, width = 11)
-cols <- setNames(c("darkred", "tan"), c("danger", "none"))
-plot(
-  obj,
-  cols,
-  type = "fan",
-  lwd = 1,
-  outline = TRUE,
-  fsize = c(0.5, 0.9),
-
-)
-legend("bottomright", c("danger", "none"),
-       pch = 21, pt.bg = cols, pt.cex = 2)
+densityMap(smap.trees,
+           lwd=2,
+           colors = cols,
+           type = "fan",
+           ftype = "i",
+           fsize = 0.6,
+           pt.cex = 0.7,
+           cex = 0.7)
+# legend("topleft", c("danger", "none"),
+#        pch = 21, pt.bg = cols, pt.cex = 2)
 dev.off()
+
+# obj <- densityMap(res = 100,
+#   smap.trees,
+#   type = "fan",
+#   fsize = 0.5,
+#   colors = c("darkred", "tan"),
+#   lwd = 1,
+#   outline = TRUE
+# )
+# 
+# plot(
+#   obj,
+#   cols,
+#   type = "fan",
+#   lwd = 1,
+#   outline = TRUE,
+#   fsize = c(0.5, 0.9),
+#   # legend = 50,
+#   invert = FALSE
+# )
+# pdf('figures/PhylogenyDanger.pdf', height = 11, width = 11)
+# cols <- setNames(c("darkred", "tan"), c("danger", "none"))
+# plot(
+#   obj,
+#   cols,
+#   type = "fan",
+#   lwd = 1,
+#   outline = TRUE,
+#   fsize = c(0.5, 0.9),
+# 
+# )
+# legend("bottomright", c("danger", "none"),
+#        pch = 21, pt.bg = cols, pt.cex = 2)
+# dev.off()
 
 x <- new("IUCN", 
          trees = phylo)
