@@ -74,6 +74,9 @@ preciplongUS <- USprecip %>%
 AUStempUSE <- templongAUS
 UStempUSE <- templongUS
 
+AUSprecipUSE <- preciplongAUS
+USprecipUSE <- preciplongUS
+
 # # change NaN into NA
 # tempUSE[is.nan(tempUSE$TempC)]<-NA
 # View(tempUSE)
@@ -234,7 +237,7 @@ anoltempmulti <- ggarrange(labels = "auto",
                        USanol, 
                        AUSanol, 
                        nrow = 1, 
-                       common.legend = TRUE, 
+                       common.legend = FALSE, 
                        legend = "bottom") 
 print(anoltempmulti)
 
@@ -286,15 +289,13 @@ anolprecipmulti <- ggarrange(labels = c("c", "d"),
                            USprecipanol, 
                            AUSprecipanol, 
                            nrow = 1, 
-                           common.legend = TRUE, 
+                           common.legend = FALSE, 
                            legend = "bottom") 
 print(anolprecipmulti)
 
 
 
 
-
-### multi of multi
 
 
 
@@ -368,7 +369,7 @@ flowmulti <- ggarrange(labels = c("e", "f"),
                              NAA_plot3, 
                              NAA_plotAUS + ylab(""), 
                              nrow = 1, 
-                             common.legend = TRUE, 
+                             common.legend = FALSE, 
                              legend = "bottom") 
 print(flowmulti)
 
@@ -380,7 +381,7 @@ Fig2 <- ggarrange(align = "hv",
                   flowmulti,
                   nrow = 3)
 Fig2
-ggsave(Fig2, filename = "figures/Fig2.png", height = 14, width = 12, dpi = 400)
+ggsave(Fig2, filename = "figures/Fig2.png", height = 14, width = 14, dpi = 400)
 
 
 # work on cowplot https://genchanghsu.github.io/ggGallery/posts/2021-12-20-post-9-arrange-multiple-ggplots/
