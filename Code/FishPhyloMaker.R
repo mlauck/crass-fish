@@ -20,7 +20,8 @@ allarid$danger <-
            allarid$IUCNstatus == "DD", 0, 1)
 head(allarid)
 
-mod <- lm(danger ~ endemic, data = allarid)
+# mod <- lm(danger ~ endemic, data = allarid)
+# summary(mod)
 
 # # make a vector of fish names
 fish <- allarid[,1]
@@ -140,16 +141,16 @@ pruned_tree$tip.label
 
 fish.data<-read.csv("FinalData/fishstatus3.csv", row.names = 1)
 
-mode <- as.factor(setNames(fish.data[,3], rownames(fish.data)))
-dotTree(
-  pruned_tree,
-  x = mode,
-  colors = setNames(c("blue", "red"),
-                    c("none", "danger")),
-  type = "fan",
-  ftype = "i",
-  fsize = 0.5
-)
+# mode <- as.factor(setNames(fish.data[,3], rownames(fish.data)))
+# dotTree(
+#   pruned_tree,
+#   x = mode,
+#   colors = setNames(c("tan", "red"),
+#                     c("none", "danger")),
+#   type = "fan",
+#   ftype = "i",
+#   fsize = 0.5
+# )
 
 # # from http://blog.phytools.org/2012/12/plotting-node-piecharts-on-top-of.html ----
 # # code to simulate a tree & data
@@ -183,10 +184,10 @@ dotTree(
 # # done plotting
 
 
-# obj <-
-#   densityMap(smap.trees,
-#              states = c("none", "danger"),
-#              plot = FALSE)
+obj <-
+  densityMap(smap.trees,
+             states = c("none", "danger"),
+             plot = FALSE)
 summary(smap.trees)
 
 pdf('figures/phylogeny.pdf', height = 8, width = 6)
@@ -227,26 +228,29 @@ plotSimmap(
 )
 
 pdf('figures/PhylogenyDanger.pdf', height = 11, width = 11)
+# png(units = "in", 'figures/PhylogenyDanger.png', fig.height = 11, fig.width = 11, res = 100)
 densityMap(smap.trees,
            lwd=2,
            colors = cols,
            type = "fan",
            ftype = "i",
-           fsize = 0.6,
-           pt.cex = 0.7,
-           cex = 0.7)
+           fsize = 1,
+           pt.cex = 0.8,
+           cex = 0.9)
 # legend("topleft", c("danger", "none"),
 #        pch = 21, pt.bg = cols, pt.cex = 2)
 dev.off()
 
-# obj <- densityMap(res = 100,
-#   smap.trees,
-#   type = "fan",
-#   fsize = 0.5,
-#   colors = c("darkred", "tan"),
-#   lwd = 1,
-#   outline = TRUE
-# )
+summary(smap.trees)
+
+obj <- densityMap(res = 100,
+  smap.trees,
+  type = "fan",
+  fsize = 0.5,
+  colors = c("darkred", "tan"),
+  lwd = 1,
+  outline = TRUE
+)
 # 
 # plot(
 #   obj,
@@ -481,8 +485,8 @@ print(p2)
 # fish.data<-read.csv("data/OrderPresAbsNA.csv",row.names=1)
 # fish.data <- read.csv("Data/orderdanger.csv")
 # 
-# fmode<-as.factor(setNames(fish.data[,1],rownames(fish.data)))
-# fmode<-setNames(orderdanger$prop.dang,nm = as.factor(orderdanger$o))
+fmode<-as.factor(setNames(fish.data[,2],rownames(fish.data)))
+# # fmode<-setNames(orderdanger$prop.dang,nm = as.factor(orderdanger$o))
 # dotTree(drop.tip(fish.tree, no_data),
 #         fmode,
 #         colors=setNames(c("white","red"),
@@ -507,13 +511,13 @@ print(p2)
 # # plot(obj,lwd=4,outline=TRUE,fsize=c(0.7,0.9),legend=50)
 # 
 # # stochastic mapping ----
-# smap.trees <- make.simmap(pruned_tree, fmode, 
-#                           model = "ER", nsim = 500)
-# summary(smap.trees)
+smap.trees <- make.simmap(pruned_tree, fmode,
+                          model = "ER", nsim = 500)
+summary(smap.trees)
 # 
-# pdf('figures/order_phylogeny.pdf', height = 8, width = 6)
+# pdf('figures/order_phylogeny.pdf', height = 11, width = 9)
 # cols <- setNames(c("black", "white"), c("threatened", "not a concern"))
-# plot(summary(smap.trees), colors = cols)
+# plot(summary(smap.trees), fill = cols, colors = cols, cex = 0.5, pt.cex = 0.5)
 # legend("topleft", c("present", "absent"),
-#        pch = 21, pt.bg = cols, pt.cex = 2)
+#        pch = 21, pt.bg = cols, pt.cex = 1)
 # dev.off()
