@@ -232,7 +232,7 @@ USanol<- UStemp %>%
 print(USanol)
 
 ## make multipanel of temp
-anoltempmulti <- ggarrange(labels = "auto",
+anoltempmulti <- ggarrange(labels = c("(a)", "(b)"),
                        align = "hv",
                        USanol, 
                        AUSanol, 
@@ -284,7 +284,7 @@ print(USprecipanol)
 
 
 ## make multipanel
-anolprecipmulti <- ggarrange(labels = c("c", "d"),
+anolprecipmulti <- ggarrange(labels = c("(c)", "(d)"),
                            align = "hv",
                            USprecipanol, 
                            AUSprecipanol, 
@@ -364,7 +364,7 @@ print(NAA_plot3)
 
 # make flow multi
 ## make multipanel
-flowmulti <- ggarrange(labels = c("e", "f"),
+flowmulti <- ggarrange(labels = c("(e)", "(f)"),
                              align = "hv",
                              NAA_plot3, 
                              NAA_plotAUS + ylab(""), 
@@ -383,6 +383,7 @@ Fig2 <- ggarrange(align = "hv",
 Fig2
 ggsave(Fig2, filename = "figures/Fig2.png", height = 14, width = 14, dpi = 400)
 
+ggsave(Fig2, filename = "figures/Fig2.pdf", height = 16, width = 18, dpi = 400)
 
 # work on cowplot https://genchanghsu.github.io/ggGallery/posts/2021-12-20-post-9-arrange-multiple-ggplots/
 ## make multipanel

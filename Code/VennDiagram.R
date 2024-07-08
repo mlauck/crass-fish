@@ -150,7 +150,7 @@ arid_v_danger_hist <- ggpubr::ggarrange(
   align = "hv",
   legend = "none",
   common.legend = TRUE,
-  labels = "AUTO"
+  labels = c("(a)", "(b)", "(c)")
 )
 arid_v_danger_hist
 
@@ -161,6 +161,15 @@ ggsave(
   height = 12,
   width = 5
 )
+
+ggsave(
+  arid_v_danger_hist,
+  filename = "figures/traithistograms_onlyarid.pdf",
+  dpi = 600,
+  height = 12,
+  width = 5
+)
+
 
 
 ## Make Venn diagrams
@@ -195,3 +204,5 @@ venn <- ggplot(IUCN, aes(
   ) +
   theme_void()
 ggsave(venn, filename = "figures/VennDiagram.png", dpi = 400, width = 9, height = 6)
+
+ggsave(venn, filename = "figures/VennDiagram.pdf", dpi = 600, width = 9, height = 6)

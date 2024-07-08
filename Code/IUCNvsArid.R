@@ -189,9 +189,9 @@ barplot <- ggplot(alldata, aes(x = IUCNstatus, y = prop, group = source)) +
 print(barplot)
 
 ggsave(
-  device = "png",
+  device = "pdf",
   plot = barplot,
-  filename = "figures/IUCN_v_arid.png",
+  filename = "figures/IUCN_v_arid.pdf",
   height = 4,
   width = 9,
   dpi = 600
