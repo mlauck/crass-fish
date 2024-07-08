@@ -1,6 +1,8 @@
 ### Jane S. Rogosch
 ### Created 18 Feb 2022
-### Remade 22 Sep 2023 with gages properly connected to HexIDs.
+### Remade 22 Sep 2023 with gages properly connected to HexIDs
+### Remade 9 Feb 2024 with final gage data set
+### Last updated 1 Mar 2024
 ### This code is to extract USGS discharge data from subset of gages that are in HUCs where
 ### we have fish sampling data. The subset of gages was found using ArcGIS 10.2 select by location functions
 
@@ -54,34 +56,41 @@ dim(SANPEDRO$data)[1]
 summary(SANPEDRO)
 
 ### Load the file with the subset of gages------------------------------------------------------
-#import to excel and change the gage_ID to 00000000 in the custom option 
+# import to excel and change the format of column site_no to 00000000 in the custom option 
 # then save as .csv file, then run this. 
-USA_subset <- read.csv("Data/fish_flow/gauges_with_hexIDs_Sep2023.csv", row.names = 1,
-                       colClasses = c(rep(NA, 4), "character", rep(NA, 4)))
-head(USA_subset)
-site_IDs <- unique(USA_subset$site_no[USA_subset$source == "USGS"])
+gage_hex_all <- read.csv("Data/fish_flow/Gauges_hexIDs_Jan2024.csv", #row.names = 1,
+                       colClasses = c(rep(NA, 2), "character", rep(NA, 2)))
+head(gage_hex_all)
+USA_site_IDs <- unique(gage_hex_all[gage_hex_all$country == "USA", c(3,5)])
 compDailyData <- list()
 
-#site_IDs <- site_IDs[-98]
-# IDs that don't make it: 18, 60, 74
-# i <- 60 #18, 60, 74
-for (i in 1:length(site_IDs)) { 
-  rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
-  compDailyData[[i]] <- rawDailyData[,2:4] # stopped at 98 site_IDs[98] "09285000"
+# Get daily discharge data for USA gages
+USA_site_IDs_trunc <- USA_site_IDs[-c(113,229,230,249,370,459,471), ]
+for (i in 1:nrow(USA_site_IDs_trunc)) {
+  rawDailyData <- readNWISdv(USA_site_IDs_trunc[i,1], "00060", startDate = "", endDate = "2021-09-30")
+  compDailyData[[i]] <- cbind(rawDailyData[,2:4],  hex_id = USA_site_IDs_trunc[i,2])
   #charge <- print(rawDailyData)
 }
 
 head(compDailyData)
 length(compDailyData)
+library(dplyr)
+df_daily <- bind_rows(compDailyData)
+str(df_daily)
+head(df_daily)
+unique(df_daily$site_no) #508
+df_daily[df_daily$site_no == "08427500",]
+  # write.csv(df_daily, file = "Output/Daily_Discharge_USA_by_HEXID_Jan24.csv") 
 ### GET NAAs----------------------------------------------------------------------------------
-
-CompSignal <- list() #IDs that don't make it #233,234, 235, 254, 261, 359, 451, 463
-for (i in 464:length(site_IDs)) { 
-  rawDailyData <- readNWISdv(site_IDs[i], parameterCd, startDate = "", endDate = "")
+?detach
+detach(package:dplyr)
+CompSignal <- list() #IDs that don't make it #113,229, 230, 249, 370, 459, 471 
+for (i in 306:nrow(USA_site_IDs_trunc)) { # now 13,14,305 didn't make
+  rawDailyData <- readNWISdv(USA_site_IDs_trunc[i,1], parameterCd = "00060", startDate = "", endDate = "2021-09-30")
   streamflow <- asStreamflow(rawDailyData[ ,3:4], river.name = rawDailyData$site_no[1], max.na = 5000) # Convert raw data to 'asStreamflow' object
   summary(streamflow)
   USA_stream <- fourierAnalysis(streamflow) # Run Fourier on the 'asStreamflow' object
-  CompSignal[[i]] <- cbind(USA_stream$signal, site_no = streamflow$name)
+  CompSignal[[i]] <- cbind(USA_stream$signal, site_no = streamflow$name, hex_id = USA_site_IDs_trunc[i,2])
   # Make a file of the main data
       # write.csv(cbind(USA_stream$signal, site_no = streamflow$name), file = paste0('Output/NAA/USGS', '_', rawDailyData$site_no[1],'.csv'))
   # plot characteristic hydrograph
@@ -90,23 +99,17 @@ for (i in 464:length(site_IDs)) {
 }
 
 # Make things not a list
-library(dplyr)
+library(dplyr) # don't want to load this earlier because interferes with other packages
 signal_daily <- bind_rows(CompSignal)
- # write.csv(signal_daily, file = "Output/NAA/USA_signal_daily_Sep23.csv")
+ # write.csv(signal_daily, file = "Output/NAA/USA_signal_daily_Jan24.csv")
 
-df_daily <- bind_rows(compDailyData)
-str(df_daily)
-head(df_daily)
-unique(df_daily$site_no)
-df_daily[df_daily$site_no == "08427500",]
-  # write.csv(df_daily, file = "Output/Daily_Discharge_USA_by_HEXID_Sep23.csv")
 
+# can be multiple gages in a hexID, as will become apparent in code "02_fish_flow.R"
+# updated code to carry over hexID
 
 #################################################################################################################
 ### START HERE IF SKIPPED AHEAD --------------------------------------------------------------------------------
-# See what dates match with fish data surveys
-# info on fish data "points_daterange_location.csv"
-# use that to determine which time frame is most important for analyzing discharge and getting summary metrics.
+
 library(dplyr)
 library(tidyr)
 library(Kendall)
@@ -114,47 +117,33 @@ library(lubridate)
 #.libPaths(new = "E:\\Users\\Administrator\\Documents\\OneDrive - Texas Tech University\\Documents\\R\\win-library")
 .libPaths()
 
-# fish_dates <- read.csv("Data/points_daterange_location.csv") #Hopefully this didn't change since Mar 2022. What do I use it for?
-USA_subset <- read.csv("Data/fish_flow/gauges_with_hexIDs_Sep2023.csv", row.names = 1,
-                       colClasses = c(rep(NA, 4), "character", rep(NA, 4)))
-df_daily <- read.csv("Output/Daily_Discharge_USA_by_HEXID_Sep23.csv", row.names = 1, colClasses = c(NA, "character", rep(NA,3)))
-signal_daily <- read.csv("Output/NAA/USA_signal_daily_Sep23.csv", row.names = 1, colClasses = c(rep(NA,12), "character") )
+
+USA_subset <- read.csv("Data/fish_flow/Gauges_hexIDs_Jan2024.csv", #row.names = 1,
+                       colClasses = c(rep(NA, 2), "character", rep(NA, 2)))
+df_daily <- read.csv("Output/Daily_Discharge_USA_by_HEXID_Jan24.csv", row.names = 1, colClasses = c(NA, "character", rep(NA,3)))
+signal_daily <- read.csv("Output/NAA/USA_signal_daily_Jan24.csv", row.names = 1, colClasses = c(rep(NA,12), "character") )
 str(signal_daily)
 
-
+unique(USA_subset$hex_id)
 head(df_daily)
 
-df_daily2 <- df_daily[ ,1:3]  %>% mutate(year = year(Date))
+df_daily2 <- df_daily[ ,1:4]  %>% mutate(year = year(Date))
 str(df_daily2)
 unique(df_daily2$site_no)
 
 yr_count <- df_daily2 %>% group_by(site_no) %>% summarise(yrs_record = n_distinct(year))
 yr_count
-yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # more than half (294 of 504) have long records yay!
-
-# Next time: Where are they?
-# if good geographic spread, calculate trends
-# for all other one-offs calculate zero-flow metrics for that year.
+yr_count$yrs_record[which(yr_count$yrs_record >= 30)] # more than half (297 of 508) have long records yay!
 
 
-# # What dates do I need for each gage?
-# # Result is gages corresponding to fish data points that have 10 or more fish samples and 10 or more years of discharge data.
-# dates_summary <- USA_subset %>% group_by(site_no) %>% summarise(first_yr = min(Year_First),
-#                                                                 last_yr = max(Year_Last_),
-#                                                                 total_samps = sum(Total_Samp))
-# min(dates_summary$first_yr)
-# date_summary <- dates_summary[dates_summary$last_yr - dates_summary$first_yr >=10 & dates_summary$total_samps >=10, ] # 37 -Zipper et al. use gages with more than 10 years (for future citation justification)
-#                                                                      # we can use gages with more than 10 years that have fish
-# dates_summary[dates_summary$last_yr - dates_summary$first_yr >=30 & dates_summary$total_samps >=10, ] # 10 for 30 years, -for 20 yrs there are 21, for 15 yrs there are 24
-# 
-# hist(date_summary$first_yr)
 
 # ANNUAL METRICS for all gages
 ###################################################################################################################
 head(df_daily)
-df_tot<- apply(df_daily[ ,3:5], 1, mean, na.rm = TRUE)
+df_tot<- apply(df_daily[ ,c(3,5,6)], 1, mean, na.rm = TRUE)
 df_daily2[ ,3] <- df_tot
-df_daily_info <- df_daily2[ ,1:3] %>% mutate(month = month(Date),
+head(df_daily2)
+df_daily_info <- df_daily2 %>% mutate(month = month(Date), # df_daily2[ ,1:3]
                                             year = year(Date),
                                             yday = yday(Date),
                                             wday = ifelse(yday > 274, yday - 273, yday+92),
@@ -162,39 +151,74 @@ df_daily_info <- df_daily2[ ,1:3] %>% mutate(month = month(Date),
                                             flowbinary = ifelse(X_00060_00003>0,1,0))
 
 #number of discrete periods of flow/no flow
-#length of each period of flow                                                                                        
-periods <- df_daily_info %>% group_by(site_no, wyear) %>% summarise(periods_lengths = rle(flowbinary)$lengths,
+#length of each period of flow 
+count_gage_per_hex <- df_daily_info %>% group_by(hex_id) %>% summarize(tot_sites = length(unique(site_no)))
+ unique(df_daily_info$site_no[df_daily_info$hex_id == "17530"]) 
+periods<- df_daily_info %>% group_by(hex_id, site_no, wyear) %>% reframe(periods_lengths = rle(flowbinary)$lengths,
                                                                     periods_values = rle(flowbinary)$values
                                                                     )
-                                                                   
+# periods_hex <- df_daily_info %>% group_by(hex_id, wyear) %>% reframe(periods_lengths = rle(flowbinary)$lengths,
+#                                                                     periods_values = rle(flowbinary)$values)
+# how_work <- periods[periods$hex_id == "17530",]
+# how_work2 <- periods_hex[periods_hex$hex_id == "17530", ]
+# 
+# how_work[how_work$wyear == "1993", ]
+# how_work2[how_work2$wyear == "1993", ]
 tail(periods)
-  
+
+# periods <- periods_hex %>% group_by(hex_id, wyear, periods_values) %>% reframe(avg_periods_lengths = max(periods_lengths))
+# periods_hex[periods_hex$hex_id == "17530" & periods_hex$wyear == "1948",] 
+# periods[periods$hex_id == "17530" & periods$wyear == "1993",]
+# periods[periods$hex_id == "17530" & periods$wyear == "1948",] # OK I think
+periods[periods$hex_id == "15192" & periods$wyear == "1964",] 
+periods[periods$hex_id == "165330" & periods$wyear == "2018",]
 flowperiods <- subset(periods, periods_values == 1)
 noflowperiods <- subset(periods, periods_values == 0)
+unique(noflowperiods$hex_id)
 
 flow_periods_metrics <- periods[periods$periods_values == 1, ] %>% 
-  group_by(site_no, wyear) %>% summarise(tot_flowperiods = sum(periods_values),
+  group_by(hex_id, wyear) %>% summarise(tot_flowperiods = length(periods_values), 
                                          mean_lengthflow = mean(periods_lengths),
                                          max_lengthflow = max(periods_lengths),
                                          min_lengthflow = min(periods_lengths),
                                          med_lengthflow = median(periods_lengths),
                                          cv_lengthflow = sd(periods_lengths, na.rm = TRUE)/mean(periods_lengths))
+flow_periods_metrics[flow_periods_metrics$hex_id == "17530" & flow_periods_metrics$wyear == "1948",]
 
 noflow_periods_metrics <- periods[periods$periods_values == 0, ] %>% 
-  group_by(site_no, wyear) %>% summarise(tot_periods_noflow = sum(periods_values),
+  group_by(hex_id, wyear) %>% summarise(tot_periods_noflow = length(periods_values), # should this be length?
                                          mean_length_noflow = mean(periods_lengths),
                                          max_length_noflow = max(periods_lengths),
                                          min_length_noflow = min(periods_lengths),
                                          med_length_noflow = median(periods_lengths),
                                          cv_length_noflow = sd(periods_lengths, na.rm = TRUE)/mean(periods_lengths))
-tail(periods_metrics)
+
+periods[is.na(periods$periods_values) == FALSE, ]
+
+periods[periods$hex_id == "15192" & periods$wyear == "1948",]
+
+all_noflow_periods_metrics <- periods[is.na(periods$periods_values) == FALSE, ] %>% group_by(hex_id, wyear) %>%
+  reframe(tot_periods_noflow = sum(periods_values == 0), # should this be length?
+          mean_length_noflow = mean(periods_lengths[periods_values ==0]),
+          max_length_noflow = max(periods_lengths[periods_values ==0]) )# ifelse(periods_values == 0, max(periods_lengths[periods_values ==0]),NA))
+          #min_length_noflow = min(periods_lengths[periods_values ==0]),
+          #med_length_noflow = median(periods_lengths[periods_values ==0]),
+          #cv_length_noflow = sd(periods_lengths[periods_values ==0], na.rm = TRUE)/mean(periods_lengths[periods_values ==0]))
+
+all_noflow_periods_metrics$max_length_noflow[is.infinite(all_noflow_periods_metrics$max_length_noflow)] <- 0
+
+
+noflow_periods_metrics[noflow_periods_metrics$hex_id == "17530" & noflow_periods_metrics$wyear == "1948",]
+noflow_periods_metrics[noflow_periods_metrics$hex_id == "18454" & noflow_periods_metrics$wyear == "1948",]
+
+
 tail(flow_periods_metrics)
 tail(noflow_periods_metrics)
 
 
 head(df_daily_info)
 # see how many years of data missing less than 10% daily values, only want to use those years of data
-dailydatacount <- df_daily_info %>% group_by(site_no, wyear) %>% summarise(count = sum(!is.na(X_00060_00003)),
+dailydatacount_all <- df_daily_info %>% group_by(hex_id, site_no, wyear) %>% reframe(count = sum(!is.na(X_00060_00003)),
                                                                            noflowdays = sum(X_00060_00003 == 0),
                                                                            annual_noflow_fraction = noflowdays/count,
                                                                            peakdate_wy = wday[which.max(X_00060_00003)], #day of water year with peak flow
@@ -204,18 +228,45 @@ dailydatacount <- df_daily_info %>% group_by(site_no, wyear) %>% summarise(count
                                                                            )
 
 
-                                                               
-dailydatacount[dailydatacount$noflowdays >0, ]
+dailydatacount[dailydatacount$hex_id == "17530" & dailydatacount$wyear == "1948",] # OK I think
+dailydatacount[dailydatacount$hex_id == "165330" & dailydatacount$wyear == "2018",] 
 
-dailydata_10permissing <- subset(dailydatacount, dailydatacount$count < 330) #1,268 rows
+dailydatacount_gage_per_hex <- dailydatacount %>% group_by(hex_id) %>% summarize(tot_sites = length(unique(site_no)))
+dailydatacount[dailydatacount$hex_id == "19812" & dailydatacount$wyear == "1948",] 
 
+dailydatacount_0 <- dailydatacount_all[dailydatacount_all$noflowdays > 0, ]
+unique(dailydatacount_0$hex_id)
+
+dailydata_10permissing <- subset(dailydatacount_all, dailydatacount_all$count < 330) #1,254 rows
 
 
 # Omit years with 10% or more discharge data missing
-daily_data_metrics <- subset(dailydatacount, dailydatacount$count > 330)
+daily_data_metrics3 <- subset(dailydatacount_all, dailydatacount_all$count > 330)
+daily_data_metrics2 <- subset(dailydatacount_0, dailydatacount_0$count > 330)
+daily_data_metrics_all <- daily_data_metrics3 %>% group_by(hex_id, wyear) %>% summarise(count = max(count),
+                                                                                    noflowdays = max(noflowdays),
+                                                                                    annual_noflow_fraction = max(annual_noflow_fraction),
+                                                                                    peakdate_wy = min(peakdate_wy), #day of water year with peak flow
+                                                                                    lowflowdate_wy = min(lowflowdate_wy),#days of water year with lowest flow
+                                                                                    zeroflowfirst_wy = min(zeroflowfirst_wy), # , na.rm = TRUE
+                                                                                    zeroflowcentroid_wy = min(zeroflowcentroid_wy)) # , na.rm = TRUE
+daily_data_metrics_all$zeroflowfirst_wy[is.na(daily_data_metrics_all$zeroflowfirst_wy)] <- 0
 
+daily_data_metrics_0 <- daily_data_metrics2 %>% group_by(hex_id, wyear) %>% summarise(count = max(count),
+                                                                                    noflowdays = max(noflowdays),
+                                                                                    annual_noflow_fraction = max(annual_noflow_fraction),
+                                                                                    peakdate_wy = min(peakdate_wy), #day of water year with peak flow
+                                                                                    lowflowdate_wy = min(lowflowdate_wy),#days of water year with lowest flow
+                                                                                    zeroflowfirst_wy = min(zeroflowfirst_wy), # , na.rm = TRUE
+                                                                                    zeroflowcentroid_wy = min(zeroflowcentroid_wy)) # , na.rm = TRUE
+
+
+
+
+daily_data_metrics[daily_data_metrics$hex_id == "165330" & daily_data_metrics$wyear == "2018",]  
+daily_data_metrics[daily_data_metrics$hex_id == "17530" & daily_data_metrics$wyear == "1948",] 
 ###
-df_daily_info %>% group_by(site_no) %>% summarise(first_yr = min(year),
+df_daily_info %>% group_by(hex_id) %>% summarise(first_yr = min(year),
                                 last_yr = max(year),
                                 total_samps = sum(unique(year)))
 ###################################################################################################################
@@ -223,14 +274,22 @@ df_daily_info %>% group_by(site_no) %>% summarise(first_yr = min(year),
 ###################################################################################################################
 library(trend)
 library(ggplot2)
+library(tidyr)
 str(daily_data_metrics)
-write.csv(daily_data_metrics, file = 'Output/daily_data_metrics_USA.csv')
-write.csv(noflow_periods_metrics, file = 'Output/noflow_periods_metrics_USA.csv')
+#write.csv(daily_data_metrics_0, file = 'Output/daily_data_metrics_USA_Jan24.csv') # hex_ids with no flow
+#write.csv(daily_data_metrics_all, file = 'Output/ALL_daily_data_metrics_USA_Jan24.csv') 
+#write.csv(noflow_periods_metrics, file = 'Output/noflow_periods_metrics_USA_Jan24.csv')
+#write.csv(all_noflow_periods_metrics, file = 'Output/ALL_noflow_periods_metrics_USA_Jan24.csv')
 
 ?sens.slope
 ###### NO FLOW DAYS #######
+# Find duplicates
+# daily_data_metrics %>%
+#   dplyr::group_by(wyear, hex_id) %>%
+#   dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+#   dplyr::filter(n > 1L) 
 
-noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
+noflowmets <- arrange(daily_data_metrics[ , c("hex_id", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = hex_id, values_from = noflowdays)
 tail(noflowmets)
 # df.noflowmets <- as.data.frame(noflowmets[noflowmets$wyear >= 1954, ]) #why did I pick 1954?
 # Because first year of fish data is 1954.
@@ -245,9 +304,9 @@ noflow_periods_metrics
 
 
 # start with apprpriate metric
-#noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "zeroflowfirst_wy") ], wyear) %>% pivot_wider(names_from = site_no, values_from = zeroflowfirst_wy)
- #noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
-noflowmets <- arrange(noflow_periods_metrics[ , c("site_no", "wyear", "max_length_noflow") ], wyear) %>% pivot_wider(names_from = site_no, values_from = max_length_noflow)
+noflowmets <- arrange(daily_data_metrics[ , c("hex_id", "wyear", "zeroflowfirst_wy") ], wyear) %>% pivot_wider(names_from = hex_id, values_from = zeroflowfirst_wy)
+noflowmets <- arrange(daily_data_metrics[ , c("hex_id", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = hex_id, values_from = noflowdays)
+noflowmets <- arrange(noflow_periods_metrics[ , c("hex_id", "wyear", "max_length_noflow") ], wyear) %>% pivot_wider(names_from = hex_id, values_from = max_length_noflow)
 
 tail(noflowmets)
 
@@ -259,11 +318,11 @@ df.noflowmets_1980[is.na(df.noflowmets_1980)] <- 0
 
 # get rid of columns with NAs
 df.noflowmets_1980b <- df.noflowmets_1980 %>% select_if(~ !any(is.na(.)))
+unique(df.noflowmets_1980)
 
-
-sen_1980 <- data.frame(matrix(nrow = 245, ncol = 5)) #245
-colnames(sen_1980) <- c('gageID', 'slope', 'p', 'lci', 'uci')
-sen_1980$gageID <- colnames(df.noflowmets_1980b[-1])
+sen_1980 <- data.frame(matrix(nrow = ncol(df.noflowmets_1980b)-1, ncol = 5)) #163
+colnames(sen_1980) <- c('hexID', 'slope', 'p', 'lci', 'uci') #gageID
+sen_1980$hexID <- colnames(df.noflowmets_1980b[-1])
 # slope = double(),
 #                        p = double(),
 #                        lci = double(),
@@ -273,7 +332,7 @@ sen_1980$slope<- apply(df.noflowmets_1980b[,-1], 2, function(x) sens.slope(x)$es
 sen_1980$p <- apply(df.noflowmets_1980b[,-1], 2, function(x) sens.slope(x)$p.value)
 sen_1980$lci <- apply(df.noflowmets_1980b[-1], 2, function(x) sens.slope(x)$conf.int[1])
 sen_1980$uci <- apply(df.noflowmets_1980b[-1], 2, function(x) sens.slope(x)$conf.int[2])
-mean(sen_1980$slope)
+mean(sen_1980$slope, na.rm = TRUE)
 mean(sen_1980$p, na.rm = TRUE)
 mean(sen_1980$lci)
 mean(sen_1980$uci)
@@ -290,87 +349,114 @@ P <- pnorm(Z, mean = mean(sen_1980$slope), sd = sd(sen_1980$slope), lower.tail =
 
 
 
-df.1980.sen <- as.data.frame(sen_1980, stringsAsFactors = TRUE)
-rownames(df.1980.sen)
-df.1980.sen$gageID <- rownames(df.1980.sen)
-
-# b <- ggplot(df.1980.sen, aes(df.1980.sen, reorder(gageID, slope, mean)))
-# b+geom_point() + 
-#   theme_classic() +
-#   labs(x = "Sen slope", y = "GageID")
-
-gage_more_noflow80 <- df.1980.sen$gageID[df.1980.sen$sen_1980 > 0 ]
-gage_less_noflow80 <- df.1980.sen$gageID[df.1980.sen$sen_1980 < 0 ]
-
-which.watershed_more80 <- USA_subset[USA_subset$site_no %in% gage_more_noflow80, ]
-unique(which.watershed_more80$huc_cd)
-unique(which.watershed_more80$station_nm)
-
-which.watershed_less80 <- USA_subset[USA_subset$site_no %in% gage_less_noflow80, ]
-unique(which.watershed_less80$huc_cd)
-unique(which.watershed_less80$station_nm)
-
-unique(which.watershed_more80$huc_cd[which.watershed_more80$huc_cd %in% which.watershed_less80$huc_cd])
-unique(which.watershed_more80$station_nm[which.watershed_more80$huc_cd %in% which.watershed_less80$huc_cd])
-
-# vec <- unlist(noflowmets[ ,3])
-# vec2 <- vec[is.na(vec) == FALSE]
-# mk.test(vec2)
-# ovj <- mk.test(df.noflowmets[is.na(df.noflowmets[,3]) == FALSE, 3])
-
-###### NO FLOW DAYS #######
-# $ annual_noflow_fraction: num [1:15292] 0 0 0 0 0 0 0 0 0 0 ...
-# $ peakdate_wy           : num [1:15292] 235 306 307 318 311 235 230 329 310 233 ...
-# $ lowflowdate_wy        : num [1:15292] 104 44 95 71 98 61 121 99 97 138 ...
-# $ zeroflowfirst_wy      : num [1:15292] NA NA NA NA NA NA NA NA NA NA ...
-# $ zeroflowcentroid_wy
-noflowmets <- arrange(daily_data_metrics[ , c("site_no", "wyear", "noflowdays") ], wyear) %>% pivot_wider(names_from = site_no, values_from = noflowdays)
-tail(noflowmets)
-
-df.noflowmets <- as.data.frame(noflowmets)
 
 ###################################################################################################################
 ### EXPLORING TRENDS USING NET ANNUAL ANNOMALIES - following similar approach to Temp and Precip data we have 20 Oct 2022
 ####################################################################################################################
-length(unique(signal_daily$site_no)) #==500
+length(unique(signal_daily$site_no)) #==505
 head(signal_daily)
 ?Date
 ??Year
 library(ggplot2)
 library(lubridate)
 NAA <- signal_daily[signal_daily$year >= 1980, ] %>% 
-  group_by(site_no, year) %>% 
+  group_by(hex_id, site_no, year) %>% 
   summarise(NAA= sum(resid.sig, na.rm = TRUE))
-
+NAA[NAA$hex_id == "17530" & NAA$site_no == "10338500",] 
 
 # plot avg discharge anomaly boxplots with fill 
-NAA_plot <- signal_daily[signal_daily$year >= 1980, ] %>% 
-  group_by(site_no, year) %>% 
-  summarise(NAA= sum(resid.sig, na.rm = TRUE)) %>% 
-  group_by(year) %>% 
-  mutate(mean_NAA= mean(NAA)) %>% 
+# NAA_plot <- signal_daily[signal_daily$year >= 1980, ] %>% 
+#   group_by(site_no, year) %>% 
+#   summarise(NAA= sum(resid.sig, na.rm = TRUE)) %>% 
+#   group_by(year) %>% 
+#   mutate(mean_NAA= mean(NAA)) %>% 
+#   ggplot( aes(x = year, y = NAA, group = year) )+  ylim(-150, 150) +
+#   scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
+#   geom_boxplot(aes(fill = mean_NAA)) +
+#   theme_classic(base_size = 14) +
+#   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+#   xlab("Year") +
+#   ylab("Net annual discharge anomaly") +
+#   ggtitle("USA") +
+#   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1) 
+# print(NAA_plot)
+# #ggsave(NAA_plot, filename = "figures/Discharge_NAA_box_USA_Jan24.jpg", dpi = 300, height = 5, width = 7)
+# 
+# NAA_plot2 <- signal_daily[signal_daily$year >= 1980, ] %>% 
+#   group_by(site_no, year) %>% 
+#   summarise(NAA= sum(resid.sig, na.rm = TRUE)) %>% 
+#   group_by(year) %>% 
+#   mutate(median_NAA= median(NAA)) %>% 
+#   ggplot( aes(x = year, y = NAA, group = year) )+  ylim(-150, 150) +
+#   scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
+#   geom_boxplot(aes(fill = median_NAA)) +
+#   theme_classic(base_size = 14) +
+#   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+#   xlab("Year") +
+#   ylab("Net annual discharge anomaly") +
+#   ggtitle("USA") +
+#   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1) 
+# print(NAA_plot2)
+# #ggsave(NAA_plot2, filename = "figures/Discharge_NAA_box_USA_Jan24.jpg", dpi = 300, height = 5, width = 7)
+
+oj <- signal_daily[signal_daily$year >= 1980, ] %>% 
+  group_by(site_no, hex_id, year) %>% 
+  summarise(NAA= sum(resid.sig, na.rm = TRUE))
+
+write.csv(oj, "Output/NAA/USA_NAA_Jan24.csv")
+head(signal_daily)
+
+NAA_plot3 <- signal_daily[signal_daily$year >= 1980, ] %>% 
+  group_by(site_no, hex_id, year) %>% 
+  summarise(NAA= sum(resid.sig, na.rm = TRUE)) %>%
+  group_by(year) %>%
+  mutate(median_NAA= median(NAA)) %>% 
   ggplot( aes(x = year, y = NAA, group = year) )+  ylim(-150, 150) +
   scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
-  geom_boxplot(aes(fill = mean_NAA)) +
+  geom_boxplot(aes(fill = median_NAA)) +
   theme_classic(base_size = 14) +
   theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
   xlab("Year") +
   ylab("Net annual discharge anomaly") +
   ggtitle("USA") +
   geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1) 
-print(NAA_plot)
-ggsave(NAA_plot, filename = "figures/Discharge_NAA_box_USA_Sep23.jpg", dpi = 300, height = 5, width = 7)
+print(NAA_plot3)
+#ggsave(NAA_plot3, filename = "figures/Discharge_NAA_box_USA_Jan24.jpg", dpi = 300, height = 5, width = 7)
 
-# No, this is not right.
-# NAA_summ <- NAA %>%
-#   group_by(year) %>%
-#   summarise(mean_NAA= mean(NAA))
-# sens.slope(NAA_summ$mean_NAA)
+NAA_plot4 <- signal_daily[signal_daily$year >= 1980, ] %>% 
+  group_by(site_no, hex_id, year) %>% 
+  summarise(NAA= sum(resid.sig, na.rm = TRUE)) %>%
+  group_by(hex_id, year) %>%
+  summarise(med_NAA = median(NAA)) %>%
+  group_by(year) %>%
+  mutate(median_NAA= median(med_NAA)) %>% 
+  ggplot( aes(x = year, y = med_NAA, group = year) )+  ylim(-150, 150) +
+  scale_fill_viridis_c(name = "Discharge anomaly", option = "C") +
+  geom_boxplot(aes(fill = median_NAA)) +
+  theme_classic(base_size = 14) +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50")) +
+  xlab("Year") +
+  ylab("Net annual discharge anomaly") +
+  ggtitle("USA") +
+  geom_hline(yintercept = 0, color = "red", linetype = "dotted", size = 1) 
+print(NAA_plot4)
+#ggsave(NAA_plot4, filename = "figures/Discharge_NAA_box_USA_Jan24.jpg", dpi = 300, height = 5, width = 7)
+
+
+# NAA <- signal_daily[signal_daily$year >= 1980, ] %>% 
+#   group_by( site_no, year) %>% 
+#   summarise(NAA= sum(resid.sig, na.rm = TRUE))
+
+NAA <- signal_daily[signal_daily$year >= 1980, ] %>% 
+  group_by(site_no, hex_id, year) %>% 
+  summarise(NAA= sum(resid.sig, na.rm = TRUE)) %>%
+  group_by(hex_id, year) %>%
+  summarise(med_NAA = median(NAA))
 
 #alternatively and more accurately
 ?pivot_wider
 ?sens.slope
-NAA_wide <- pivot_wider(NAA, names_from = site_no, values_from = NAA)
+NAA_wide <- pivot_wider(NAA, names_from = hex_id, values_from = med_NAA)
 NAA_wider <- NAA_wide %>% select_if(~ !any(is.na(.)))
 ?rbind
 sens_NAA <- apply(NAA_wider[-1], 2, function(x) as.data.frame(rbind(sens.slope(x)$estimates, sens.slope(x)$p.value, 
@@ -397,7 +483,7 @@ SE <- (sd(sens_NAA$slope)/sqrt(length(sens_NAA$slope)))
 mean(sens_NAA$slope) + (1.96*(sd(sens_NAA$slope)/sqrt(length(sens_NAA$slope))))
 mean(sens_NAA$slope) - (1.96*(sd(sens_NAA$slope)/sqrt(length(sens_NAA$slope))))
 Z <- mean(sens_NAA$slope)/SE
-P <- pnorm(Z, mean = mean(sens_NAA$slope), sd = sd(sens_NAA$slope), lower.tail = FALSE)
+P <-1-pnorm(Z, mean = mean(sens_NAA$slope), sd = sd(sens_NAA$slope), lower.tail = FALSE)
 P <- pnorm(Z, mean = mean(sen_1980$slope), sd = sd(sen_1980$slope), lower.tail = FALSE)
 # Next time look at plots for larger catchment regions - see if some regional differences are being masked by the whole.
 # Also want to do this for Australia, and still look at Kendall stat or Mann-Kendall

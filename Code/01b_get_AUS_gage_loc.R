@@ -107,7 +107,8 @@ library(fasstr)
 library(stringr)
 library(tidyhydat)
 library(lubridate)
-# 254 is 5204251 Darling River gage so is 253. 252 is Paroo river Willara Crossing
+library(dataRetrieval)
+# Arid 254 is 5204251 Darling River gage so is 253. 252 is Paroo river Willara Crossing
 # On AUS site it's 424002 http://www.bom.gov.au/water/hrs/#panel=data-download&id=105105A&pill=daily
 AUS_gage_files
 AUS_split <- cbind(str_sub(AUS_gage_files[[252]][c(37:nrow(AUS_gage_files[[252]])), ], start = 1, end = 10),
@@ -119,17 +120,21 @@ str(AUS_gage_Darling)
 AUS_gage_Darling$discharge <- as.numeric(AUS_gage_Darling$discharge)
 
 
-plot_daily_stats(AUS_gage_Darling, values = discharge, ignore_missing = TRUE)
+third <- plot_daily_stats(AUS_gage_Darling, values = discharge, ignore_missing = TRUE)
 
 # Now for forest/woodlands example in USA
-rawDailyData <-readNWISdv("07249985", parameterCd = "00060")
-head(rawDailyData)
-plot_daily_stats(rawDailyData, dates = Date, values = X_00060_00003, ignore_missing = TRUE)
+# rawDailyData <-readNWISdv("07249985", parameterCd = "00060")
+# head(rawDailyData)
+# OK <- rawDailyData
+# OK$cms <- OK$X_00060_00003*0.0283168466
+# plot_daily_stats(OK, dates = Date, values = cms, ignore_missing = TRUE)
 
 
 
 rawDailyData <-readNWISdv("07335700", parameterCd = "00060")
 head(rawDailyData)
+OK <- rawDailyData
+OK$cms <- OK$X_00060_00003*0.0283168466
 plot_daily_stats(rawDailyData, dates = Date, values = X_00060_00003, ignore_missing = TRUE)
 
 # rawDailyData <-readNWISdv("07105945", parameterCd = "00060") #Not looking seasonal
@@ -155,7 +160,7 @@ arctic2$value <- as.numeric(arctic2$Value)
 length(arctic2$value)
 arctic2$value[is.na(arctic2$value) == TRUE] <- 0.00
 plot_daily_stats(arctic2, dates = date, values = value, ignore_missing = TRUE)
-plot_daily_stats(station_number = "10MD002", ignore_missing = TRUE)
+fourth<-plot_daily_stats(station_number = "10MD002", ignore_missing = TRUE)
 
 # Tropics
 trop <- read.csv("Data/ot_gages/1726100.txt", header = FALSE)
@@ -169,7 +174,7 @@ head(tropica_Be)
 tropica_Be$discharge <- as.numeric(tropica_Be$discharge)
 tropica_Be$discharge[tropica_Be$discharge == "-999"] <- NA
 
-plot_daily_stats(tropica_Be, dates = Date, values = discharge, ignore_missing = TRUE)
+first<-plot_daily_stats(tropica_Be, dates = Date, values = discharge, ignore_missing = TRUE)
 
 # Sub tropical
 # 5101075 subtropical Australia in GRDC is 105105A in AUS gov website
@@ -182,3 +187,14 @@ head(AUS_gage_2)
 str(AUS_gage_2)
 AUS_gage_2$discharge <- as.numeric(AUS_gage_2$discharge)
 plot_daily_stats(AUS_gage_2, values = discharge, ignore_missing = TRUE)
+?plot_daily_stats
+
+# Altogether now
+library(ggplot2)
+pdf(file = "Figures/BIOME_preposal.pdf", width = 7.2, height = 7)
+par(mar = c(3.5, 1.6, 1.5, 1.0), oma =c(0,3.5,0,0), mfrow = c(2,2))
+first
+second
+third
+fourth
+dev.off()
