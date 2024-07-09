@@ -6,6 +6,8 @@ library(ggvenn)
 library(coin)
 library(rcompanion)
 library(FSA)
+library(tidyr)
+library(dplyr)
 
 # load traits data
 # traits <- read.csv("Data/allaridtraits.csv", header = TRUE)
@@ -25,11 +27,12 @@ traits$danger <-
          1)
 head(traits)
 
-# write.csv(traits, "Data/fishstatus3.csv")
+
 
 # only danger
-dangerfish <- traits %>%
+dangerfish <- traits |>
   filter(danger == 1)
+# write.csv(dangerfish, "Data/dangerfish.csv")
 
 # rest of the fishes
 rest <- traits %>%
